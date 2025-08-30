@@ -1,14 +1,19 @@
+using LBB.OC.Reservation.ViewModels;
+using LBB.Reservation.Infrastructure.Context;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using OrchardCore.Data;
 using OrchardCore.Environment.Shell;
 using OrchardCore.Environment.Shell.Builders;
+using YesSql;
 
 namespace LBB.OC.Reservation.Controllers;
 
-public sealed class HomeController(ShellSettings settings) : Controller
+public sealed class HomeController(LbbDbContext context) : Controller
 {
-    public ActionResult Index()
+    public async Task<ActionResult> Index()
     {
-        var connectionString = settings.ShellConfiguration["ConnectionString"];
-        return View();
+        var sessions = await context.Sessions.ToListAsync();
+        return View(new IndexVM(sessions));
     }
 }

@@ -18,4 +18,29 @@
         <PackageReference Include="OrchardCore.DisplayManagement" Version="2.2.0"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\LBB.Core\LBB.Core.csproj" />
+      <ProjectReference Include="..\LBB.Reservation.Application\LBB.Reservation.Application.csproj" />
+      <ProjectReference Include="..\LBB.Reservation.Domain\LBB.Reservation.Domain.csproj" />
+      <ProjectReference Include="..\LBB.Reservation.Infrastructure\LBB.Reservation.Infrastructure.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="Resources\js\modal.js">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <Content Include="Views\_ViewImports.cshtml" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <RazorGenerate Remove="Views\Home\Partials\_ExampleDialogBody.cshtml" />
+      <RazorGenerate Remove="Views\Home\Partials\_ExampleDialogFooter.cshtml" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Update="Resources\js\modal.js">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </EmbeddedResource>
+    </ItemGroup>
+
 </Project>

@@ -15,6 +15,7 @@ builder.Services
 
 var app = builder.Build();
 
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
@@ -26,5 +27,6 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseOrchardCore();
+app.MapGet("/", () => Results.Redirect("Home/Index"));
 
 app.Run();

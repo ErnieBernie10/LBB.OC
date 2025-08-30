@@ -1,1 +1,40 @@
-﻿Template
+﻿@model LBB.OC.Reservation.ViewModels.IndexVM
+@{
+    Layout = "_Layout";
+}
+
+<div x-data="Modal" id="modal">
+    <button @@click="open">Open Modal</button>
+
+    <dialog :open="isOpen">
+        <article>
+            <header>
+                <button aria-label="Close" rel="prev" @@click="close"></button>
+                <h3>Modal Title</h3>
+            </header>
+            <p>This is the modal content. You can put any content here.</p>
+            <footer>
+                <button class="secondary" @@click="close">Cancel</button>
+                <button @@click="close">Confirm</button>
+            </footer>
+        </article>
+    </dialog>
+</div>
+
+<table>
+    <thead>
+    <tr>
+        <th>Id</th>
+        <th>Title</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var session in Model.Sessions)
+    {
+        <tr>
+            <td>@session.Id</td>
+            <td>@session.Title</td>
+        </tr>
+    }
+    </tbody>
+</table>
