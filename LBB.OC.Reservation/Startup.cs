@@ -31,12 +31,15 @@ public sealed class Startup : StartupBase
             options.UseSqlite(connectionString);
         });
 
-        services.AddTransient<IConfigureOptions<ResourceManagementOptions>, ResourceManifestOptionsConfiguration>();
     }
 
     public override void Configure(IApplicationBuilder builder, IEndpointRouteBuilder routes,
         IServiceProvider serviceProvider)
     {
+
+        builder.UseStaticFiles();
+        builder.UseAntiforgery();
+
         routes.MapAreaControllerRoute(
             name: "Reservation_Home",
             areaName: "LBB.OC.Reservation",

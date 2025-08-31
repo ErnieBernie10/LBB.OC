@@ -12,26 +12,23 @@
 
     <title>@title</title>
 
-    <!-- PicoCSS CDN -->
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/@@picocss/pico@2/css/pico.min.css"
-    >
-    <script asp-name="modal"></script>
-
     <!-- Orchard Core resources (scripts, styles from modules/widgets) -->
     @await RenderSectionAsync("HeadMeta", required: false)
     @await RenderSectionAsync("HeadLinks", required: false)
     @await RenderSectionAsync("HeadScripts", required: false)
+
+    <resources type="Stylesheet" names="bootstrap" />
+    <resources type="Stylesheet" />
+    <resources type="HeadScript" />
 </head>
 <body>
     <main class="container">
         @RenderBody()
     </main>
 
-    <script defer src="https://cdn.jsdelivr.net/npm/@@imacrayon/alpine-ajax@0.12.4/dist/cdn.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
     <!-- Orchard Core footer scripts -->
+    <resources type="FootScript" names="bootstrap" />
+    <resources type="FootScript" />
     @await RenderSectionAsync("Footer", required: false)
 </body>
 </html>
