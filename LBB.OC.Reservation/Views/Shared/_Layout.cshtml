@@ -11,8 +11,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>@title</title>
+    <script at="Foot" asp-name="alpine-ajax"></script>
+    <script at="Foot" asp-name="alpine"></script>
 
-    <!-- Orchard Core resources (scripts, styles from modules/widgets) -->
     @await RenderSectionAsync("HeadMeta", required: false)
     @await RenderSectionAsync("HeadLinks", required: false)
     @await RenderSectionAsync("HeadScripts", required: false)
@@ -26,9 +27,9 @@
         @RenderBody()
     </main>
 
-    <!-- Orchard Core footer scripts -->
     <resources type="FootScript" names="bootstrap" />
     <resources type="FootScript" />
+
     @await RenderSectionAsync("Footer", required: false)
 </body>
 </html>

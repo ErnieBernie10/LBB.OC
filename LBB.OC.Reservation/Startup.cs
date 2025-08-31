@@ -31,6 +31,26 @@ public sealed class Startup : StartupBase
             options.UseSqlite(connectionString);
         });
 
+        // Register Alpine.js resources
+        services.Configure<ResourceManagementOptions>(options =>
+        {
+            var manifest = new ResourceManifest();
+
+            manifest.DefineScript("alpinejs")
+                .SetUrl("https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js")
+                .SetCdn("https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js")
+                .SetVersion("3.14.1")
+                .SetAttribute("defer", "defer");
+
+            manifest.DefineScript("alpine-ajax")
+                .SetUrl("https://cdn.jsdelivr.net/npm/@imacrayon/alpine-ajax@0.12.4/dist/cdn.min.js")
+                .SetCdn("https://cdn.jsdelivr.net/npm/@imacrayon/alpine-ajax@0.12.4/dist/cdn.min.js")
+                .SetVersion("0.12.4")
+                .SetDependencies("alpinejs")
+                .SetAttribute("defer", "defer");
+
+            options.ResourceManifests.Add(manifest);
+        });
     }
 
     public override void Configure(IApplicationBuilder builder, IEndpointRouteBuilder routes,
