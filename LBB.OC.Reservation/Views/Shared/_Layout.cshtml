@@ -12,24 +12,26 @@
 
     <title>@title</title>
     <script at="Foot" asp-name="alpine-ajax"></script>
-    <script at="Foot" asp-name="alpine"></script>
+    <script at="Foot" asp-name="alpinejs"></script>
+    <script at="Foot" asp-name="bootstrap"></script>
+    <style asp-name="bootstrap"></style>
 
     @await RenderSectionAsync("HeadMeta", required: false)
     @await RenderSectionAsync("HeadLinks", required: false)
     @await RenderSectionAsync("HeadScripts", required: false)
 
-    <resources type="Stylesheet" names="bootstrap" />
-    <resources type="Stylesheet" />
+    <resources type="Meta" />
+    <resources type="HeadLink" />
     <resources type="HeadScript" />
+    <resources type="Stylesheet" />
 </head>
 <body>
     <main class="container">
         @RenderBody()
     </main>
 
-    <resources type="FootScript" names="bootstrap" />
-    <resources type="FootScript" />
-
     @await RenderSectionAsync("Footer", required: false)
+
+    <resources type="FootScript" />
 </body>
 </html>
