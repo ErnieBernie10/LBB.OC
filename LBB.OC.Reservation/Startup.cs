@@ -46,7 +46,6 @@ public sealed class Startup : StartupBase
                 .SetUrl("https://cdn.jsdelivr.net/npm/@imacrayon/alpine-ajax@0.12.4/dist/cdn.min.js")
                 .SetCdn("https://cdn.jsdelivr.net/npm/@imacrayon/alpine-ajax@0.12.4/dist/cdn.min.js")
                 .SetVersion("0.12.4")
-                .SetDependencies("alpinejs")
                 .SetAttribute("defer", "defer");
 
             options.ResourceManifests.Add(manifest);

@@ -27,8 +27,8 @@
 
     <ItemGroup>
       <Content Include="Views\Shared\Session\_CreateSession.cshtml" />
-      <Content Include="Views\Shared\Session\_CreateSessionSuccess.cshtml" />
       <Content Include="Views\_ViewImports.cshtml" />
+      <Content Include="Views\_ViewStart.cshtml" />
     </ItemGroup>
 
     <ItemGroup>

@@ -1,7 +1,7 @@
 @model LBB.OC.Reservation.ViewModels.Session.CreateSessionVM
 
 <div id="createSession">
-<form asp-controller="Home" asp-action="CreateSession" method="post" x-target="#createSession">
+<form asp-controller="Home" asp-action="CreateSession" method="post" x-target="createSession">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -11,8 +11,8 @@
             <div class="modal-body">
                 <div class="form-group">
                     @Html.LabelFor(vm => vm.Form.Title, new { @class = "form-control-label"})
-                    @Html.ValidationMessageFor(vm => vm.Form.Title)
                     @Html.TextBoxFor(vm => vm.Form.Title, new { @class = "form-control"})
+                    @Html.ValidationMessageFor(vm => vm.Form.Title)
                 </div>
             </div>
             <div class="modal-footer">
