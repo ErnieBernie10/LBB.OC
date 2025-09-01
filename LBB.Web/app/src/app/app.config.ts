@@ -20,6 +20,6 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideAnimationsAsync(),
     provideHttpClient(withInterceptors([xsrfInterceptor])),
-    provideAppInitializer(async () => await inject(AuthService).setCurrentUser()),
+    provideAppInitializer(async () => await inject(AuthService).init()),
   ],
 };

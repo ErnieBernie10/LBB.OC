@@ -14,6 +14,21 @@
           <li><a routerLink="/reservations">Reservaties</a></li>
           <li><a routerLink="/scheduler">Planner</a></li>
         </ul>
+        <ul>
+          <li>
+            <details class="dropdown">
+              <summary>{{ authService.user?.username }}</summary>
+              <ul>
+                <li>
+                  <form method="post" action="/Users/LogOff" class="reset">
+                    <a href="#" onclick="this.closest('form').submit(); return false;">Logoff</a>
+                    <app-csrf />
+                  </form>
+                </li>
+              </ul>
+            </details>
+          </li>
+        </ul>
       </nav>
       <router-outlet />
     </main>
