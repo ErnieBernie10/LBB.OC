@@ -4,6 +4,7 @@ using OrchardCore.Environment.Shell;
 
 namespace LBB.OC.Reservation.Controllers
 {
+    [ApiController]
     [Route(Constants.ModuleBasePath)]
     public class HomeController : ControllerBase
     {

@@ -1,32 +1,30 @@
 import { Component, inject } from '@angular/core';
 import { Appointment, Scheduler as SchedulerC } from '../../components/scheduler/scheduler';
-import { Modal, ModalContent, ModalFooter, ModalHeader } from '../../components/modal/modal';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { InvalidPipe } from '../../pipes/invalid-pipe';
-import { CreateSessionCommandSchema } from '../../api/schemas.gen';
-import { buildValidations } from '../../validation/buildValidations';
-import { FormInput } from '../../components/input-errors/form-input';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SessionService, WithState } from '../../services/session.service';
 import { BehaviorSubject, map, Observable, take } from 'rxjs';
-import { AsyncPipe } from '@angular/common';
 import { switchMap } from 'rxjs/operators';
-import { Alert } from '../../components/alert/alert';
 import { toFormDate } from '../../util/dateutils';
 import { AuthService } from '../../services/auth.service';
+import { FormInput } from '../../components/input-errors/form-input';
+import { Modal, ModalContent, ModalFooter, ModalHeader } from '../../components/modal/modal';
+import { InvalidPipe } from '../../pipes/invalid-pipe';
+import { AsyncPipe } from '@angular/common';
+import { Alert } from '../../components/alert/alert';
 
 @Component({
   selector: 'app-scheduler-page',
   imports: [
-    SchedulerC,
-    Modal,
-    ModalFooter,
-    ModalHeader,
-    ModalContent,
     ReactiveFormsModule,
-    InvalidPipe,
     FormInput,
+    ModalContent,
+    Modal,
+    ModalHeader,
+    InvalidPipe,
+    ModalFooter,
     AsyncPipe,
     Alert,
+    SchedulerC,
   ],
   templateUrl: './scheduler.html',
   styleUrl: './scheduler.scss',
@@ -45,7 +43,9 @@ export class Scheduler {
     map((sessions) => {
       return {
         ...sessions,
+        // @ts-expect-error
         data: (sessions.data?.items ?? []).map(
+          // @ts-expect-error
           (session) =>
             ({
               id: session.id,
@@ -62,13 +62,13 @@ export class Scheduler {
   private formBuilder = new FormBuilder().nonNullable;
   public appointmentForm = this.formBuilder.group({
     id: [undefined as string | undefined],
-    title: ['', buildValidations('title', CreateSessionCommandSchema)],
-    description: ['', buildValidations('description', CreateSessionCommandSchema)],
-    location: ['', buildValidations('location', CreateSessionCommandSchema)],
-    start: ['', buildValidations('start', CreateSessionCommandSchema)],
-    end: ['', buildValidations('end', CreateSessionCommandSchema)],
-    type: ['Individual', buildValidations('type', CreateSessionCommandSchema)],
-    capacity: [12, buildValidations('capacity', CreateSessionCommandSchema)],
+    title: ['', Validators.required],
+    description: [''],
+    location: [''],
+    start: ['', Validators.required],
+    end: ['', Validators.required],
+    type: ['Individual', Validators.required],
+    capacity: [12],
   });
 
   public get title() {
@@ -125,7 +125,6 @@ export class Scheduler {
         .createSession({
           ...value,
           type: value.type === 'Individual' ? 'Individual' : 'Group',
-          tenantId: this.authService.user!.tenantId,
         })
         .subscribe({
           error: () => {
