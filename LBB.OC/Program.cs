@@ -27,6 +27,6 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseOrchardCore();
-// app.MapGet("/", () => Results.Redirect("Home/Index"));
+app.MapGet("/", () => Results.Redirect("reservation"));
 
 app.Run();

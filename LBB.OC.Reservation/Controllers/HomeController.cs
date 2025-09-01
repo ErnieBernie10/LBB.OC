@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OrchardCore.Environment.Shell;
 
@@ -20,6 +21,7 @@ namespace LBB.OC.Reservation.Controllers
         // If "anything" looks like a static asset (has an extension), redirect to root ("/...") so it is served by static files.
         [HttpGet("")]
         [HttpGet("{*slug}")]
+        [Authorize(Constants.Policies.ManageReservations)]
         public IActionResult Index(string? slug)
         {
             // If a file extension is present (e.g., .js, .css, .png), redirect to the root so StaticFiles serves it.

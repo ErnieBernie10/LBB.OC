@@ -4,13 +4,12 @@ import {
   RouterOutlet,
   bootstrapApplication,
   provideRouter
-} from "./chunk-KBKRZ7XZ.js";
+} from "./chunk-35JJGJVE.js";
 import {
-  AuthService,
   provideHttpClient,
   withInterceptors
-} from "./chunk-IEQ6E7KU.js";
-import "./chunk-HOUIYHUZ.js";
+} from "./chunk-IXWTYFU2.js";
+import "./chunk-ABNVDUIW.js";
 import {
   ANIMATION_MODULE_TYPE,
   ChangeDetectionScheduler,
@@ -22,19 +21,12 @@ import {
   NgZone,
   RendererFactory2,
   RuntimeError,
-  catchError,
-  finalize,
-  firstValueFrom,
   inject,
   makeEnvironmentProviders,
-  of,
   performanceMarkFeature,
-  provideAppInitializer,
   provideBrowserGlobalErrorListeners,
   provideZoneChangeDetection,
   setClassMetadata,
-  shareReplay,
-  switchMap,
   ɵsetClassDebugInfo,
   ɵɵdefineComponent,
   ɵɵdefineInjectable,
@@ -43,7 +35,7 @@ import {
   ɵɵelementStart,
   ɵɵinvalidFactory,
   ɵɵtext
-} from "./chunk-TXVF2NYV.js";
+} from "./chunk-6MVD4A56.js";
 
 // src/app/app.routes.ts
 var routes = [
@@ -54,19 +46,19 @@ var routes = [
   },
   {
     path: "login",
-    loadComponent: () => import("./chunk-TBL4H6LV.js").then((m) => m.Login)
+    loadComponent: () => import("./chunk-SA3ENWNJ.js").then((m) => m.Login)
   },
   {
     path: "home",
-    loadComponent: () => import("./chunk-GCZF55FZ.js").then((m) => m.Home)
+    loadComponent: () => import("./chunk-UTHLPQ7F.js").then((m) => m.Home)
   },
   {
     path: "scheduler",
-    loadComponent: () => import("./chunk-AW6S7OGC.js").then((m) => m.Scheduler)
+    loadComponent: () => import("./chunk-VA5VCAOP.js").then((m) => m.Scheduler)
   },
   {
     path: "reservations",
-    loadComponent: () => import("./chunk-43QWDZCO.js").then((m) => m.Reservations)
+    loadComponent: () => import("./chunk-LBJJSP7H.js").then((m) => m.Reservations)
   }
 ];
 
@@ -104,7 +96,7 @@ var AsyncAnimationRendererFactory = class _AsyncAnimationRendererFactory {
    * @internal
    */
   loadImpl() {
-    const loadFn = () => this.moduleImpl ?? import("./chunk-HFMZBW6U.js").then((m) => m);
+    const loadFn = () => this.moduleImpl ?? import("./chunk-EOEQNA4C.js").then((m) => m);
     let moduleImplPromise;
     if (this.loadingSchedulerFn) {
       moduleImplPromise = this.loadingSchedulerFn(loadFn);
@@ -307,46 +299,20 @@ function provideAnimationsAsync(type = "animations") {
   }]);
 }
 
-// src/app/interceptors/auth-interceptor.ts
-var refreshInFlight$ = null;
-var authInterceptor = (req, next) => {
-  const authService = inject(AuthService);
-  const withAuth = (r, token) => r.clone({
-    setHeaders: {
-      Authorization: `Bearer ${token}`
-    }
-  });
-  const isTokenExpiringSoon = (thresholdMs = 6e4) => {
-    if (!authService.token)
-      return false;
-    if (!authService.expiration)
-      return false;
-    return Date.now() + thresholdMs >= authService.expiration.getTime();
-  };
-  const isRefreshRequest = req.url.includes("/refresh");
-  if (isRefreshRequest) {
-    const forwarded = authService.token ? withAuth(req, authService.token) : req;
-    return next(forwarded);
+// src/app/interceptors/xsrf-interceptor.ts
+var xsrfInterceptor = (req, next) => {
+  if (["GET", "HEAD", "OPTIONS"].includes(req.method.toUpperCase())) {
+    return next(req);
   }
-  if (!isTokenExpiringSoon()) {
-    return next(withAuth(req, authService.token));
+  const cookie = document.cookie.split("; ").find((row) => row.toLowerCase().startsWith("__orchantiforgery_"));
+  if (cookie) {
+    const [cookieName, cookieValue] = cookie.split("=");
+    const cloned = req.clone({
+      setHeaders: { [cookieName]: decodeURIComponent(cookieValue) }
+    });
+    return next(cloned);
   }
-  if (!refreshInFlight$) {
-    refreshInFlight$ = authService.refreshToken().pipe(
-      // We only need completion; errors are handled below
-      switchMap(() => of(void 0)),
-      shareReplay(1),
-      finalize(() => {
-        refreshInFlight$ = null;
-      })
-    );
-  }
-  return refreshInFlight$.pipe(
-    // After refresh, attach the new token and continue the original request
-    switchMap(() => next(withAuth(req, authService.token))),
-    // If refresh fails, forward the original request without modifying it (or you can handle logout)
-    catchError(() => next(req))
-  );
+  return next(req);
 };
 
 // src/app/app.config.ts
@@ -356,11 +322,7 @@ var appConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideAnimationsAsync(),
-    provideHttpClient(withInterceptors([authInterceptor])),
-    provideAppInitializer(() => firstValueFrom(inject(AuthService).refreshToken().pipe(
-      // Do not block app bootstrap on refresh failures
-      catchError(() => of(null))
-    )))
+    provideHttpClient(withInterceptors([xsrfInterceptor]))
   ]
 };
 

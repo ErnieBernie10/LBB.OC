@@ -8,7 +8,7 @@ namespace LBB.OC.Reservation.Controllers;
 public class SessionController : ControllerBase
 {
     [HttpGet]
-    [Authorize(Policy = Constants.Policies.ManageReservations)]
+    [Authorize(Constants.Policies.ManageReservations)]
     public IActionResult GetSessions()
     {
         return Ok();

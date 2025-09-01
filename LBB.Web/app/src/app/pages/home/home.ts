@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { environment } from '../../../environments/environment';
+import { Component, inject, OnInit } from '@angular/core';
+import { PlatformLocation } from '@angular/common';
 
 @Component({
   selector: 'app-home-page',
@@ -8,8 +8,9 @@ import { environment } from '../../../environments/environment';
   styleUrl: './home.scss',
 })
 export class Home implements OnInit {
+  platformLocation = inject(PlatformLocation);
   ngOnInit(): void {
-    fetch(environment.apiUrl + '/sessions')
+    fetch(this.platformLocation.getBaseHrefFromDOM() + 'sessions')
       .then((res) => res.json())
       .then((json) => {
         console.log(json);
