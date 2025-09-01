@@ -36,25 +36,8 @@ public sealed class Startup : StartupBase
             options.UseSqlite(connectionString);
         });
 
-        // Register Alpine.js resources
-        services.Configure<ResourceManagementOptions>(options =>
-        {
-            var manifest = new ResourceManifest();
-
-            manifest.DefineScript("alpinejs")
-                .SetUrl("https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js")
-                .SetCdn("https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js")
-                .SetVersion("3.14.1")
-                .SetAttribute("defer", "defer");
-
-            manifest.DefineScript("alpine-ajax")
-                .SetUrl("https://cdn.jsdelivr.net/npm/@imacrayon/alpine-ajax@0.12.4/dist/cdn.min.js")
-                .SetCdn("https://cdn.jsdelivr.net/npm/@imacrayon/alpine-ajax@0.12.4/dist/cdn.min.js")
-                .SetVersion("0.12.4")
-                .SetAttribute("defer", "defer");
-
-            options.ResourceManifests.Add(manifest);
-        });
+        // Cache SPA index.html in memory once (singleton)
+        services.AddSingleton<ISpaProvider, SpaProvider>();
     }
 
     private string GetModuleWebRoot(IWebHostEnvironment? env)
@@ -75,10 +58,10 @@ public sealed class Startup : StartupBase
         builder.Use(async (context, next) =>
         {
             if (HttpMethods.IsGet(context.Request.Method) &&
-                string.Equals(context.Request.Path.Value, "/reservation", StringComparison.OrdinalIgnoreCase))
+                string.Equals(context.Request.Path.Value, $"/{Constants.ModuleBasePath}", StringComparison.OrdinalIgnoreCase))
             {
                 var qs = context.Request.QueryString.HasValue ? context.Request.QueryString.Value : string.Empty;
-                context.Response.Redirect($"{context.Request.PathBase}/reservation/{qs}", permanent: false);
+                context.Response.Redirect($"{context.Request.PathBase}/{Constants.ModuleBasePath}/{qs}", permanent: false);
                 return;
             }
 
@@ -96,7 +79,7 @@ public sealed class Startup : StartupBase
         routes.MapAreaControllerRoute(
             name: "ReservationSpa",
             areaName: "LBB.OC.Reservation",
-            pattern: "reservation/{**slug}",
+            pattern: Constants.ModuleBasePath + "/{**slug}",
             defaults: new { controller = "Home", action = "Index" });
     }
 }
