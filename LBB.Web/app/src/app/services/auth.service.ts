@@ -1,8 +1,8 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { AuthenticatedResponseDto, PostLoginData, PostRefreshData } from '../api';
-import { clientOptions } from '../client';
 import { tap } from 'rxjs';
+import { PlatformLocation } from '@angular/common';
 
 interface User {
   email: string;
@@ -15,6 +15,8 @@ interface User {
 })
 export class AuthService {
   private client: HttpClient = inject(HttpClient);
+  private platformLocation: PlatformLocation = inject(PlatformLocation);
+  private baseUrl: string = this.platformLocation.getBaseHrefFromDOM();
 
   public token: string = '';
   public expiration: Date = new Date();
@@ -30,7 +32,7 @@ export class AuthService {
     };
 
     return this.client
-      .post<AuthenticatedResponseDto>(clientOptions.baseUrl + url, body, { withCredentials: true })
+      .post<AuthenticatedResponseDto>(this.baseUrl + url, body, { withCredentials: true })
       .pipe(tap(this.setAuthenticationState));
   }
 
@@ -41,7 +43,7 @@ export class AuthService {
 
     return this.client
       .post<AuthenticatedResponseDto>(
-        clientOptions.baseUrl + url,
+        this.baseUrl + url,
         {},
         {
           withCredentials: true,

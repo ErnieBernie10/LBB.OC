@@ -7,9 +7,9 @@ import {
   GetApiSessionsResponse,
   PostApiSessionsData,
 } from '../api';
-import { clientOptions } from '../client';
 import { catchError, map, mergeMap, Observable, of, startWith } from 'rxjs';
 import { AuthService } from './auth.service';
+import { PlatformLocation } from '@angular/common';
 
 export interface WithState<T> {
   data?: T;
@@ -23,6 +23,8 @@ export interface WithState<T> {
 export class SessionService {
   private client: HttpClient = inject(HttpClient);
   private authService: AuthService = inject(AuthService);
+  private platformLocation: PlatformLocation = inject(PlatformLocation);
+  private baseUrl = this.platformLocation.getBaseHrefFromDOM();
 
   public createSession(session: CreateSessionCommand) {
     const { body, url }: PostApiSessionsData = {
@@ -30,7 +32,7 @@ export class SessionService {
       url: '/api/sessions',
     };
 
-    return this.client.post(clientOptions.baseUrl + url, body, {
+    return this.client.post(this.baseUrl + url, body, {
       headers: { Authorization: 'Bearer ' + this.authService.token },
       withCredentials: true,
     });
@@ -41,7 +43,7 @@ export class SessionService {
       mergeMap((range) =>
         this.client
           .get<GetApiSessionsResponse>(
-            `${clientOptions.baseUrl}/api/sessions?from=${range.start.toISOString()}&until=${range.end.toISOString()}`,
+            `${this.baseUrl}/api/sessions?from=${range.start.toISOString()}&until=${range.end.toISOString()}`,
             { headers: { Authorization: 'Bearer ' + this.authService.token } }
           )
           .pipe(
@@ -68,10 +70,10 @@ export class SessionService {
   }
 
   public updateSession(id: string, session: EditSessionCommand) {
-    return this.client.put(clientOptions.baseUrl + `/api/sessions/${id}`, session);
+    return this.client.put(this.baseUrl + `/api/sessions/${id}`, session);
   }
 
   public getSession(id: string) {
-    return this.client.get<GetApiSessionsByIdResponse>(`${clientOptions.baseUrl}/api/sessions/${id}`);
+    return this.client.get<GetApiSessionsByIdResponse>(`${this.baseUrl}/api/sessions/${id}`);
   }
 }
