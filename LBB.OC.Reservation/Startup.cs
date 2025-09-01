@@ -5,6 +5,8 @@ using LBB.Core;
 using LBB.OC.Reservation.Migrations;
 using LBB.Reservation.Infrastructure.Context;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,10 +14,10 @@ using Microsoft.Extensions.Options;
 using OrchardCore.Data;
 using OrchardCore.Data.Migration;
 using OrchardCore.Environment.Shell;
-using OrchardCore.Modules;
 using OrchardCore.ResourceManagement;
 using YesSql;
 using Microsoft.Extensions.FileProviders;
+using StartupBase = OrchardCore.Modules.StartupBase;
 
 namespace LBB.OC.Reservation;
 
@@ -55,35 +57,46 @@ public sealed class Startup : StartupBase
         });
     }
 
+    private string GetModuleWebRoot(IWebHostEnvironment? env)
+    {
+        if (env == null)
+            return string.Empty;
+
+        var ocRoot = env.ContentRootPath;
+        return Path.Combine(ocRoot, "../LBB.OC.Reservation/wwwroot");
+    }
+
     public override void Configure(IApplicationBuilder builder, IEndpointRouteBuilder routes,
         IServiceProvider serviceProvider)
     {
         builder.UseAntiforgery();
 
-        // Serve SPA from a dedicated request path to avoid collisions with Orchard routes,
-        // and to behave consistently in sub-tenants with URL prefixes.
-        var requestPath = "/reservation";
-
-        // Default files (serves index.html at /reservation)
-        builder.UseDefaultFiles(new DefaultFilesOptions
+        // Redirect /reservation -> /reservation/ (tenant-aware via PathBase)
+        builder.Use(async (context, next) =>
         {
-            RequestPath = requestPath,
-            FileProvider = new SpaFileProvider(serviceProvider.GetRequiredService<IApplicationContext>()),
-            // DefaultFileNames already includes "index.html", but we rely on our provider anyway.
+            if (HttpMethods.IsGet(context.Request.Method) &&
+                string.Equals(context.Request.Path.Value, "/reservation", StringComparison.OrdinalIgnoreCase))
+            {
+                var qs = context.Request.QueryString.HasValue ? context.Request.QueryString.Value : string.Empty;
+                context.Response.Redirect($"{context.Request.PathBase}/reservation/{qs}", permanent: false);
+                return;
+            }
+
+            await next();
         });
 
-        // Static files for SPA assets under /reservation (js/css/img, etc.)
+        var env = serviceProvider.GetService<IWebHostEnvironment>();
+
         builder.UseStaticFiles(new StaticFileOptions
         {
-            RequestPath = requestPath,
-            FileProvider = new SpaFileProvider(serviceProvider.GetRequiredService<IApplicationContext>())
+            FileProvider = new PhysicalFileProvider(GetModuleWebRoot(env))
         });
 
-        // Optional: client-side routing fallback for deep links under /reservation/**
-        // routes.MapAreaControllerRoute(
-        //     name: "ReservationSpa",
-        //     areaName: "LBB.OC.Reservation",
-        //     pattern: "reservation/{**slug}",
-        //     defaults: new { controller = "Home", action = "Index" });
+        // Explicit SPA fallback route for both default and prefixed tenants.
+        routes.MapAreaControllerRoute(
+            name: "ReservationSpa",
+            areaName: "LBB.OC.Reservation",
+            pattern: "reservation/{**slug}",
+            defaults: new { controller = "Home", action = "Index" });
     }
 }

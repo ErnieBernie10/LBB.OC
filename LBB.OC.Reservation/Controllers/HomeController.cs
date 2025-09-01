@@ -1,7 +1,5 @@
-using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
-using OrchardCore.Environment.Extensions;
 
 namespace LBB.OC.Reservation.Controllers
 {
@@ -10,25 +8,34 @@ namespace LBB.OC.Reservation.Controllers
     {
         private readonly IWebHostEnvironment _env;
 
-        public HomeController(IWebHostEnvironment   env)
+        public HomeController(IWebHostEnvironment env)
         {
             _env = env;
         }
 
-        // Serves /reservation and any client-side route under it (e.g., /reservation/users/123)
+        // GET /reservation
+        // GET /reservation/{anything}
+        // If "anything" looks like a static asset (has an extension), redirect to root ("/...") so it is served by static files.
         [HttpGet("")]
         [HttpGet("{*slug}")]
-        public IActionResult Index()
+        public IActionResult Index(string? slug)
         {
+            // If a file extension is present (e.g., .js, .css, .png), redirect to the root so StaticFiles serves it.
+            if (!string.IsNullOrEmpty(slug) && System.IO.Path.HasExtension("/" + slug))
+            {
+                var target = "/" + slug.TrimStart('/');
+                return LocalRedirect(target);
+            }
+
             var root = _env.ContentRootPath;
-            var moduleWebRoot = Path.Combine(root, "../LBB.OC.Reservation/wwwroot");
-            var index = Path.Combine(moduleWebRoot, "index.html");
-            var fileInfo = new FileInfo(index);
-            if (!fileInfo.Exists)
+            var moduleWebRoot = System.IO.Path.Combine(root, "../LBB.OC.Reservation/wwwroot");
+            var index = System.IO.Path.Combine(moduleWebRoot, "index.html");
+            if (!System.IO.File.Exists(index))
             {
                 return NotFound("SPA index.html not found at module path: LBB.OC.Reservation/wwwroot/index.html");
             }
-            return PhysicalFile(index, "text/html");
+
+            return PhysicalFile(index, "text/html; charset=utf-8");
         }
     }
 }
