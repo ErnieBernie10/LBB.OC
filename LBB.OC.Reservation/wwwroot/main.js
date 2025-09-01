@@ -4,12 +4,13 @@ import {
   RouterOutlet,
   bootstrapApplication,
   provideRouter
-} from "./chunk-QLSMLGGA.js";
+} from "./chunk-KBKRZ7XZ.js";
 import {
   AuthService,
   provideHttpClient,
   withInterceptors
-} from "./chunk-Q2WYJWSC.js";
+} from "./chunk-IEQ6E7KU.js";
+import "./chunk-HOUIYHUZ.js";
 import {
   ANIMATION_MODULE_TYPE,
   ChangeDetectionScheduler,
@@ -53,15 +54,15 @@ var routes = [
   },
   {
     path: "login",
-    loadComponent: () => import("./chunk-32R3GAVM.js").then((m) => m.Login)
+    loadComponent: () => import("./chunk-TBL4H6LV.js").then((m) => m.Login)
   },
   {
     path: "home",
-    loadComponent: () => import("./chunk-M7GOUGZS.js").then((m) => m.Home)
+    loadComponent: () => import("./chunk-GCZF55FZ.js").then((m) => m.Home)
   },
   {
     path: "scheduler",
-    loadComponent: () => import("./chunk-GCETR7AK.js").then((m) => m.Scheduler)
+    loadComponent: () => import("./chunk-AW6S7OGC.js").then((m) => m.Scheduler)
   },
   {
     path: "reservations",

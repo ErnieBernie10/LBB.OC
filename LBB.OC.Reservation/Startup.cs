@@ -18,10 +18,12 @@ using OrchardCore.ResourceManagement;
 using YesSql;
 using Microsoft.Extensions.FileProviders;
 using StartupBase = OrchardCore.Modules.StartupBase;
+using Microsoft.AspNetCore.Authorization;
+using OrchardCore;
 
 namespace LBB.OC.Reservation;
 
-public sealed class Startup : StartupBase
+public class Startup : StartupBase
 {
     public override void ConfigureServices(IServiceCollection services)
     {
@@ -34,6 +36,14 @@ public sealed class Startup : StartupBase
             var shellSettings = serviceProvider.GetRequiredService<ShellSettings>();
             var connectionString = $"Data Source=App_Data/Sites/{shellSettings.Name}/{shellSettings["DatabaseName"]}";
             options.UseSqlite(connectionString);
+        });
+
+        services.AddAuthorization(options =>
+        {
+            options.AddPolicy(Constants.Policies.ManageReservations, policy =>
+                policy.RequireRole(
+                    OrchardCoreConstants.Roles.Administrator,
+                    Constants.Roles.ReservationManager));
         });
 
         // Cache SPA index.html in memory once (singleton)

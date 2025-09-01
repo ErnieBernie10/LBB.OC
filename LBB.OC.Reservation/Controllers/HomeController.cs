@@ -1,17 +1,18 @@
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
-using System.IO;
+using OrchardCore.Environment.Shell;
 
 namespace LBB.OC.Reservation.Controllers
 {
     [Route(Constants.ModuleBasePath)]
-    public class HomeController : Controller
+    public class HomeController : ControllerBase
     {
         private readonly ISpaProvider _spaIndex;
+        private readonly ShellSettings _shellSettings;
 
-        public HomeController(ISpaProvider spaIndex)
+        public HomeController(ISpaProvider spaIndex, ShellSettings shellSettings)
         {
             _spaIndex = spaIndex;
+            _shellSettings = shellSettings;
         }
 
         // GET /reservation

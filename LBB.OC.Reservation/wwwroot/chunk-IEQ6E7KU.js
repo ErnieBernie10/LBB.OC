@@ -1,4 +1,7 @@
 import {
+  environment
+} from "./chunk-HOUIYHUZ.js";
+import {
   ApplicationRef,
   Attribute,
   ChangeDetectorRef,
@@ -7225,12 +7228,6 @@ var HttpResourceImpl = class extends ResourceImpl {
 var HTTP_TRANSFER_CACHE_ORIGIN_MAP = new InjectionToken(ngDevMode ? "HTTP_TRANSFER_CACHE_ORIGIN_MAP" : "");
 var CACHE_OPTIONS = new InjectionToken(ngDevMode ? "HTTP_TRANSFER_STATE_CACHE_OPTIONS" : "");
 
-// src/environments/environment.ts
-var environment = {
-  production: false,
-  apiUrl: "https://localhost:7047"
-};
-
 // src/app/client.ts
 var clientOptions = {
   baseUrl: environment.apiUrl
@@ -7322,4 +7319,4 @@ export {
    * License: MIT
    *)
 */
-//# sourceMappingURL=chunk-Q2WYJWSC.js.map
+//# sourceMappingURL=chunk-IEQ6E7KU.js.map
