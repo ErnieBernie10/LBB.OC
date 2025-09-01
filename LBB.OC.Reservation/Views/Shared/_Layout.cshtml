@@ -16,6 +16,11 @@
     <script at="Foot" asp-name="bootstrap"></script>
     <style asp-name="bootstrap"></style>
 
+    <style>
+        /* Hide elements with x-cloak until Alpine initializes to prevent UI flicker and accidental visibility */
+        [x-cloak] { display: none !important; }
+    </style>
+
     @await RenderSectionAsync("HeadMeta", required: false)
     @await RenderSectionAsync("HeadLinks", required: false)
     @await RenderSectionAsync("HeadScripts", required: false)

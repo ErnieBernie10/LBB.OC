@@ -1,25 +1,45 @@
 @model LBB.OC.Reservation.ViewModels.Session.CreateSessionVM
 
 <div id="createSession">
-<form asp-controller="Home" asp-action="CreateSession" method="post" x-target="createSession">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    @Html.LabelFor(vm => vm.Form.Title, new { @class = "form-control-label"})
-                    @Html.TextBoxFor(vm => vm.Form.Title, new { @class = "form-control"})
-                    @Html.ValidationMessageFor(vm => vm.Form.Title)
+    <form asp-controller="Home" asp-action="CreateSession" method="post"
+          x-target="createSession">
+
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="form-group">
+                        @Html.LabelFor(vm => vm.Form.Title, new { @class = "form-control-label"})
+                        @Html.TextBoxFor(vm => vm.Form.Title, new { @class = "form-control"})
+                        @Html.ValidationMessageFor(vm => vm.Form.Title)
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+
+                    <button type="submit" class="btn btn-primary"
+                            :disabled="$root.ariaBusy"
+                            :aria-busy="$root.ariaBusy"
+                            x-data
+                            x-effect="$el.closest('[x-target]').ariaBusy = $root.ariaBusy">
+
+                        <template x-if="!$root.ariaBusy">
+                            <span>Save changes</span>
+                        </template>
+                        <template x-if="$root.ariaBusy">
+                            <span class="d-inline-flex align-items-center">
+                                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                Saving...
+                            </span>
+                        </template>
+                    </button>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-primary">Save changes</button>
-            </div>
         </div>
-    </div>
-</form>
+    </form>
 </div>
