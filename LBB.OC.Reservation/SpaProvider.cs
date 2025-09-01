@@ -16,7 +16,7 @@ public sealed class SpaProvider : ISpaProvider
     public SpaProvider(IWebHostEnvironment env)
     {
         var ocRoot = env.ContentRootPath;
-        var moduleWebRoot = Path.GetFullPath(Path.Combine(ocRoot, "../LBB.OC.Reservation/wwwroot"));
+        var moduleWebRoot = Path.GetFullPath(Path.Combine(ocRoot, $"../{Constants.ModuleName}/wwwroot"));
         var indexPath = Path.Combine(moduleWebRoot, "index.html");
 
         if (File.Exists(indexPath))

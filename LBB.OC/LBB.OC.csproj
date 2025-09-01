@@ -24,6 +24,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\LBB.OC.Reservation\LBB.OC.Reservation.csproj" />
+      <ProjectReference Include="..\LBB.OC.Theme\LBB.OC.Theme.csproj" />
     </ItemGroup>
 
 </Project>
