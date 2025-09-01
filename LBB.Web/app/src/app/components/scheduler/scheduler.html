@@ -1,0 +1,45 @@
+<article class="scheduler">
+  <header class="controls-container">
+    <div class="controls">
+      <button class="outline" (click)="previousWeek()">Previous</button>
+      <h3>{{ getWeekStart() | date: 'mediumDate' }} - {{ getWeekEnd() | date: 'mediumDate' }}</h3>
+      <button class="outline" (click)="nextWeek()">Next</button>
+    </div>
+    <div>
+      @if (showLoading$ | async) {
+        <span aria-busy="true">Loading...</span>
+      }
+    </div>
+  </header>
+
+  <div class="calendar-container">
+    <div class="scroll-container" #scrollContainer>
+      <div class="time-column">
+        <div class="time-header"></div>
+        @for (time of timeSlots; track time) {
+          <div class="time-label" [class.work-hour]="isWorkHour(time)">
+            {{ time }}
+          </div>
+        }
+      </div>
+
+      <div class="day-columns">
+        @for (day of weekDays; track day) {
+          <div class="day-column">
+            <div class="day-header">
+              {{ format(day, 'EEE') }}
+              <small>{{ format(day, 'd') }}</small>
+            </div>
+            <div class="events-container" (click)="onColumnClick($event, day, scrollContainer)">
+              @for (appointment of getAppointmentsForDay(day); track appointment.id) {
+                <div class="event" [ngStyle]="getAppointmentStyle(appointment)">
+                  {{ appointment.title }} ({{ appointment.end }}min)
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</article>

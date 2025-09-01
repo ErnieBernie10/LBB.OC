@@ -1,3 +1,5 @@
+using System;
+using System.IO;
 using System.Reflection;
 using LBB.Core;
 using LBB.OC.Reservation.Migrations;
@@ -13,6 +15,7 @@ using OrchardCore.Environment.Shell;
 using OrchardCore.Modules;
 using OrchardCore.ResourceManagement;
 using YesSql;
+using Microsoft.Extensions.FileProviders;
 
 namespace LBB.OC.Reservation;
 
@@ -55,15 +58,32 @@ public sealed class Startup : StartupBase
     public override void Configure(IApplicationBuilder builder, IEndpointRouteBuilder routes,
         IServiceProvider serviceProvider)
     {
-
-        builder.UseStaticFiles();
         builder.UseAntiforgery();
 
-        routes.MapAreaControllerRoute(
-            name: "Reservation_Home",
-            areaName: "LBB.OC.Reservation",
-            pattern: "Home/Index",
-            defaults: new { controller = "Home", action = "Index" }
-        );
+        // Serve SPA from a dedicated request path to avoid collisions with Orchard routes,
+        // and to behave consistently in sub-tenants with URL prefixes.
+        var requestPath = "/reservation";
+
+        // Default files (serves index.html at /reservation)
+        builder.UseDefaultFiles(new DefaultFilesOptions
+        {
+            RequestPath = requestPath,
+            FileProvider = new SpaFileProvider(serviceProvider.GetRequiredService<IApplicationContext>()),
+            // DefaultFileNames already includes "index.html", but we rely on our provider anyway.
+        });
+
+        // Static files for SPA assets under /reservation (js/css/img, etc.)
+        builder.UseStaticFiles(new StaticFileOptions
+        {
+            RequestPath = requestPath,
+            FileProvider = new SpaFileProvider(serviceProvider.GetRequiredService<IApplicationContext>())
+        });
+
+        // Optional: client-side routing fallback for deep links under /reservation/**
+        // routes.MapAreaControllerRoute(
+        //     name: "ReservationSpa",
+        //     areaName: "LBB.OC.Reservation",
+        //     pattern: "reservation/{**slug}",
+        //     defaults: new { controller = "Home", action = "Index" });
     }
 }

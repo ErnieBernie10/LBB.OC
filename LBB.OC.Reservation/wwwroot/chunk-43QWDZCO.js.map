@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/pages/reservations/reservations.ts", "src/app/pages/reservations/reservations.html"],
+  "sourcesContent": ["import { Component } from '@angular/core';\n\n@Component({\n  selector: 'app-reservations-page',\n  imports: [],\n  templateUrl: './reservations.html',\n  styleUrl: './reservations.scss',\n})\nexport class Reservations {}\n", "<p>reservations works!</p>\n"],
+  "mappings": ";;;;;;;;;;;AAQM,IAAO,eAAP,MAAO,cAAY;;qCAAZ,eAAY;EAAA;yEAAZ,eAAY,WAAA,CAAA,CAAA,uBAAA,CAAA,GAAA,OAAA,GAAA,MAAA,GAAA,UAAA,SAAA,sBAAA,IAAA,KAAA;AAAA,QAAA,KAAA,GAAA;ACRzB,MAAA,yBAAA,GAAA,GAAA;AAAG,MAAA,iBAAA,GAAA,qBAAA;AAAmB,MAAA,uBAAA;;;;;sEDQT,cAAY,CAAA;UANxB;uBACW,yBAAuB,SACxB,CAAA,GAAE,UAAA,+BAAA,CAAA;;;;6EAIA,cAAY,EAAA,WAAA,gBAAA,UAAA,8CAAA,YAAA,EAAA,CAAA;AAAA,GAAA;",
+  "names": []
+}

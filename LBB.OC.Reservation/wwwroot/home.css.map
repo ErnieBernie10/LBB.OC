@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/pages/home/home.scss"],
+  "sourcesContent": [".parent {\n  display: grid;\n  grid-template-columns: repeat(2, 1fr);\n  grid-template-rows: repeat(2, 1fr);\n  grid-column-gap: 8px;\n  grid-row-gap: 8px;\n}\n\n.recent { grid-area: 1 / 1 / 2 / 3; }\n.next { grid-area: 2 / 1 / 3 / 2; }\n.actions { grid-area: 2 / 2 / 3 / 3; }\n\n/* Tablet Layout */\n@media screen and (max-width: 768px) {\n  .parent {\n    grid-template-columns: 1fr;\n    grid-template-rows: auto;\n    grid-row-gap: 16px;\n  }\n\n  .recent { grid-area: 1 / 1 / 2 / 2; }\n  .next { grid-area: 2 / 1 / 3 / 2; }\n  .actions { grid-area: 3 / 1 / 4 / 2; }\n}\n\n/* Mobile Layout */\n@media screen and (max-width: 480px) {\n  .parent {\n    grid-row-gap: 12px;\n    padding: 8px;\n  }\n\n  /* Adjust table for better mobile viewing */\n  table {\n    font-size: 14px;\n\n    th, td {\n      padding: 8px 4px;\n    }\n  }\n}\n"],
+  "mappings": ";AAAA,CAAA;AACE,WAAA;AACA,yBAAA,OAAA,CAAA,EAAA;AACA,sBAAA,OAAA,CAAA,EAAA;AACA,mBAAA;AACA,gBAAA;;AAGF,CAAA;AAAU,aAAA,CAAA,CAAA,CAAA,CAAA,CAAA,CAAA;;AACV,CAAA;AAAQ,aAAA,CAAA,CAAA,CAAA,CAAA,CAAA,CAAA;;AACR,CAAA;AAAW,aAAA,CAAA,CAAA,CAAA,CAAA,CAAA,CAAA;;AAGX,OAAA,OAAA,IAAA,CAAA,SAAA,EAAA;AACE,GAdF;AAeI,2BAAA;AACA,wBAAA;AACA,kBAAA;;AAGF,GAZF;AAYY,eAAA,CAAA,CAAA,CAAA,CAAA,CAAA,CAAA;;AACV,GAZF;AAYU,eAAA,CAAA,CAAA,CAAA,CAAA,CAAA,CAAA;;AACR,GAZF;AAYa,eAAA,CAAA,CAAA,CAAA,CAAA,CAAA,CAAA;;;AAIb,OAAA,OAAA,IAAA,CAAA,SAAA,EAAA;AACE,GA3BF;AA4BI,kBAAA;AACA,aAAA;;AAIF;AACE,eAAA;;AAEA,QAAA;EAAA,MAAA;AACE,aAAA,IAAA;;;",
+  "names": []
+}

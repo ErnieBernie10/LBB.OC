@@ -1,0 +1,16 @@
+@if (isOpen) {
+  <dialog class="modal-overlay" [open]="true" (click)="handleOverlayClick($event)" [@modalAnimation]>
+    <article [@modalContentAnimation]>
+      <header>
+        <button aria-label="Close" rel="prev" (click)="handleClose()"></button>
+        <ng-content select="modal-header"></ng-content>
+      </header>
+      <div class="content">
+        <ng-content select="modal-content"></ng-content>
+      </div>
+      <footer>
+        <ng-content select="modal-footer"></ng-content>
+      </footer>
+    </article>
+  </dialog>
+}

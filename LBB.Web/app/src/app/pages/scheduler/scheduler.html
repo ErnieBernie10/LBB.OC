@@ -1,0 +1,86 @@
+<form [formGroup]="appointmentForm" (ngSubmit)="handleSubmit()">
+  <app-modal [isOpen]="showModal" (close)="onClose()">
+    <modal-header>
+      <strong> Nieuwe sessie </strong>
+    </modal-header>
+    <modal-content>
+      <app-input formControlName="title" label="Titel">
+        <input
+          id="title"
+          type="text"
+          name="title"
+          placeholder="Titel"
+          formControlName="title"
+          [attr.aria-invalid]="title | invalid"
+        />
+      </app-input>
+      <app-input formControlName="description" label="Beschrijving">
+        <textarea
+          id="description"
+          placeholder="Beschrijving"
+          formControlName="description"
+          [attr.aria-invalid]="description | invalid"
+        ></textarea>
+      </app-input>
+      <app-input formControlName="location" label="Locatie">
+        <input
+          id="location"
+          type="text"
+          placeholder="Locatie"
+          formControlName="location"
+          [attr.aria-invalid]="location | invalid"
+        />
+      </app-input>
+      <app-input formControlName="start" label="Start">
+        <input
+          id="start"
+          type="datetime-local"
+          placeholder="Start"
+          formControlName="start"
+          [attr.aria-invalid]="start | invalid"
+        />
+      </app-input>
+      <app-input formControlName="end" label="Eind">
+        <input
+          id="end"
+          type="datetime-local"
+          placeholder="Eind"
+          formControlName="end"
+          [attr.aria-invalid]="end | invalid"
+        />
+      </app-input>
+      <app-input formControlName="type" label="Type" [attr.aria-invalid]="type | invalid">
+        <select name="type" id="type" formControlName="type">
+          <option value="Individual">Individueel</option>
+          <option value="Group">Groep</option>
+        </select>
+      </app-input>
+      @if (type?.getRawValue() === 'Group') {
+        <app-input formControlName="capacity" label="Capaciteit">
+          <input
+            id="capacity"
+            type="number"
+            placeholder="Capaciteit"
+            formControlName="capacity"
+            [attr.aria-invalid]="capacity | invalid"
+          />
+        </app-input>
+      }
+    </modal-content>
+    <modal-footer>
+      <button [attr.aria-busy]="savingSession" type="submit">Confirm</button>
+    </modal-footer>
+  </app-modal>
+</form>
+@if (appointments$ | async; as appointments) {
+  @if (appointments.error) {
+    <app-alert [dismissible]="true" type="danger" [message]="appointments.error"></app-alert>
+  }
+  <app-scheduler
+    [loading]="appointments.loading"
+    [appointments]="appointments.data ?? []"
+    (appointmentCreate)="onAppointmentCreate($event)"
+    (appointmentUpdate)="onAppointmentUpdate($event)"
+    (loadAppointments)="loadAppointments($event)"
+  ></app-scheduler>
+}

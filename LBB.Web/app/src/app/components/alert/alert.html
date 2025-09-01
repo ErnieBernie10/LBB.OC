@@ -1,0 +1,8 @@
+@if (visible) {
+  <div [attr.role]="'alert'" [class]="type">
+    {{ message }}
+    @if (dismissible) {
+      <button class="contrast outline" (click)="dismiss()" aria-label="Close alert">×</button>
+    }
+  </div>
+}

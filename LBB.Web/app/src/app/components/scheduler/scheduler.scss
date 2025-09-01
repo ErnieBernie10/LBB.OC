@@ -1,0 +1,139 @@
+.scheduler {
+  margin: 1rem;
+  padding: 1rem;
+
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+
+    h3 {
+      margin: 0;
+    }
+  }
+
+  .controls-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--pico-muted-color);
+    gap: 1rem;
+  }
+
+  .calendar-container {
+    border: 1px solid var(--pico-border-color);
+    border-radius: var(--pico-border-radius);
+    overflow: hidden;
+    height: 660px;
+  }
+
+  .scroll-container {
+    display: flex;
+    height: 100%;
+    overflow-y: auto;
+    background: var(--pico-background-color);
+
+    &::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: var(--pico-background-color);
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: var(--pico-muted-border-color);
+      border-radius: 4px;
+    }
+  }
+
+  .time-column {
+    width: 60px;
+    border-right: 1px solid var(--pico-border-color);
+    flex-shrink: 0;
+
+    .time-header {
+      height: 40px;
+      border-bottom: 1px solid var(--pico-border-color);
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: var(--pico-background-color);
+    }
+
+    .time-label {
+      height: 60px;
+      line-height: 60px;
+      text-align: right;
+      padding-right: 0.5rem;
+      font-size: 0.75rem;
+      color: var(--pico-muted-color);
+
+      &.work-hour {
+        font-weight: 500;
+        color: var(--pico-color);
+      }
+    }
+  }
+
+  .day-columns {
+    display: flex;
+    flex: 1;
+
+    .day-column {
+      flex: 1;
+      border-left: 1px solid var(--pico-border-color);
+      min-height: 1440px;
+
+      &:first-child {
+        border-left: none;
+      }
+
+      .day-header {
+        height: 40px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: var(--pico-background-color);
+        border-bottom: 1px solid var(--pico-border-color);
+        font-size: 0.9rem;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+
+        small {
+          color: var(--pico-muted-color);
+        }
+      }
+
+      .events-container {
+        position: relative;
+        height: 1440px; // 24 hours * 60px per hour
+        background-image: repeating-linear-gradient(
+          to bottom,
+          transparent,
+          transparent 59px,
+          var(--pico-stripe-color) 59px,
+          var(--pico-stripe-color) 60px
+        );
+      }
+
+      .event {
+        position: absolute;
+        left: 4px;
+        right: 4px;
+        background: var(--pico-primary);
+        color: var(--pico-primary-inverse);
+        padding: 0.25rem;
+        font-size: 0.75rem;
+        border-radius: var(--pico-border-radius);
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        z-index: 2;
+      }
+    }
+  }
+}

@@ -1,0 +1,13 @@
+/* You can add global styles to this file, and also import other style files */
+
+@use "@picocss/pico/scss/pico";
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');
+:root {
+  --danger: rgba(255, 0, 0, 0.4);
+  --success: rgb(22, 163, 74); /* #16A34A */
+  --success-inverse: rgb(255, 255, 255); /* white for text/icons on success bg */
+}
+* {
+  font-family: Ubuntu /* Replace with your custom font */, sans-serif !important;
+  /* Add !important to overwrite all elements */
+}

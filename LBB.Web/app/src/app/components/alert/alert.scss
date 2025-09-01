@@ -1,0 +1,54 @@
+:host {
+  display: block;
+  margin: 1rem 0;
+}
+
+div[role="alert"] {
+  position: relative;
+  padding: 1rem;
+  border-radius: 0.25rem;
+
+  &.primary {
+    background-color: var(--pico-primary);
+    color: var(--pico-primary-inverse);
+  }
+
+  &.secondary {
+    background-color: var(--pico-secondary);
+    color: var(--pico-secondary-inverse);
+  }
+
+  &.success {
+    background-color: var(--success);
+    color: var(--success-inverse);
+  }
+
+  &.warning {
+    background-color: var(--warning);
+    color: var(--warning-inverse);
+  }
+
+  &.danger {
+    background-color: var(--danger);
+    border: 1px solid var(--danger);
+    color: var(--danger-inverse);
+  }
+
+  button {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    padding: 0.25rem 0.5rem;
+    font-size: 1.25rem;
+    line-height: 1;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: inherit;
+    opacity: 0.7;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+}

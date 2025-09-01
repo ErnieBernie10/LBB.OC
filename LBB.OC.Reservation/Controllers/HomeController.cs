@@ -1,52 +1,34 @@
 using System.ComponentModel.DataAnnotations;
-using LBB.OC.Reservation.ViewModels;
-using LBB.OC.Reservation.ViewModels.Session;
-using LBB.Reservation.Infrastructure.Context;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using OrchardCore.Data;
-using OrchardCore.Environment.Shell;
-using OrchardCore.Environment.Shell.Builders;
-using YesSql;
+using OrchardCore.Environment.Extensions;
 
-namespace LBB.OC.Reservation.Controllers;
-
-public sealed class HomeController(LbbDbContext context) : Controller
+namespace LBB.OC.Reservation.Controllers
 {
-    public async Task<ActionResult> Index()
+    [Route("reservation")]
+    public class HomeController : Controller
     {
-        var sessions = await context.Sessions.ToListAsync();
-        return View(new IndexVM(sessions, new CreateSessionVM(new CreateSessionVM.CreateSessionForm())));
-    }
+        private readonly IWebHostEnvironment _env;
 
-    [HttpGet]
-    public IActionResult CreateSession()
-    {
-        return PartialView("Session/_CreateSession", new CreateSessionVM(new CreateSessionVM.CreateSessionForm()));
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> CreateSession([Bind(Prefix = "Form")] CreateSessionVM.CreateSessionForm form)
-    {
-        if (!ModelState.IsValid)
+        public HomeController(IWebHostEnvironment   env)
         {
-            // Return the form with validation messages
-            return PartialView("Session/_CreateSession", new CreateSessionVM(form));
+            _env = env;
         }
-        //
-        // var entity = new LBB.Reservation.Infrastructure.DataModels.Session
-        // {
-        //     Title = form.Title,
-        //     Description = form.Description,
-        //     Start = DateTime.UtcNow,
-        //     End = DateTime.UtcNow.AddHours(1),
-        //     UserId = "system"
-        // };
-        // context.Sessions.Add(entity);
-        // await context.SaveChangesAsync();
 
-        // Return a simple success modal content which will replace the modal's inner HTML
-        return PartialView("Session/_CreateSessionSuccess");
+        // Serves /reservation and any client-side route under it (e.g., /reservation/users/123)
+        [HttpGet("")]
+        [HttpGet("{*slug}")]
+        public IActionResult Index()
+        {
+            var root = _env.ContentRootPath;
+            var moduleWebRoot = Path.Combine(root, "../LBB.OC.Reservation/wwwroot");
+            var index = Path.Combine(moduleWebRoot, "index.html");
+            var fileInfo = new FileInfo(index);
+            if (!fileInfo.Exists)
+            {
+                return NotFound("SPA index.html not found at module path: LBB.OC.Reservation/wwwroot/index.html");
+            }
+            return PhysicalFile(index, "text/html");
+        }
     }
 }

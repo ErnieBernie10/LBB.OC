@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/components/modal/modal.scss"],
+  "sourcesContent": [":host {\n  dialog {\n    &[open] {\n      opacity: 1;\n      visibility: visible;\n    }\n\n    padding: 0;\n    border: none;\n    background: transparent;\n\n    &::backdrop {\n      background: rgba(0, 0, 0, 0.5);\n    }\n\n    article {\n      max-height: 90vh;\n      display: flex;\n      flex-direction: column;\n      margin-top: 0;\n      padding-top: 0;\n      padding-bottom: 0;\n      margin-bottom: 0;\n\n      header {\n        position: sticky;\n        top: 0;\n        padding-top: 1rem;\n        padding-bottom: 1rem;\n      }\n\n      content {\n        flex: 1;\n        overflow-y: auto;\n        min-height: 0;\n      }\n\n      footer {\n        position: sticky;\n        bottom: 0;\n        padding-top: 1rem;\n      }\n    }\n  }\n}\n"],
+  "mappings": ";AACE,MAAA;AAME,WAAA;AACA,UAAA;AACA,cAAA;;AAPA,MAAA,MAAA,CAAA;AACE,WAAA;AACA,cAAA;;AAOF,MAAA,MAAA;AACE,cAAA,KAAA,CAAA,EAAA,CAAA,EAAA,CAAA,EAAA;;AAGF,MAAA,OAAA;AACE,cAAA;AACA,WAAA;AACA,kBAAA;AACA,cAAA;AACA,eAAA;AACA,kBAAA;AACA,iBAAA;;AAEA,MAAA,OAAA,QAAA;AACE,YAAA;AACA,OAAA;AACA,eAAA;AACA,kBAAA;;AAGF,MAAA,OAAA,QAAA;AACE,QAAA;AACA,cAAA;AACA,cAAA;;AAGF,MAAA,OAAA,QAAA;AACE,YAAA;AACA,UAAA;AACA,eAAA;;",
+  "names": []
+}
