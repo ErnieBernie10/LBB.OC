@@ -200,6 +200,7 @@ node_modules/
 #exclude parcel
 .parcel-cache
 
+wwwroot
 **/Localization/**/*.po
 !test/OrchardCore.Tests/Localization/**/*.po
 !src/OrchardCore.Modules/**/wwwroot
