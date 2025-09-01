@@ -12,6 +12,10 @@ public partial class LbbDbContext : DbContext
     {
     }
 
+    public virtual DbSet<AuditAuditTrailEventIndex> AuditAuditTrailEventIndices { get; set; }
+
+    public virtual DbSet<AuditDocument> AuditDocuments { get; set; }
+
     public virtual DbSet<DeploymentPlanIndex> DeploymentPlanIndices { get; set; }
 
     public virtual DbSet<Document> Documents { get; set; }
@@ -36,6 +40,23 @@ public partial class LbbDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<AuditAuditTrailEventIndex>(entity =>
+        {
+            entity.Property(e => e.Category).UseCollation("NOCASE");
+            entity.Property(e => e.CorrelationId).UseCollation("NOCASE");
+            entity.Property(e => e.EventId).UseCollation("NOCASE");
+            entity.Property(e => e.Name).UseCollation("NOCASE");
+            entity.Property(e => e.NormalizedUserName).UseCollation("NOCASE");
+            entity.Property(e => e.UserId).UseCollation("NOCASE");
+        });
+
+        modelBuilder.Entity<AuditDocument>(entity =>
+        {
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Content).UseCollation("NOCASE");
+            entity.Property(e => e.Type).UseCollation("NOCASE");
+        });
+
         modelBuilder.Entity<DeploymentPlanIndex>(entity =>
         {
             entity.Property(e => e.Name).UseCollation("NOCASE");
@@ -64,29 +85,17 @@ public partial class LbbDbContext : DbContext
 
         modelBuilder.Entity<DataModels.Reservation>(entity =>
         {
-            entity.Property(e => e.Email).UseCollation("NOCASE");
-            entity.Property(e => e.Firstname)
-                .HasDefaultValue("")
-                .UseCollation("NOCASE");
-            entity.Property(e => e.Lastname)
-                .HasDefaultValue("")
-                .UseCollation("NOCASE");
-            entity.Property(e => e.Phone)
-                .HasDefaultValue("")
-                .UseCollation("NOCASE");
-            entity.Property(e => e.Reference).UseCollation("NOCASE");
+            entity.Property(e => e.AttendeeCount).HasDefaultValue(1);
+            entity.Property(e => e.Firstname).HasDefaultValue("");
+            entity.Property(e => e.Lastname).HasDefaultValue("");
+            entity.Property(e => e.Phone).HasDefaultValue("");
         });
 
         modelBuilder.Entity<Session>(entity =>
         {
-            entity.Property(e => e.Description)
-                .HasDefaultValue("")
-                .UseCollation("NOCASE");
-            entity.Property(e => e.Location)
-                .HasDefaultValue("")
-                .UseCollation("NOCASE");
-            entity.Property(e => e.Title).UseCollation("NOCASE");
-            entity.Property(e => e.UserId).UseCollation("NOCASE");
+            entity.Property(e => e.Capacity).HasDefaultValue(1);
+            entity.Property(e => e.Description).HasDefaultValue("");
+            entity.Property(e => e.Location).HasDefaultValue("");
         });
 
         modelBuilder.Entity<UserByClaimIndex>(entity =>

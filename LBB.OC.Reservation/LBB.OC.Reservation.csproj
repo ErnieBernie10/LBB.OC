@@ -46,4 +46,8 @@
       <Folder Include="wwwroot\" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Remove="LBB.Reservation.Infrastructure\obj\LBB.Reservation.Infrastructure.csproj.EntityFrameworkCore.targets" />
+    </ItemGroup>
+
 </Project>

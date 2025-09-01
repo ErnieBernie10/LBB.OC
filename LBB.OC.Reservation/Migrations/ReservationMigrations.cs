@@ -1,4 +1,6 @@
 using Dapper;
+using OrchardCore.Data;
+using OrchardCore.Data.Migration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OrchardCore.Data;
@@ -8,39 +10,56 @@ using YesSql;
 using YesSql.Sql;
 
 namespace LBB.OC.Reservation.Migrations;
-
 public class ReservationMigrations : DataMigration
 {
+    private readonly IDbConnectionAccessor _connectionAccessor;
+
+    public ReservationMigrations(IDbConnectionAccessor connectionAccessor)
+    {
+        _connectionAccessor = connectionAccessor;
+    }
+
     public async Task<int> CreateAsync()
     {
-        await SchemaBuilder.CreateTableAsync("Sessions", table => table
-            .Column<int>("Id", column => column.PrimaryKey().Identity())
-            .Column<short>("Type", column => column.NotNull().WithDefault(0))
-            .Column<int>("Capacity", column => column.NotNull().WithDefault(1))
-            .Column<string>("Title", column => column.NotNull())
-            .Column<string>("Description", column => column.WithDefault(""))
-            .Column<DateTime>("Start", column => column.NotNull())
-            .Column<DateTime>("End", column => column.NotNull())
-            .Column<string>("Location", column => column.WithDefault(""))
-            .Column<string>("UserId", column => column.NotNull())
-        );
+        using var connection = _connectionAccessor.CreateConnection();
+        await connection.OpenAsync();
 
-        await SchemaBuilder.CreateTableAsync("Reservations", table => table
-            .Column<int>("Id", column => column.PrimaryKey().Identity())
-            .Column<string>("Firstname", column => column.WithDefault(""))
-            .Column<string>("Lastname", column => column.WithDefault(""))
-            .Column<string>("Email", column => column.NotNull())
-            .Column<string>("Phone", column => column.WithDefault(""))
-            .Column<int>("AttendeeCount", column => column.NotNull().WithDefault(1))
-            .Column<string>("Reference", column =>
-            {
-                column.Unique();
-                column.NotNull();
-                column.WithLength(20);
-            })
-        );
+        using var command = connection.CreateCommand();
 
-        await SchemaBuilder.CreateForeignKeyAsync("FK_Session_User", "Session", ["UserId"], "UserIndex", ["Id"]);
+        // Enable foreign keys in SQLite
+        command.CommandText = @"PRAGMA foreign_keys = ON;";
+        await command.ExecuteNonQueryAsync();
+
+        // Create Sessions table
+        command.CommandText = @"
+CREATE TABLE IF NOT EXISTS Sessions (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    Type INTEGER NOT NULL DEFAULT 0,
+    Capacity INTEGER NOT NULL DEFAULT 1,
+    Title TEXT NOT NULL,
+    Description TEXT NOT NULL DEFAULT '',
+    Start DATETIME NOT NULL,
+    End DATETIME NOT NULL,
+    Location TEXT NOT NULL DEFAULT '',
+    UserId TEXT NOT NULL
+);";
+        await command.ExecuteNonQueryAsync();
+
+        // Create Reservations table with foreign key
+        command.CommandText = @"
+CREATE TABLE IF NOT EXISTS Reservations (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    Firstname TEXT NOT NULL DEFAULT '',
+    Lastname TEXT NOT NULL DEFAULT '',
+    Email TEXT NOT NULL,
+    Phone TEXT NOT NULL DEFAULT '',
+    AttendeeCount INTEGER NOT NULL DEFAULT 1,
+    SessionId INTEGER NOT NULL,
+    Reference TEXT NOT NULL UNIQUE,
+    FOREIGN KEY (SessionId) REFERENCES Sessions(Id) ON DELETE CASCADE
+);";
+        await command.ExecuteNonQueryAsync();
+
         return 1;
     }
 }

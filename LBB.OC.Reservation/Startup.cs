@@ -3,6 +3,7 @@ using System.IO;
 using System.Reflection;
 using LBB.Core;
 using LBB.OC.Reservation.Migrations;
+using LBB.Reservation.Application;
 using LBB.Reservation.Infrastructure.Context;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -29,7 +30,7 @@ public class Startup : StartupBase
     {
         services.AddDataMigration<ReservationMigrations>();
 
-        services.AddCore(typeof(Startup).Assembly);
+        services.AddCore(typeof(Startup).Assembly, typeof(ApplicationAssembly).Assembly);
 
         services.AddDbContext<LbbDbContext>((serviceProvider, options) =>
         {
