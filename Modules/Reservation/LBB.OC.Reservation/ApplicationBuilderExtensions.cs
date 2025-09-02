@@ -15,7 +15,7 @@ public static class ApplicationBuilderExtensions
             return string.Empty;
 
         var ocRoot = env.ContentRootPath;
-        return Path.Combine(ocRoot, $"../{Constants.ModuleName}/wwwroot");
+        return Path.Combine(ocRoot, $"../Modules/Reservation/{Constants.ModuleName}/wwwroot");
     }
     public static void UseReservationMiddleware(this IApplicationBuilder builder, IServiceProvider serviceProvider)
     {

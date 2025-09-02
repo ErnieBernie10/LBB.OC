@@ -24,7 +24,7 @@ public sealed class SpaProvider : ISpaProvider
     private byte[] GetIndex()
     {
         var ocRoot = _env.ContentRootPath;
-        var moduleWebRoot = Path.GetFullPath(Path.Combine(ocRoot, $"../{Constants.ModuleName}/wwwroot"));
+        var moduleWebRoot = Path.GetFullPath(Path.Combine(ocRoot, $"../Modules/Reservation/{Constants.ModuleName}/wwwroot"));
         var indexPath = Path.Combine(moduleWebRoot, "index.html");
         if (File.Exists(indexPath))
             return File.ReadAllBytes(indexPath);
