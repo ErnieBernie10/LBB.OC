@@ -19,7 +19,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\LBB.Core\LBB.Core.csproj" />
       <ProjectReference Include="..\LBB.Reservation.Application\LBB.Reservation.Application.csproj" />
       <ProjectReference Include="..\LBB.Reservation.Domain\LBB.Reservation.Domain.csproj" />
       <ProjectReference Include="..\LBB.Reservation.Infrastructure\LBB.Reservation.Infrastructure.csproj" />
