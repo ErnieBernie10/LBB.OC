@@ -8,23 +8,223 @@
     {% link type:"image/x-icon", rel:"shortcut icon", href:"~/TheAgencyTheme/favicon.ico" %}
     <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
     <link href='https://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.34.1/dist/tabler-icons.min.css" />
+    {% style name: "tailwind" %}
     {% resources type: "HeadScript" %}
     {% resources type: "HeadLink" %}
     {% resources type: "Stylesheet" %}
     {% render_section "HeadMeta", required: false %}
 </head>
 <body id="page-top" dir="{{ Culture.Dir }}">
-    <nav class="navbar navbar-expand-lg navbar-dark fixed-top" id="mainNav">
-        <div class="container">
-            <a class="navbar-brand" href="{{ '~/#page-top' | href }}">{{ Site.SiteName }}</a>
-            <button class="navbar-toggler navbar-toggler-right" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">{{ "Menu" | t }}<i class="fas fa-bars ms-1" aria-hidden="true"></i></button>
-            {% shape "menu", alias: "alias:main-menu", cache_id: "main-menu", cache_fixed_duration: "00:05:00", cache_tag: "alias:main-menu", cache_context: "user.roles" %}
+    <nav>
+        <div
+            id="navbar"
+            class="fixed w-full top-0 z-40 bg-white xl:h-32 transition-all ease-in-out lg:flex lg:justify-between border-black"
+        >
+            <a href="/">
+                <img
+                    class="xl:hidden ml-4 mt-4 w-56 h-full"
+                    src="{{ 'logos/mobile-logo.png' | asset_url }}"
+                    title="Logo"
+                    alt="Logo"
+                    width="180px"
+                    height="120px"
+                />
+                <img
+                    id="large-logo"
+                    class="hidden xl:block w-72 absolute top-0 left-0 transition-all ease-in-out"
+                    src="{{ 'logos/desktop-logo.png' | asset_url }}"
+                    title="Logo"
+                    alt="Logo"
+                />
+            </a>
+            <div class="xl:flex bg-white xl:h-full xl:w-full">
+                <button id="hamburger" class="xl:hidden top-6 right-6 absolute ">
+                    <i class="text-primary text-3xl ti ti-menu"></i>
+                </button>
+                <div class="xl:w-full xl:flex xl:justify-start xl:container">
+                    <div
+                        id="nav-container"
+                        class="w-full flex lg:justify-between xl:items-center flex-col-reverse xl:flex-row"
+                    >
+                        <nav
+                            class="xl:flex items-baseline xl:left-72 sticky top-0 overflow-hidden z-30 w-full hidden"
+                        >
+                            <div
+                                class="w-full h-0 xl:h-full flex transition-all ease-in-out duration-200 justify-center flex-col"
+                                id="menu"
+                            >
+                                <div
+                                    class="menu-item transition-all ease-in-out duration-200 delay-200 translate-x-72 xl:translate-x-0 flex xl:flex-row flex-col xl:justify-start justify-center items-end mr-8 xl:ml-48 2xl:ml-0"
+                                >
+                                    <a
+                                        href="/#offer"
+                                        class="text-lg link link-underline link-underline-black xl:mr-16 mb-4 xl:mb-0"
+                                    >Aanbod</a
+                                    >
+                                    <a
+                                        href="/#about"
+                                        class="text-lg link link-underline link-underline-black xl:mr-16 mb-4 xl:mb-0"
+                                    >Over PilatesByInes</a
+                                    >
+                                    <a
+                                        href="/#contact"
+                                        class="text-lg link link-underline link-underline-black xl:mr-16 mb-4 xl:mb-0"
+                                    >Contact</a
+                                    >
+                                    <a
+                                        href="/#faq"
+                                        class="text-lg link link-underline link-underline-black xl:mr-16 mb-4 xl:mb-0"
+                                    >FAQ</a
+                                    >
+                                </div>
+                            </div>
+                        </nav>
+                        <div
+                            class="w-full xl:w-96 mb-4 xl:mb-0 flex lg:justify-end xl:pr-0 lg:pr-16 z-50"
+                        >
+                            <ul class="items-center hidden lg:flex">
+                                <li>
+                                    <a
+                                        href="https://www.facebook.com/profile.php?id=100089464628348"
+                                        target="_blank"
+                                        class="flex hover:underline decoration-2 decoration-primary items-center"
+                                    >
+                                        <i class="text-primary mr-2 ti ti-facebook"></i>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        href="https://instagram.com/pilates_by_ines"
+                                        target="_blank"
+                                        class="flex hover:underline decoration-2 decoration-primary items-center"
+                                    >
+                                        <i class="text-primary mr-2 ti ti-instagram"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                            <a
+                                aria-describedby="tooltip"
+                                id="booking-button"
+                                href="/book"
+                                class="ml-4 mr-4 text-lg underline-offset-4 border-solid border-2 p-1 rounded-lg flex transition ease-in-out hover:shadow-lg hover:-translate-y-1 w-full lg:w-60 border-black bg-white"
+                            >
+                                <i class="text-primary text-3xl mr-2 ti ti-mail"></i>
+                                <div class="mr-1 text-center inline-block w-full">
+                                    Boek een groepsles
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
+
     </nav>
     {% render_section "Header", required: false %}
 	{% render_section "Messages", required: false %}
     {% render_section "Content" %}
     {% render_section "Footer", required: false %}
     {% resources type: "FootScript" %}
+    <script>
+        let isVisible = false;
+        const handleHamburgerClick = () => {
+            toggleVisibility();
+            const navbar = document.getElementById("navbar");
+            if (isVisible) {
+                navbar.classList.add("border-b-2");
+            } else {
+                navbar.classList.remove("border-b-2");
+            }
+        };
+
+        const toggleVisibility = () => {
+            // Oh god have mercy on my soul for writing this function
+            const menu = document.getElementById("menu");
+            const menuItems = document.querySelectorAll(".menu-item");
+            const nav = document.querySelector("nav");
+            isVisible = !isVisible;
+            if (isVisible) {
+                nav.classList.remove("hidden");
+                setTimeout(() => {
+                    menu.classList.add("h-72");
+                    menu.classList.remove("h-0");
+                    menu.classList.remove("delay-200");
+                    menuItems.forEach((item) => {
+                        item.classList.add("delay-200");
+                        item.classList.remove("translate-x-72");
+                        item.classList.add("translate-x-0");
+                    });
+                }, 5);
+            } else {
+                menu.classList.add("h-0");
+                menu.classList.remove("h-72");
+                menu.classList.add("delay-200");
+                menuItems.forEach((item) => {
+                    item.classList.remove("delay-200");
+                    item.classList.add("translate-x-72");
+                    item.classList.remove("translate-x-0");
+                });
+                setTimeout(() => {
+                    nav.classList.add("hidden");
+                }, 300);
+            }
+        };
+
+        const handleScroll = () => {
+            const largeLogo = document.querySelector("#large-logo");
+            const navbar = document.querySelector("#navbar");
+            const navContainer = document.querySelector("#nav-container");
+            if (window.scrollY > 200) {
+                document.querySelector("#navbar").classList.add("shadow-md");
+                largeLogo.classList.add("w-40");
+                largeLogo.classList.remove("w-72");
+                navbar.classList.add("xl:h-20");
+                navbar.classList.remove("xl:h-32");
+                navContainer.classList.add("xl:items-center");
+                navContainer.classList.remove("xl:items-end");
+            } else {
+                document.querySelector("#navbar").classList.remove("shadow-md");
+                largeLogo.classList.remove("w-40");
+                largeLogo.classList.add("w-72");
+                navbar.classList.remove("xl:h-20");
+                navbar.classList.add("xl:h-32");
+                navContainer.classList.remove("xl:items-center");
+                navContainer.classList.add("xl:items-end");
+            }
+        };
+
+        document
+            .getElementById("hamburger")
+            .addEventListener("click", handleHamburgerClick);
+        document.querySelectorAll("nav a").forEach((el) => {
+            el.addEventListener("click", toggleVisibility);
+        });
+
+        document.addEventListener("DOMContentLoaded", handleScroll);
+        document.addEventListener("scroll", handleScroll);
+    </script>
+
+    <style>
+        .link-underline {
+            border-bottom-width: 0;
+            background-image: linear-gradient(transparent, transparent),
+            linear-gradient(#fff, #fff);
+            background-size: 0 2px;
+            background-position: 0 100%;
+            background-repeat: no-repeat;
+            transition: background-size 0.5s ease-in-out;
+        }
+
+        .link-underline-black {
+            background-image: linear-gradient(transparent, transparent),
+            linear-gradient(#fe01fe, #fe01fe);
+        }
+
+        .link-underline:hover {
+            background-size: 100% 2px;
+            background-position: 0 100%;
+        }
+    </style>
 </body>
 </html>
