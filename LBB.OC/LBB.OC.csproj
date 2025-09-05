@@ -23,7 +23,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\LBB.OC.Reservation\LBB.OC.Reservation.csproj" />
       <ProjectReference Include="..\Modules\Reservation\LBB.OC.Reservation\LBB.OC.Reservation.csproj" />
       <ProjectReference Include="..\Themes\PilatesByInes\PilatesByInes\PilatesByInes.csproj" />
     </ItemGroup>
