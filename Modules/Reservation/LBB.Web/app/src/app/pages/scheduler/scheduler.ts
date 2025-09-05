@@ -1,15 +1,12 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { Appointment, Scheduler as SchedulerC } from '../../components/scheduler/scheduler';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
 import { SessionService, WithState } from '../../services/session.service';
-import { BehaviorSubject, map, Observable, take } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { Observable, take } from 'rxjs';
 import { toFormDate } from '../../util/dateutils';
-import { AuthService } from '../../services/auth.service';
 import { FormInput } from '../../components/input-errors/form-input';
 import { Modal, ModalContent, ModalFooter, ModalHeader } from '../../components/modal/modal';
 import { InvalidPipe } from '../../pipes/invalid-pipe';
-import { AsyncPipe } from '@angular/common';
 import { Alert } from '../../components/alert/alert';
 
 @Component({
@@ -22,7 +19,6 @@ import { Alert } from '../../components/alert/alert';
     ModalHeader,
     InvalidPipe,
     ModalFooter,
-    AsyncPipe,
     Alert,
     SchedulerC,
   ],
@@ -34,42 +30,13 @@ export class Scheduler {
   public savingSession = false;
 
   public showModal = false;
-  public currentWeek = new BehaviorSubject<{ start: Date; end: Date }>({ start: new Date(), end: new Date() });
-  private refreshTrigger = new BehaviorSubject<void>(undefined);
-  public authService = inject(AuthService);
+  public currentWeek = signal({ start: new Date(), end: new Date() });
 
-  public appointments$: Observable<WithState<Appointment[]>> = this.refreshTrigger.pipe(
-    switchMap(() => this.sessionService.getSessions(this.currentWeek)),
-    map((sessions) => {
-      return {
-        ...sessions,
-        // @ts-expect-error
-        data: (sessions.data?.items ?? []).map(
-          // @ts-expect-error
-          (session) =>
-            ({
-              id: session.id,
-              start: new Date(session.start),
-              end: new Date(session.end),
-              title: session.title,
-              description: session.description,
-            }) as Appointment
-        ),
-      };
-    })
-  );
+  public appointments = this.sessionService.getSessions(this.currentWeek);
 
-  private formBuilder = new FormBuilder().nonNullable;
-  public appointmentForm = this.formBuilder.group({
-    id: [undefined as string | undefined],
-    title: ['', Validators.required],
-    description: [''],
-    location: [''],
-    start: ['', Validators.required],
-    end: ['', Validators.required],
-    type: ['Individual', Validators.required],
-    capacity: [12],
-  });
+  public appointments$: Observable<WithState<Appointment[]>> = new Observable<WithState<Appointment[]>>(() => {});
+
+  public appointmentForm = this.sessionService.makeSessionForm();
 
   public get title() {
     return this.appointmentForm.get('title');
@@ -107,40 +74,28 @@ export class Scheduler {
     this.savingSession = true;
     const value = this.appointmentForm.getRawValue();
     if (value.id) {
-      this.sessionService.updateSession(value.id, value).subscribe({
-        error: () => {
-          this.showModal = false;
-          this.savingSession = false;
-          this.refreshTrigger.next();
-        },
-        complete: () => {
-          this.showModal = false;
-          this.savingSession = false;
-          this.appointmentForm.reset();
-          this.refreshTrigger.next();
-        },
-      });
+      this.sessionService.updateSession(value.id, value).subscribe(this.finalize);
     } else {
       this.sessionService
         .createSession({
           ...value,
           type: value.type === 'Individual' ? 'Individual' : 'Group',
         })
-        .subscribe({
-          error: () => {
-            this.showModal = false;
-            this.savingSession = false;
-            this.refreshTrigger.next();
-          },
-          complete: () => {
-            this.showModal = false;
-            this.savingSession = false;
-            this.appointmentForm.reset();
-            this.refreshTrigger.next();
-          },
-        });
+        .subscribe(this.finalize);
     }
   }
+
+  private finalize = {
+    error: () => {
+      this.showModal = false;
+      this.savingSession = false;
+    },
+    complete: () => {
+      this.showModal = false;
+      this.savingSession = false;
+      this.appointmentForm.reset();
+    },
+  };
 
   onClose() {
     this.showModal = false;
@@ -148,10 +103,10 @@ export class Scheduler {
   }
 
   loadAppointments($event: { start: Date; end: Date }) {
-    this.currentWeek.next($event);
+    this.currentWeek.set($event);
   }
 
-  onAppointmentUpdate($event: { id: string; start: Date; end: Date }) {
+  onAppointmentUpdate($event: { id: number; start: Date; end: Date }) {
     this.appointments$.pipe(take(1)).subscribe((state) => {
       const session = (state.data ?? []).find((a) => a.id === $event.id);
       const selected =

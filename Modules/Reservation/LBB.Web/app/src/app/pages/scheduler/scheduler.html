@@ -72,15 +72,14 @@
     </modal-footer>
   </app-modal>
 </form>
-@if (appointments$ | async; as appointments) {
-  @if (appointments.error) {
-    <app-alert [dismissible]="true" type="danger" [message]="appointments.error"></app-alert>
-  }
-  <app-scheduler
-    [loading]="appointments.loading"
-    [appointments]="appointments.data ?? []"
-    (appointmentCreate)="onAppointmentCreate($event)"
-    (appointmentUpdate)="onAppointmentUpdate($event)"
-    (loadAppointments)="loadAppointments($event)"
-  ></app-scheduler>
+@if (appointments.error()) {
+  <app-alert [dismissible]="true" type="danger" [message]="appointments.error()?.message ?? ''"></app-alert>
 }
+
+<app-scheduler
+  [loading]="appointments.isLoading()"
+  [appointments]="appointments.value() ?? []"
+  (appointmentCreate)="onAppointmentCreate($event)"
+  (appointmentUpdate)="onAppointmentUpdate($event)"
+  (loadAppointments)="loadAppointments($event)"
+></app-scheduler>

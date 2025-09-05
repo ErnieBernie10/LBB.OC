@@ -1,4 +1,3 @@
-using LBB.Core;
 using LBB.Core.Contracts;
 using LBB.Core.Mediator;
 
@@ -9,12 +8,14 @@ public class UnitOfWork : IUnitOfWork
     private readonly HashSet<AggregateRoot> _aggregateRoots = [];
 
     private IMediator _mediator;
+    private readonly IUnitOfWorkHandler _handler;
 
-    public UnitOfWork(IMediator mediator)
+    public UnitOfWork(IMediator mediator, IUnitOfWorkHandler handler)
     {
         if (mediator == null)
             throw new ArgumentNullException(nameof(mediator));
         _mediator = mediator;
+        _handler = handler;
     }
 
     public async Task CommitAsync(CancellationToken cancellationToken = default)
@@ -22,6 +23,7 @@ public class UnitOfWork : IUnitOfWork
         await Task.WhenAll(_aggregateRoots.Select(a => _mediator.DispatchDomainEventsAsync(a)));
         foreach (var aggregateRoot in _aggregateRoots)
             aggregateRoot.ClearDomainEvents();
+        await _handler.CommitAsync(cancellationToken);
         _aggregateRoots.Clear();
     }
 
@@ -29,6 +31,7 @@ public class UnitOfWork : IUnitOfWork
     {
         foreach (var aggregateRoot in _aggregateRoots)
             aggregateRoot.ClearDomainEvents();
+        _handler.RollbackAsync(cancellationToken);
         _aggregateRoots.Clear();
         return Task.CompletedTask;
     }

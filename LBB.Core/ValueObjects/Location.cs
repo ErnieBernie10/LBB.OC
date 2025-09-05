@@ -18,9 +18,6 @@ public sealed class Location : ValueObject<Location, string>
 
     private static Result ValidateDescription(string description)
     {
-        if (string.IsNullOrWhiteSpace(description))
-            return Result.Fail("Location description cannot be empty");
-
         if (description.Length > MaxLength)
             return Result.Fail(
                 $"Location description cannot be longer than {MaxLength} characters"

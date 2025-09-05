@@ -15,7 +15,7 @@ import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { withDelayedLoading } from '../../operators/withDelayedLoading';
 
 export interface Appointment {
-  id: string;
+  id: number;
   title: string;
   start: Date;
   end: Date;
@@ -43,7 +43,7 @@ export class Scheduler implements OnInit, AfterViewInit, OnDestroy {
   showLoading$: Observable<boolean> = withDelayedLoading(this.loadingSubject);
 
   @Output() appointmentCreate = new EventEmitter<{ start: Date; end: Date }>();
-  @Output() appointmentUpdate = new EventEmitter<{ id: string; start: Date; end: Date }>();
+  @Output() appointmentUpdate = new EventEmitter<{ id: number; start: Date; end: Date }>();
   @Output() loadAppointments = new EventEmitter<{ start: Date; end: Date }>();
 
   currentWeek: Date = new Date();

@@ -27,7 +27,7 @@ public sealed class CreateSessionCommand : ICommand<Result<int>>
     [Required]
     public required DateTime End { get; set; }
 
-    [MaxLength(LBB.Core.ValueObjects.Location.MaxLength)]
+    [MaxLength(Core.ValueObjects.Location.MaxLength)]
     public string Location { get; set; } = "";
 
     [Range(1, int.MaxValue)]

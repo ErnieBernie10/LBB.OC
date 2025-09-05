@@ -4,6 +4,7 @@ using System.Reflection;
 using LBB.Core;
 using LBB.OC.Reservation.Migrations;
 using LBB.Reservation.Application;
+using LBB.Reservation.Infrastructure;
 using LBB.Reservation.Infrastructure.Context;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -20,12 +21,20 @@ using YesSql;
 using Microsoft.Extensions.FileProviders;
 using StartupBase = OrchardCore.Modules.StartupBase;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting;
 using OrchardCore;
 
 namespace LBB.OC.Reservation;
 
 public class Startup : StartupBase
 {
+    private readonly IWebHostEnvironment _webHostEnvironment;
+
+    public Startup(IWebHostEnvironment webHostEnvironment)
+    {
+        _webHostEnvironment = webHostEnvironment;
+    }
     public override void ConfigureServices(IServiceCollection services)
     {
         services.AddDataMigration<ReservationMigrations>();
@@ -38,10 +47,14 @@ public class Startup : StartupBase
             var connectionString = $"Data Source=App_Data/Sites/{shellSettings.Name}/{shellSettings["DatabaseName"]}";
             options.UseSqlite(connectionString);
         });
+        services.AddScoped<IUnitOfWorkHandler, UnitOfWorkHandler>();
 
         services.ConfigureReservationModuleAuthorization();
+        services.AddSwaggerGen();
+
 
         services.AddSingleton<ISpaProvider, SpaProvider>();
+
     }
 
     public override void Configure(IApplicationBuilder builder, IEndpointRouteBuilder routes,
@@ -50,6 +63,11 @@ public class Startup : StartupBase
         builder.UseAntiforgery();
 
         builder.UseReservationMiddleware(serviceProvider);
+        if (_webHostEnvironment.IsDevelopment())
+        {
+            builder.UseSwagger();
+            builder.UseSwaggerUI();
+        }
 
         // Explicit SPA fallback route for both default and prefixed tenants.
         routes.MapAreaControllerRoute(

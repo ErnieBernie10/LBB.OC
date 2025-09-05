@@ -1,4 +1,6 @@
+using FluentResults;
 using LBB.Core.Mediator;
+using LBB.Reservation.Application.Features.SessionFeature.Commands;
 using LBB.Reservation.Application.Features.SessionFeature.Dtos;
 using LBB.Reservation.Application.Features.SessionFeature.Queries;
 using LBB.Reservation.Infrastructure;
@@ -10,6 +12,7 @@ using OrchardCore;
 namespace LBB.OC.Reservation.Controllers;
 
 [Route(Constants.ModuleBasePath + "/sessions")]
+[ApiController]
 public class SessionController(IMediator mediator) : ControllerBase
 {
     [HttpGet]
@@ -23,5 +26,15 @@ public class SessionController(IMediator mediator) : ControllerBase
         });
 
         return Ok(sessions);
+    }
+
+    [HttpPost]
+    [Authorize(Constants.Policies.ManageReservations)]
+    public async Task<IActionResult> CreateSession([FromBody] CreateSessionCommand command)
+    {
+        var session = await mediator.SendCommandAsync<CreateSessionCommand, Result<int>>(command);
+        if (session.IsFailed)
+            return BadRequest(session.Errors);
+        return Ok(session.Value);
     }
 }
