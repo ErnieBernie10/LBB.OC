@@ -4,7 +4,7 @@
       <strong> Nieuwe sessie </strong>
     </modal-header>
     <modal-content>
-      <app-input formControlName="title" label="Titel">
+      <app-input [controlName]="'title'" label="Titel" [required]="true">
         <input
           id="title"
           type="text"
@@ -14,7 +14,7 @@
           [attr.aria-invalid]="title | invalid"
         />
       </app-input>
-      <app-input formControlName="description" label="Beschrijving">
+      <app-input [controlName]="'description'" label="Beschrijving">
         <textarea
           id="description"
           placeholder="Beschrijving"
@@ -22,7 +22,7 @@
           [attr.aria-invalid]="description | invalid"
         ></textarea>
       </app-input>
-      <app-input formControlName="location" label="Locatie">
+      <app-input [controlName]="'location'" label="Locatie">
         <input
           id="location"
           type="text"
@@ -31,7 +31,7 @@
           [attr.aria-invalid]="location | invalid"
         />
       </app-input>
-      <app-input formControlName="start" label="Start">
+      <app-input [controlName]="'start'" label="Start">
         <input
           id="start"
           type="datetime-local"
@@ -40,7 +40,7 @@
           [attr.aria-invalid]="start | invalid"
         />
       </app-input>
-      <app-input formControlName="end" label="Eind">
+      <app-input [controlName]="'end'" label="Eind">
         <input
           id="end"
           type="datetime-local"
@@ -49,14 +49,14 @@
           [attr.aria-invalid]="end | invalid"
         />
       </app-input>
-      <app-input formControlName="type" label="Type" [attr.aria-invalid]="type | invalid">
+      <app-input [controlName]="'type'" label="Type" [attr.aria-invalid]="type | invalid">
         <select name="type" id="type" formControlName="type">
           <option value="Individual">Individueel</option>
           <option value="Group">Groep</option>
         </select>
       </app-input>
       @if (type?.getRawValue() === 'Group') {
-        <app-input formControlName="capacity" label="Capaciteit">
+        <app-input [controlName]="'capacity'" [required]="true" label="Capaciteit">
           <input
             id="capacity"
             type="number"

@@ -1,4 +1,5 @@
-using LBB.Core.Contracts;
+using FluentValidation;
+using LBB.Reservation.Application.Features.SessionFeature.Commands;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LBB.Reservation.Application;
@@ -7,6 +8,7 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
+        services.AddValidatorsFromAssemblyContaining<CreateSessionCommandValidator>();
         return services;
     }
 }

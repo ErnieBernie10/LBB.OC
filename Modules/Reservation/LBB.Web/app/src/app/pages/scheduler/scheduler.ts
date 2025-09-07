@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { Appointment, Scheduler as SchedulerC } from '../../components/scheduler/scheduler';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { SessionService, WithState } from '../../services/session.service';
 import { Observable, take } from 'rxjs';
 import { toFormDate } from '../../util/dateutils';
@@ -8,6 +8,7 @@ import { FormInput } from '../../components/input-errors/form-input';
 import { Modal, ModalContent, ModalFooter, ModalHeader } from '../../components/modal/modal';
 import { InvalidPipe } from '../../pipes/invalid-pipe';
 import { Alert } from '../../components/alert/alert';
+import { setServerErrors } from '../../util/formutils';
 
 @Component({
   selector: 'app-scheduler-page',
@@ -36,7 +37,16 @@ export class Scheduler {
 
   public appointments$: Observable<WithState<Appointment[]>> = new Observable<WithState<Appointment[]>>(() => {});
 
-  public appointmentForm = this.sessionService.makeSessionForm();
+  public appointmentForm = new FormBuilder().group({
+    title: [''],
+    description: [''],
+    end: [''],
+    start: [''],
+    capacity: [12],
+    type: ['Individual'],
+    location: [''],
+    id: [undefined as number | undefined],
+  });
 
   public get title() {
     return this.appointmentForm.get('title');
@@ -67,10 +77,7 @@ export class Scheduler {
   }
 
   handleSubmit() {
-    if (!this.appointmentForm.valid) {
-      this.appointmentForm.markAllAsDirty();
-      return;
-    }
+    if (!this.appointmentForm.dirty) return;
     this.savingSession = true;
     const value = this.appointmentForm.getRawValue();
     if (value.id) {
@@ -86,10 +93,9 @@ export class Scheduler {
   }
 
   private finalize = {
-    error: () => {
-      this.showModal = false;
+    error: setServerErrors(this.appointmentForm, () => {
       this.savingSession = false;
-    },
+    }),
     complete: () => {
       this.showModal = false;
       this.savingSession = false;

@@ -24,6 +24,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
 using OrchardCore;
+using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 
 namespace LBB.OC.Reservation;
 
@@ -40,6 +41,7 @@ public class Startup : StartupBase
         services.AddDataMigration<ReservationMigrations>();
 
         services.AddCore(typeof(Startup).Assembly, typeof(ApplicationAssembly).Assembly);
+        services.AddApplication();
 
         services.AddDbContext<LbbDbContext>((serviceProvider, options) =>
         {
@@ -51,7 +53,7 @@ public class Startup : StartupBase
 
         services.ConfigureReservationModuleAuthorization();
         services.AddSwaggerGen();
-
+        services.AddFluentValidationAutoValidation();
 
         services.AddSingleton<ISpaProvider, SpaProvider>();
 

@@ -6,6 +6,7 @@ using LBB.Core.Mediator;
 using LBB.Core.ValueObjects;
 using LBB.Reservation.Domain.Aggregates.Session;
 using LBB.Reservation.Domain.Contracts.Repository;
+using Microsoft.Extensions.Localization;
 
 namespace LBB.Reservation.Application.Features.SessionFeature.Commands;
 
@@ -23,7 +24,6 @@ public class AddReservationCommand : ICommand<Result<int>>
 
     [MaxLength(LBB.Core.ValueObjects.PhoneNumber.MaxLength)]
     public required string PhoneNumber { get; set; } = "";
-
     public int SessionId { get; set; }
 }
 

@@ -4,7 +4,6 @@ using OrchardCore.Environment.Shell;
 
 namespace LBB.OC.Reservation.Controllers
 {
-    [ApiController]
     [Route(Constants.ModuleBasePath)]
     public class HomeController : ControllerBase
     {
@@ -22,6 +21,7 @@ namespace LBB.OC.Reservation.Controllers
         // If "anything" looks like a static asset (has an extension), redirect to root ("/...") so it is served by static files.
         [HttpGet("")]
         [HttpGet("{*slug}")]
+        [ApiExplorerSettings(IgnoreApi = true)]
         [Authorize(Constants.Policies.ManageReservations)]
         public IActionResult Index(string? slug)
         {

@@ -1,40 +1,43 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using FluentResults;
+using FluentValidation;
 using LBB.Core.Contracts;
 using LBB.Core.Mediator;
 using LBB.Reservation.Domain;
 using LBB.Reservation.Domain.Aggregates.Session;
+using Microsoft.Extensions.Localization;
 
 namespace LBB.Reservation.Application.Features.SessionFeature.Commands;
 
 public sealed class CreateSessionCommand : ICommand<Result<int>>
 {
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    [Required]
     public required Enums.SessionType Type { get; set; }
-
-    [MaxLength(Session.MaxTitleLength)]
-    [Required]
     public required string Title { get; set; }
-
-    [MaxLength(Session.MaxDescriptionLength)]
     public required string Description { get; set; }
-
-    [Required]
     public required DateTime Start { get; set; }
-
-    [Required]
     public required DateTime End { get; set; }
-
-    [MaxLength(Core.ValueObjects.Location.MaxLength)]
     public string Location { get; set; } = "";
-
-    [Range(1, int.MaxValue)]
-    public int Capacity { get; set; }
+    public int? Capacity { get; set; }
 }
 
-public sealed class CreateSessionCommandHandler(IUnitOfWork unitOfWork)
+public sealed class CreateSessionCommandValidator : AbstractValidator<CreateSessionCommand>
+{
+    public CreateSessionCommandValidator()
+    {
+        RuleFor(x => x.Title).NotEmpty().WithName(SessionResources.Title);
+        RuleFor(x => x.Start).NotEmpty();
+        RuleFor(x => x.End).NotEmpty();
+        RuleFor(x => x.Capacity).NotEmpty().When(c => c.Type == Enums.SessionType.Group).GreaterThan(0);
+        RuleFor(x => x.Type).IsInEnum();
+        RuleFor(x => x.Location).MaximumLength(Core.ValueObjects.Location.MaxLength);
+        RuleFor(x => x.Description).MaximumLength(Session.MaxDescriptionLength);
+        RuleFor(x => x.Title).MaximumLength(Session.MaxTitleLength);
+    }
+}
+
+public sealed class CreateSessionCommandHandler(IUnitOfWork unitOfWork, IStringLocalizer<CreateSessionCommandHandler> localizer)
     : ICommandHandler<CreateSessionCommand, Result<int>>
 {
     public async Task<Result<int>> HandleAsync(
@@ -57,7 +60,7 @@ public sealed class CreateSessionCommandHandler(IUnitOfWork unitOfWork)
                     location: command.Location,
                     start: command.Start,
                     end: command.End,
-                    capacity: command.Capacity
+                    capacity: command.Capacity!.Value
                 );
         if (session.IsFailed)
             return session.ToResult<int>();

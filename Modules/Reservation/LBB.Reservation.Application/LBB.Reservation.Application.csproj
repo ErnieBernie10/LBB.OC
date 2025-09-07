@@ -12,4 +12,26 @@
     <ProjectReference Include="..\LBB.Reservation.Domain\LBB.Reservation.Domain.csproj" />
     <ProjectReference Include="..\LBB.Reservation.Infrastructure\LBB.Reservation.Infrastructure.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="12.0.0" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Localization.Abstractions" Version="8.0.19" />
+    <PackageReference Include="SharpGrip.FluentValidation.AutoValidation.Mvc" Version="1.5.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="Resources\SessionResources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>SessionResources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\SessionResources.nl.resx">
+      <DependentUpon>SessionResources.resx</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Resources\SessionResources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SessionResources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
 </Project>

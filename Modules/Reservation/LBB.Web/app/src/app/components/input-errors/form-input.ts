@@ -1,12 +1,17 @@
-import { Component, forwardRef, inject, Input } from '@angular/core';
-import { AbstractControl, ControlContainer, ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { Component, inject, Input } from '@angular/core';
+import { AbstractControl, ControlContainer } from '@angular/forms';
 
 @Component({
   selector: 'app-input',
   standalone: true,
   template: `
     <ng-container>
-      <label [for]="formControlName">{{ label }}</label>
+      <label [for]="controlName">
+        {{ label }}
+        @if (required) {
+          <span class="required">*</span>
+        }
+      </label>
       <ng-content></ng-content>
       @if (shouldShowErrors) {
         @for (error of activeErrors; track error.key) {
@@ -15,25 +20,14 @@ import { AbstractControl, ControlContainer, ControlValueAccessor, NG_VALUE_ACCES
       }
     </ng-container>
   `,
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => FormInput),
-      multi: true,
-    },
-  ],
 })
-export class FormInput implements ControlValueAccessor {
-  writeValue(obj: any): void {}
-  registerOnChange(fn: any): void {}
-  registerOnTouched(fn: any): void {}
-  setDisabledState?(isDisabled: boolean): void {}
-
+export class FormInput {
   private controlContainer: ControlContainer = inject(ControlContainer);
   @Input() for: string = '';
   @Input() label: string = '';
-  @Input() formControlName: string = '';
+  @Input() controlName: string = '';
   @Input() customMessages: { [key: string]: string | ((value: any) => string) } = {};
+  @Input() required: boolean = false;
 
   private defaultMessages: { [key: string]: string | ((value: any) => string) } = {
     required: 'This field is required',
@@ -42,10 +36,11 @@ export class FormInput implements ControlValueAccessor {
     email: 'Please enter a valid email address',
     min: (value) => `Minimum value is ${value.min}`,
     max: (value) => `Maximum value is ${value.max}`,
+    server: (value) => value,
   };
 
   public get control() {
-    return this.controlContainer?.control?.get(this.formControlName) as AbstractControl;
+    return this.controlContainer?.control?.get(this.controlName) as AbstractControl;
   }
 
   get shouldShowErrors(): boolean {

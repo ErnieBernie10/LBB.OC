@@ -19,19 +19,6 @@ export interface Session {
   start: Date;
   end: Date;
 }
-
-export type SessionType = 'Individual' | 'Group';
-
-export interface CreateSession {
-  title: string;
-  description: string;
-  start: string;
-  end: string;
-  type: SessionType;
-  location: string;
-  capacity: number;
-}
-
 @Injectable({
   providedIn: 'root',
 })
@@ -49,20 +36,6 @@ export class SessionService {
       },
     });
   }
-
-  public makeSessionForm() {
-    return new FormBuilder().nonNullable.group({
-      id: [undefined as number | undefined],
-      start: ['', Validators.required],
-      end: ['', Validators.required],
-      title: ['', Validators.required],
-      description: [''],
-      type: ['Individual', Validators.required],
-      location: [''],
-      capacity: [12, Validators.required],
-    });
-  }
-
   public updateSession(id: number, session: unknown) {
     return this.client.put(this.baseUrl + `/api/sessions/${id}`, session);
   }
