@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OrchardCore.Environment.Shell;
@@ -20,7 +21,7 @@ namespace LBB.OC.Reservation.Controllers
         // GET /reservation/{anything}
         // If "anything" looks like a static asset (has an extension), redirect to root ("/...") so it is served by static files.
         [HttpGet("")]
-        [HttpGet("{*slug}")]
+        [HttpGet("{**slug}")]
         [ApiExplorerSettings(IgnoreApi = true)]
         [Authorize(Constants.Policies.ManageReservations)]
         public IActionResult Index(string? slug)
@@ -32,13 +33,8 @@ namespace LBB.OC.Reservation.Controllers
                 return LocalRedirect(target);
             }
 
-            if (!_spaIndex.Exists || _spaIndex.Bytes is null)
-            {
-                return NotFound("SPA index.html not found at module path: LBB.OC.Reservation/wwwroot/index.html");
-            }
-
             // Serve from memory to avoid per-request I/O.
-            return File(_spaIndex.Bytes, "text/html; charset=utf-8");
+            return File(_spaIndex.GetBytes(slug?.Split("/").FirstOrDefault() ?? CultureInfo.CurrentUICulture.TwoLetterISOLanguageName)!, "text/html; charset=utf-8");
         }
     }
 }

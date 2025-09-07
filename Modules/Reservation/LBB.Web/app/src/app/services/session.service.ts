@@ -25,8 +25,7 @@ export interface Session {
 export class SessionService {
   private client: HttpClient = inject(HttpClient);
   private authService: AuthService = inject(AuthService);
-  private platformLocation: PlatformLocation = inject(PlatformLocation);
-  private baseUrl = this.platformLocation.getBaseHrefFromDOM();
+  private baseUrl = '/reservation/';
 
   public createSession(session: unknown) {
     return this.client.post(`${this.baseUrl}sessions`, session, {

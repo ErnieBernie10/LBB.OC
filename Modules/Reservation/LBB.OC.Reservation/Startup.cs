@@ -54,6 +54,7 @@ public class Startup : StartupBase
         services.ConfigureReservationModuleAuthorization();
         services.AddSwaggerGen();
         services.AddFluentValidationAutoValidation();
+        services.AddHttpContextAccessor();
 
         services.AddSingleton<ISpaProvider, SpaProvider>();
 

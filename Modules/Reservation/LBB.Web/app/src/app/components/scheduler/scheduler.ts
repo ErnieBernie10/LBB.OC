@@ -3,15 +3,17 @@ import {
   Component,
   ElementRef,
   EventEmitter,
+  inject,
   Input,
+  LOCALE_ID,
   OnDestroy,
   OnInit,
   Output,
   ViewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { formatDate } from 'date-fns';
-import { addDays, addWeeks, format, setHours, setMinutes, startOfWeek, subWeeks } from 'date-fns';
+import { addDays, addWeeks, format, formatDate, setHours, setMinutes, startOfWeek, subWeeks } from 'date-fns';
+import { nlBE, enUS } from 'date-fns/locale';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { withDelayedLoading } from '../../operators/withDelayedLoading';
 
@@ -37,6 +39,8 @@ export class Scheduler implements OnInit, AfterViewInit, OnDestroy {
 
   private loadingSubject = new BehaviorSubject<boolean>(false);
   private destroy$ = new Subject<void>();
+  private locale = inject(LOCALE_ID);
+  l = this.locale === 'nl' ? nlBE : enUS;
 
   @Input()
   set loading(value: boolean) {
@@ -63,7 +67,9 @@ export class Scheduler implements OnInit, AfterViewInit, OnDestroy {
   pixelsPerHour = 60; // Increased from 30 to 60 for better precision
 
   generateTimeSlots() {
-    this.timeSlots = Array.from({ length: 24 }, (_, i) => format(new Date().setHours(i, 0), 'HH:mm'));
+    this.timeSlots = Array.from({ length: 24 }, (_, i) =>
+      format(new Date().setHours(i, 0), 'HH:mm', { locale: this.l })
+    );
   }
 
   updateWeekDays() {

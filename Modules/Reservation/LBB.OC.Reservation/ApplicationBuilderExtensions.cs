@@ -19,38 +19,11 @@ public static class ApplicationBuilderExtensions
     }
     public static void UseReservationMiddleware(this IApplicationBuilder builder, IServiceProvider serviceProvider)
     {
-        builder.Use(async (context, next) =>
-        {
-            if (HttpMethods.IsGet(context.Request.Method))
-            {
-                var path = context.Request.Path.Value ?? string.Empty;
-
-                // If requesting the tenant root ("/"), redirect to "/reservation/"
-                if (string.Equals(path, "/", StringComparison.Ordinal) || string.IsNullOrEmpty(path))
-                {
-                    var qs = context.Request.QueryString.HasValue ? context.Request.QueryString.Value : string.Empty;
-                    context.Response.Redirect($"{context.Request.PathBase}/{Constants.ModuleBasePath}/{qs}", permanent: false);
-                    return;
-                }
-
-                // Normalize "/reservation" -> "/reservation/"
-                if (string.Equals(path, $"/{Constants.ModuleBasePath}", StringComparison.OrdinalIgnoreCase))
-                {
-                    var qs = context.Request.QueryString.HasValue ? context.Request.QueryString.Value : string.Empty;
-                    context.Response.Redirect($"{context.Request.PathBase}/{Constants.ModuleBasePath}/{qs}", permanent: false);
-                    return;
-                }
-            }
-
-            await next();
-        });
-
-
         var env = serviceProvider.GetService<IWebHostEnvironment>();
 
         builder.UseStaticFiles(new StaticFileOptions
         {
-            FileProvider = new PhysicalFileProvider(GetModuleWebRoot(env))
+            FileProvider = new PhysicalFileProvider(GetModuleWebRoot(env)),
         });
 
     }

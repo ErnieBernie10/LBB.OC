@@ -9,23 +9,30 @@
   },
   "projects": {
     "app": {
+      "i18n": {
+        "sourceLocale": "en",
+        "locales": {
+          "nl": "src/locale/messages.nl.xlf"
+        }
+      },
       "projectType": "application",
       "schematics": {},
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",
       "architect": {
-
         "build": {
           "builder": "@angular/build:application",
           "options": {
+            "localize": true,
             "outputPath": {
               "base": "../../LBB.OC.Reservation/wwwroot",
               "browser": ""
             },
             "browser": "src/main.ts",
             "polyfills": [
-              "zone.js"
+              "zone.js",
+              "@angular/localize/init"
             ],
             "tsConfig": "tsconfig.app.json",
             "assets": [
@@ -37,7 +44,7 @@
             "styles": [
               "src/styles.scss"
             ],
-            "baseHref": "./"
+            "baseHref": "/reservation/"
           },
           "configurations": {
             "production": {
@@ -89,7 +96,8 @@
           "options": {
             "polyfills": [
               "zone.js",
-              "zone.js/testing"
+              "zone.js/testing",
+              "@angular/localize/init"
             ],
             "tsConfig": "tsconfig.spec.json",
             "assets": [

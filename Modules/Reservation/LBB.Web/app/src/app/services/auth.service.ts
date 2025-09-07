@@ -17,8 +17,7 @@ interface CsrfToken {
 })
 export class AuthService {
   private client: HttpClient = inject(HttpClient);
-  private platformLocation: PlatformLocation = inject(PlatformLocation);
-  private baseUrl: string = this.platformLocation.getBaseHrefFromDOM();
+  private baseUrl: string = '/reservation/';
 
   private xsrfToken: string = '';
   public getXsrfToken(): string {

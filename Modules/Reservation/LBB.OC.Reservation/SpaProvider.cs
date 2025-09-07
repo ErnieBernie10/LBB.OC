@@ -1,30 +1,38 @@
+using System.Globalization;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
 
 namespace LBB.OC.Reservation;
 
 public interface ISpaProvider
 {
-    bool Exists { get; }
-    byte[]? Bytes { get; }
+    byte[]? GetBytes(string? lang);
 }
 
 public sealed class SpaProvider : ISpaProvider
 {
     private readonly IWebHostEnvironment _env;
-    public bool Exists { get; }
 
-    private byte[]? _bytes;
-    public byte[]? Bytes
+    public byte[]? GetBytes(string? lang = "en")
     {
-        get => _env.IsDevelopment() ? GetIndex() : _bytes;
-        private init => _bytes = value;
+        lang ??= CultureInfo.CurrentCulture.TwoLetterISOLanguageName;
+        if (_bytes.TryGetValue(lang, out var bytes))
+        {
+            return bytes;
+        }
+        _bytes[lang] = GetIndex(lang);
+        return _bytes[lang];
     }
 
-    private byte[] GetIndex()
+    private Dictionary<string, byte[]> _bytes = new Dictionary<string, byte[]>();
+
+    private byte[] GetIndex(string? lang)
     {
+        if (lang == null)
+            lang = CultureInfo.CurrentCulture.TwoLetterISOLanguageName;
         var ocRoot = _env.ContentRootPath;
-        var moduleWebRoot = Path.GetFullPath(Path.Combine(ocRoot, $"../Modules/Reservation/{Constants.ModuleName}/wwwroot"));
+        var moduleWebRoot = Path.GetFullPath(Path.Combine(ocRoot, $"../Modules/Reservation/{Constants.ModuleName}/wwwroot/" + lang));
         var indexPath = Path.Combine(moduleWebRoot, "index.html");
         if (File.Exists(indexPath))
             return File.ReadAllBytes(indexPath);
@@ -34,8 +42,5 @@ public sealed class SpaProvider : ISpaProvider
     public SpaProvider(IWebHostEnvironment env)
     {
         _env = env;
-        var index = GetIndex();
-        Bytes = index;
-        Exists = index.Length != 0;
     }
 }
