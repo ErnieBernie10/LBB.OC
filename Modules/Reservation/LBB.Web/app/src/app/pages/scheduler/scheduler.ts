@@ -123,6 +123,8 @@ export class Scheduler {
           description: '',
           start: $event.start,
           end: $event.end,
+          reservations: 0,
+          capacity: 12,
         } as Appointment);
 
       this.appointmentForm.setValue({

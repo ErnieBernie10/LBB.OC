@@ -26,6 +26,8 @@ public class GetSessionsQueryHandler(LbbDbContext context) : IQueryHandler<GetSe
                 End = s.End,
                 Description = s.Description,
                 AttendeeCount = s.Reservations.Sum(r => r.AttendeeCount),
+                Location = s.Location,
+                Capacity = s.Capacity,
                 Id = s.Id
             }).ToListAsync(cancellationToken);
 

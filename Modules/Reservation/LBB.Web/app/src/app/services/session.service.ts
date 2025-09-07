@@ -1,10 +1,8 @@
 import { inject, Injectable, Signal } from '@angular/core';
-import { HttpClient, HttpErrorResponse, httpResource } from '@angular/common/http';
-import { catchError, map, mergeMap, Observable, of, startWith } from 'rxjs';
+import { HttpClient, httpResource } from '@angular/common/http';
 import { AuthService } from './auth.service';
 import { PlatformLocation } from '@angular/common';
 import { Appointment } from '../components/scheduler/scheduler';
-import { FormBuilder, Validators } from '@angular/forms';
 
 export interface WithState<T> {
   data?: T;
@@ -13,6 +11,8 @@ export interface WithState<T> {
 }
 
 export interface Session {
+  capacity: number;
+  attendeeCount: number;
   id: number;
   title: string;
   description: string;
@@ -51,6 +51,8 @@ export class SessionService {
               end: new Date(s.end),
               id: s.id,
               title: s.title,
+              reservations: s.attendeeCount,
+              capacity: s.capacity,
             })
           );
         },

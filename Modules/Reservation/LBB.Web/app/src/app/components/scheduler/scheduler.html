@@ -33,7 +33,9 @@
             <div class="events-container" (click)="onColumnClick($event, day, scrollContainer)">
               @for (appointment of getAppointmentsForDay(day); track appointment.id) {
                 <div class="event" [ngStyle]="getAppointmentStyle(appointment)">
-                  {{ appointment.title }} ({{ appointment.end }}min)
+                  {{ appointment.title }} ({{ formatDate(appointment.start, 'HH:mm') }} -
+                  {{ formatDate(appointment.end, 'HH:mm') }}) <br />
+                  {{ appointment.reservations }} / {{ appointment.capacity }}
                 </div>
               }
             </div>

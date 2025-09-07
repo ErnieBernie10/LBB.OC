@@ -10,11 +10,14 @@ import {
   ViewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { formatDate } from 'date-fns';
 import { addDays, addWeeks, format, setHours, setMinutes, startOfWeek, subWeeks } from 'date-fns';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { withDelayedLoading } from '../../operators/withDelayedLoading';
 
 export interface Appointment {
+  reservations: number;
+  capacity: number;
   id: number;
   title: string;
   start: Date;
@@ -160,4 +163,6 @@ export class Scheduler implements OnInit, AfterViewInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
   }
+
+  protected readonly formatDate = formatDate;
 }

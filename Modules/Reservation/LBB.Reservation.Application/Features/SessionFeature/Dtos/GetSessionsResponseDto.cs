@@ -7,5 +7,7 @@ public class GetSessionsResponseDto
     public DateTime Start { get; set; }
     public DateTime End { get; set; }
     public int AttendeeCount { get; set; }
+    public string Location { get; set; }
+    public int Capacity { get; set; }
     public int Id { get; set; }
 }
