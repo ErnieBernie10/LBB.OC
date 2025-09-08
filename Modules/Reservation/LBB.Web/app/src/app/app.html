@@ -11,8 +11,8 @@
       <nav>
         <ul>
           <li><a routerLink="/" i18n="@@home">Home</a></li>
-          <li><a routerLink="/reservations">Reservaties</a></li>
-          <li><a routerLink="/scheduler">Planner</a></li>
+          <li><a routerLink="/reservations" i18n="@@reservations">Reservations</a></li>
+          <li><a routerLink="/scheduler" i18n="@@planner">Planner</a></li>
         </ul>
         <ul>
           <li>
@@ -21,7 +21,7 @@
               <ul>
                 <li>
                   <form method="post" action="/Users/LogOff" class="reset">
-                    <a href="#" onclick="this.closest('form').submit(); return false;">Logoff</a>
+                    <a href="#" onclick="this.closest('form').submit(); return false;" i18n="@@logoff">Logoff</a>
                     <app-csrf />
                   </form>
                 </li>

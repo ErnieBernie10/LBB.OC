@@ -1,12 +1,93 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
-  <file source-language="en-US" datatype="plaintext" original="ng2.template">
+  <file source-language="en" datatype="plaintext" original="ng2.template">
     <body>
       <trans-unit id="home" datatype="html">
         <source>Home</source>
+        <target state="translated">Thuis</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/app.html</context>
           <context context-type="linenumber">13,14</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="reservations" datatype="html">
+        <source>Reservations</source>
+        <target state="translated">Reservaties</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.html</context>
+          <context context-type="linenumber">14,15</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="planner" datatype="html">
+        <source>Planner</source>
+        <target state="translated">Planner</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.html</context>
+          <context context-type="linenumber">15,16</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="logoff" datatype="html">
+        <source>Logoff</source>
+        <target state="translated">Afmelden</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.html</context>
+          <context context-type="linenumber">24,25</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="loading" datatype="html">
+        <source>Loading...</source>
+        <target state="translated">Laden...</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/scheduler/scheduler.html</context>
+          <context context-type="linenumber">10,12</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="recent reservations" datatype="html">
+        <source>Recent reservations</source>
+        <target state="translated">Recente reservaties</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/home/home.html</context>
+          <context context-type="linenumber">5,7</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="date" datatype="html">
+        <source>Date</source>
+        <target state="translated">Datum</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/home/home.html</context>
+          <context context-type="linenumber">10,11</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="name" datatype="html">
+        <source>Name</source>
+        <target state="translated">Naam</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/home/home.html</context>
+          <context context-type="linenumber">11,12</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="email" datatype="html">
+        <source>Email</source>
+        <target state="translated">Email</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/home/home.html</context>
+          <context context-type="linenumber">12,13</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="phone" datatype="html">
+        <source>Phone</source>
+        <target state="translated">Telefoon</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/home/home.html</context>
+          <context context-type="linenumber">13,14</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="attendees" datatype="html">
+        <source>Attendees</source>
+        <target state="translated">Aantal reservaties</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/home/home.html</context>
+          <context context-type="linenumber">14,16</context>
         </context-group>
       </trans-unit>
     </body>
