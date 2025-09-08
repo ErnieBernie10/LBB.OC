@@ -1,6 +1,3 @@
-using System;
-using System.IO;
-using System.Reflection;
 using LBB.Core;
 using LBB.OC.Reservation.Migrations;
 using LBB.Reservation.Application;
@@ -8,23 +5,13 @@ using LBB.Reservation.Infrastructure;
 using LBB.Reservation.Infrastructure.Context;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
-using OrchardCore.Data;
 using OrchardCore.Data.Migration;
 using OrchardCore.Environment.Shell;
-using OrchardCore.ResourceManagement;
-using YesSql;
-using Microsoft.Extensions.FileProviders;
 using StartupBase = OrchardCore.Modules.StartupBase;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
-using OrchardCore;
-using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 
 namespace LBB.OC.Reservation;
 
@@ -53,7 +40,6 @@ public class Startup : StartupBase
 
         services.ConfigureReservationModuleAuthorization();
         services.AddSwaggerGen();
-        services.AddFluentValidationAutoValidation();
         services.AddHttpContextAccessor();
 
         services.AddSingleton<ISpaProvider, SpaProvider>();

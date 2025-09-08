@@ -16,7 +16,6 @@
     <PackageReference Include="FluentValidation" Version="12.0.0" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.0.0" />
     <PackageReference Include="Microsoft.Extensions.Localization.Abstractions" Version="8.0.19" />
-    <PackageReference Include="SharpGrip.FluentValidation.AutoValidation.Mvc" Version="1.5.0" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Update="Resources\SessionResources.resx">

@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using FluentResults;
 using FluentValidation;
+using LBB.Core;
 using LBB.Core.Contracts;
 using LBB.Core.Mediator;
 using LBB.Reservation.Domain;
@@ -26,7 +27,7 @@ public sealed class CreateSessionCommandValidator : AbstractValidator<CreateSess
 {
     public CreateSessionCommandValidator()
     {
-        RuleFor(x => x.Title).NotEmpty().WithName(SessionResources.Title);
+        RuleFor(x => x.Title).NotEmpty().WithErrorCode(Constants.ErrorCodes.Validation.Required);
         RuleFor(x => x.Start).NotEmpty();
         RuleFor(x => x.End).NotEmpty();
         RuleFor(x => x.Capacity).NotEmpty().When(c => c.Type == Enums.SessionType.Group).GreaterThan(0);
@@ -45,6 +46,9 @@ public sealed class CreateSessionCommandHandler(IUnitOfWork unitOfWork, IStringL
         CancellationToken cancellationToken = default
     )
     {
+        // TODO: Execute the validator and map to result from FluentResults so it can be used to add to the modelstate
+        // in the controller. The modelstate will only contain error codes. The UI will render based on the error codes.
+        // Remove intl from backend entirely.
         var session =
             command.Type == Enums.SessionType.Individual
                 ? Session.CreateIndividual(

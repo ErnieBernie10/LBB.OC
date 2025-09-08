@@ -49,10 +49,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Remove="LBB.Reservation.Infrastructure\obj\LBB.Reservation.Infrastructure.csproj.EntityFrameworkCore.targets" />
-    </ItemGroup>
-
-    <ItemGroup>
       <Compile Update="Localization\ValidationResources.Designer.cs">
         <DesignTime>True</DesignTime>
         <AutoGen>True</AutoGen>
