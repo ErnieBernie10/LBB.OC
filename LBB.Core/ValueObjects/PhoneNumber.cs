@@ -20,7 +20,7 @@ public sealed class PhoneNumber : ValueObject<PhoneNumber, string>
     public static Result<PhoneNumber> Create(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
-            return Result.Fail(new ValidationError("Phone number cannot be empty"));
+            return Result.Fail(new DomainValidationError("Phone number cannot be empty"));
 
         return Validate(
             value.Trim(),
@@ -33,11 +33,11 @@ public sealed class PhoneNumber : ValueObject<PhoneNumber, string>
     {
         if (value.Length > MaxLength)
             return Result.Fail(
-                new ValidationError($"Phone number cannot be longer than {MaxLength} characters")
+                new DomainValidationError($"Phone number cannot be longer than {MaxLength} characters")
             );
 
         if (!PhoneRegex.IsMatch(value))
-            return Result.Fail(new ValidationError("Invalid phone number format"));
+            return Result.Fail(new DomainValidationError("Invalid phone number format"));
 
         return Result.Ok();
     }

@@ -4,6 +4,7 @@ using FluentResults;
 using FluentValidation;
 using LBB.Core;
 using LBB.Core.Contracts;
+using LBB.Core.Errors;
 using LBB.Core.Mediator;
 using LBB.Reservation.Domain;
 using LBB.Reservation.Domain.Aggregates.Session;
@@ -38,7 +39,7 @@ public sealed class CreateSessionCommandValidator : AbstractValidator<CreateSess
     }
 }
 
-public sealed class CreateSessionCommandHandler(IUnitOfWork unitOfWork, IStringLocalizer<CreateSessionCommandHandler> localizer)
+public sealed class CreateSessionCommandHandler(IUnitOfWork unitOfWork, IStringLocalizer<CreateSessionCommandHandler> localizer, FluentValidation.IValidator<CreateSessionCommand> validator)
     : ICommandHandler<CreateSessionCommand, Result<int>>
 {
     public async Task<Result<int>> HandleAsync(
@@ -46,6 +47,9 @@ public sealed class CreateSessionCommandHandler(IUnitOfWork unitOfWork, IStringL
         CancellationToken cancellationToken = default
     )
     {
+        var result = validator.Validate(command);
+        if (!result.IsValid)
+            return Result.Fail(new ValidationError(result));
         // TODO: Execute the validator and map to result from FluentResults so it can be used to add to the modelstate
         // in the controller. The modelstate will only contain error codes. The UI will render based on the error codes.
         // Remove intl from backend entirely.

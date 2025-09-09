@@ -31,14 +31,14 @@ public sealed class PersonName : ValueObject<PersonName, PersonName.NameComponen
         var errors = new List<IError>();
 
         if (string.IsNullOrWhiteSpace(components.Firstname))
-            errors.Add(new ValidationError("Firstname cannot be empty"));
+            errors.Add(new DomainValidationError("Firstname cannot be empty"));
         else if (components.Firstname.Length > MaxFirstnameLength)
-            errors.Add(new ValidationError("Firstname too long"));
+            errors.Add(new DomainValidationError("Firstname too long"));
 
         if (string.IsNullOrWhiteSpace(components.Lastname))
-            errors.Add(new ValidationError("Lastname cannot be empty"));
+            errors.Add(new DomainValidationError("Lastname cannot be empty"));
         else if (components.Lastname.Length > MaxLastnameLength)
-            errors.Add(new ValidationError("Lastname too long"));
+            errors.Add(new DomainValidationError("Lastname too long"));
 
         return errors.Count > 0 ? Result.Fail(errors) : Result.Ok();
     }

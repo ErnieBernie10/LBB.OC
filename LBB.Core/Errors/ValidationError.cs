@@ -1,9 +1,14 @@
-using FluentResults;
+﻿using FluentResults;
+using FluentValidation.Results;
 
 namespace LBB.Core.Errors;
 
 public class ValidationError : Error
 {
-    public ValidationError(string message)
-        : base(message) { }
+    public ValidationResult Result { get; }
+
+    public ValidationError(ValidationResult result)
+    {
+        Result = result;
+    }
 }

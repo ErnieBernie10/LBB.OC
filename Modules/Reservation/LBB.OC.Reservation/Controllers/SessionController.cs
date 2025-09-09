@@ -1,6 +1,7 @@
 using FluentResults;
 using LBB.Core.Errors;
 using LBB.Core.Mediator;
+using LBB.OC.Reservation.Extensions;
 using LBB.Reservation.Application.Features.SessionFeature.Commands;
 using LBB.Reservation.Application.Features.SessionFeature.Dtos;
 using LBB.Reservation.Application.Features.SessionFeature.Queries;
@@ -38,6 +39,8 @@ public class SessionController(IMediator mediator) : ControllerBase
         var session = await mediator.SendCommandAsync<CreateSessionCommand, Result<int>>(command);
         if (session.IsFailed)
         {
+            if (session.HasError<ValidationError>())
+                return BadRequest(session.MapValidationErrorsToProblemDetails());
             if (session.HasError<NotFoundError>())
                 return NotFound(session.Errors);
         }

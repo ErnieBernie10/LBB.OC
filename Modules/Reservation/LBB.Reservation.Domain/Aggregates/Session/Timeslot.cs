@@ -16,18 +16,18 @@ public class Timeslot : ValueObject<Timeslot, Timeslot.Component>
     public static Result<Timeslot> Create(DateTime start, DateTime end)
     {
         if (start == default)
-            return Result.Fail(new ValidationError("Start time cannot be default value"));
+            return Result.Fail(new DomainValidationError("Start time cannot be default value"));
 
         if (end == default)
-            return Result.Fail(new ValidationError("End time cannot be default value"));
+            return Result.Fail(new DomainValidationError("End time cannot be default value"));
 
         if (start > end)
             return Result.Fail(
-                new ValidationError($"Start time ({start}) must be before end time ({end})")
+                new DomainValidationError($"Start time ({start}) must be before end time ({end})")
             );
 
         if ((end - start).TotalDays > 365)
-            return Result.Fail(new ValidationError("Timeslot duration cannot exceed one year"));
+            return Result.Fail(new DomainValidationError("Timeslot duration cannot exceed one year"));
 
         return new Timeslot(new Component(start, end));
     }
@@ -45,7 +45,7 @@ public class Timeslot : ValueObject<Timeslot, Timeslot.Component>
     public Result<Timeslot> Intersect(Timeslot other)
     {
         if (!Overlaps(other))
-            return Result.Fail(new ValidationError("Timeslots do not overlap"));
+            return Result.Fail(new DomainValidationError("Timeslots do not overlap"));
 
         var start = Value.Start > other.Value.Start ? Value.Start : other.Value.Start;
         var end = Value.End < other.Value.End ? Value.End : other.Value.End;
