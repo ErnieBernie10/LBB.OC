@@ -17,7 +17,7 @@ public sealed class CreateSessionCommand : ICommand<Result<int>>
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public required Enums.SessionType Type { get; set; }
     public required string Title { get; set; }
-    public required string Description { get; set; }
+    public string Description { get; set; } = "";
     public required DateTime Start { get; set; }
     public required DateTime End { get; set; }
     public string Location { get; set; } = "";
