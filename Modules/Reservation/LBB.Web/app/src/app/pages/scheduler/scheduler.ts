@@ -8,7 +8,7 @@ import { FormInput } from '../../components/input-errors/form-input';
 import { Modal, ModalContent, ModalFooter, ModalHeader } from '../../components/modal/modal';
 import { InvalidPipe } from '../../pipes/invalid-pipe';
 import { Alert } from '../../components/alert/alert';
-import { setServerErrors } from '../../util/formutils';
+import { FormValidationService } from '../../services/form-validation.service';
 
 @Component({
   selector: 'app-scheduler-page',
@@ -28,6 +28,7 @@ import { setServerErrors } from '../../util/formutils';
 })
 export class Scheduler {
   private sessionService = inject(SessionService);
+  private formService = inject(FormValidationService);
   public savingSession = false;
 
   public showModal = false;
@@ -93,7 +94,7 @@ export class Scheduler {
   }
 
   private finalize = {
-    error: setServerErrors(this.appointmentForm, () => {
+    error: this.formService.setServerErrors(this.appointmentForm, () => {
       this.savingSession = false;
     }),
     complete: () => {

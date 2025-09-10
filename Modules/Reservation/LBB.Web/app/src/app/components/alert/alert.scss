@@ -13,7 +13,8 @@ div[role="alert"] {
     color: var(--pico-primary-inverse);
   }
 
-  &.secondary {
+  &.secondary,
+  &.info {
     background-color: var(--pico-secondary);
     color: var(--pico-secondary-inverse);
   }

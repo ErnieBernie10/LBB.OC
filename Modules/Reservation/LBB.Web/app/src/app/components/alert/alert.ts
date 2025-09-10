@@ -1,7 +1,7 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-export type AlertType = 'primary' | 'secondary' | 'success' | 'warning' | 'danger';
+export type AlertType = 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info';
 
 @Component({
   selector: 'app-alert',
@@ -12,15 +12,17 @@ export type AlertType = 'primary' | 'secondary' | 'success' | 'warning' | 'dange
 })
 export class Alert {
   @Input({
-    transform: (value: string): 'primary' | 'secondary' | 'success' | 'warning' | 'danger' => value as AlertType,
+    transform: (value: string): AlertType => value as AlertType,
   })
   type: AlertType = 'primary';
   @Input() message: string = '';
   @Input() dismissible: boolean = false;
+  @Output() dismissed = new EventEmitter<void>();
 
   visible: boolean = true;
 
   dismiss() {
     this.visible = false;
+    this.dismissed.emit();
   }
 }

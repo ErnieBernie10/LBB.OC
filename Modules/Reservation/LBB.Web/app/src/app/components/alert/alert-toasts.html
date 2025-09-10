@@ -1,0 +1,7 @@
+<div class="toast-container" aria-live="polite" aria-atomic="true">
+  @for (a of alerts$ | async; track $index) {
+    <div class="toast">
+      <app-alert [dismissible]="true" [type]="a.type" [message]="a.title ? a.title + ': ' + a.message : a.message" />
+    </div>
+  }
+</div>
