@@ -133,7 +133,7 @@ public sealed class Session : AggregateRoot
             return result;
 
         var session = new Session(
-            Enums.SessionType.Individual,
+            Enums.SessionType.Group,
             t.Value,
             title,
             description,

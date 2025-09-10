@@ -101,6 +101,7 @@ export class Scheduler {
       this.showModal = false;
       this.savingSession = false;
       this.appointmentForm.reset();
+      this.appointments.reload();
     },
   };
 
