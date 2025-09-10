@@ -17,7 +17,7 @@ public sealed class SpaProvider : ISpaProvider
     public byte[]? GetBytes(string? lang = "en")
     {
         lang ??= CultureInfo.CurrentCulture.TwoLetterISOLanguageName;
-        if (_bytes.TryGetValue(lang, out var bytes))
+        if (_env.IsProduction() && _bytes.TryGetValue(lang, out var bytes))
         {
             return bytes;
         }

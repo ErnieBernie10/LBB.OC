@@ -36,7 +36,9 @@ export class FormInput {
     email: 'Please enter a valid email address',
     min: (value) => `Minimum value is ${value.min}`,
     max: (value) => `Maximum value is ${value.max}`,
-    server: (value) => value,
+    NotEmptyValidator: $localize`This field is required`,
+    GreaterThanValidator: (value) => $localize`Value must be greater than ${value.min}`,
+    MaximumLengthValidator: (value) => $localize`Maximum length is ${value.max}`,
   };
 
   public get control() {
@@ -57,6 +59,9 @@ export class FormInput {
     if (typeof message === 'function') {
       return message(value);
     }
-    return message || `Invalid ${key}`;
+    if (message) return message as string;
+    // Fallback: if the control error's value is a string (e.g., server message), show it
+    if (typeof value === 'string') return value;
+    return `Invalid ${key}`;
   }
 }

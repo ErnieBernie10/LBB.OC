@@ -28,14 +28,13 @@ public sealed class CreateSessionCommandValidator : AbstractValidator<CreateSess
 {
     public CreateSessionCommandValidator()
     {
-        RuleFor(x => x.Title).NotEmpty().WithErrorCode(Constants.ErrorCodes.Validation.Required);
-        RuleFor(x => x.Start).NotEmpty();
-        RuleFor(x => x.End).NotEmpty();
+        RuleFor(x => x.Title).MaximumLength(Session.MaxTitleLength).NotEmpty();
+        RuleFor(x => x.Start).NotEmpty().LessThan(s => s.End);
+        RuleFor(x => x.End).NotEmpty().GreaterThan(s => s.Start);
         RuleFor(x => x.Capacity).NotEmpty().When(c => c.Type == Enums.SessionType.Group).GreaterThan(0);
         RuleFor(x => x.Type).IsInEnum();
         RuleFor(x => x.Location).MaximumLength(Core.ValueObjects.Location.MaxLength);
         RuleFor(x => x.Description).MaximumLength(Session.MaxDescriptionLength);
-        RuleFor(x => x.Title).MaximumLength(Session.MaxTitleLength);
     }
 }
 
