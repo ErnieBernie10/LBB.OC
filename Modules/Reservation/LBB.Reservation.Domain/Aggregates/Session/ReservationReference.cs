@@ -1,5 +1,7 @@
+using System.Runtime.CompilerServices;
 using System.Text;
 using FluentResults;
+using LBB.Core.Errors;
 using LBB.Core.ValueObjects;
 
 namespace LBB.Reservation.Domain.Aggregates.Session;
@@ -11,8 +13,10 @@ public class ReservationReference : ValueObject<ReservationReference, string>
     public const short TokenSize = 8;
     private const string _chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
-    public ReservationReference(string value)
-        : base(value) { }
+    private ReservationReference(string value)
+    {
+        Value = value;
+    }
 
     private static string GenerateReference()
     {
@@ -26,27 +30,48 @@ public class ReservationReference : ValueObject<ReservationReference, string>
 
     public static ReservationReference New => new(GenerateReference());
 
+    public override string Value { get; }
+
     public override string ToString()
     {
         return Value;
     }
 
-    public static Result<ReservationReference> Parse(string reservationReference)
+    public static Result<ReservationReference> Parse(
+        string reservationReference,
+        string reservationReferencePropertyName
+    )
     {
+        var errors = new List<IError>();
         if (string.IsNullOrEmpty(reservationReference))
-            return Result.Fail("Reservation reference cannot be empty");
+            errors.Add(new NotEmptyError(reservationReferencePropertyName));
 
         if (reservationReference.Length != TokenSize)
-            return Result.Fail(
-                $"Reservation reference must be exactly {TokenSize} characters long"
-            );
+            errors.Add(new InvalidTokenError(reservationReferencePropertyName, TokenSize));
 
         var invalidChars = reservationReference.Where(c => !_chars.Contains(c)).ToList();
         if (invalidChars.Any())
-            return Result.Fail(
-                $"Reservation reference contains invalid characters: {string.Join(", ", invalidChars)}"
-            );
+            errors.Add(new InvalidCharacterError(reservationReferencePropertyName));
 
         return new ReservationReference(reservationReference);
     }
+}
+
+public class InvalidTokenError : DomainValidationError
+{
+    public InvalidTokenError(string propertyName, int tokenSize)
+        : base(
+            propertyName,
+            $"Invalid reservation reference. Token should be {tokenSize} characters long."
+        ) { }
+
+    public override string ErrorCode => nameof(InvalidTokenError);
+}
+
+public class InvalidCharacterError : DomainValidationError
+{
+    public InvalidCharacterError(string propertyName)
+        : base(propertyName, $"Reservation reference contains invalid characters.") { }
+
+    public override string ErrorCode => nameof(InvalidCharacterError);
 }

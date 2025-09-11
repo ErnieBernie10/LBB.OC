@@ -5,20 +5,7 @@ namespace LBB.Core.ValueObjects;
 public abstract class ValueObject<T, TValue>
     where T : ValueObject<T, TValue>
 {
-    protected ValueObject(TValue value)
-    {
-        Value = NormalizeValue(value);
-    }
-
-    private static TValue NormalizeValue(TValue value)
-    {
-        if (value is null)
-            return value;
-
-        return value is string strVal ? (TValue)(object)strVal.Trim() : value;
-    }
-
-    public TValue Value { get; }
+    public abstract TValue Value { get; }
 
     public static implicit operator TValue(ValueObject<T, TValue> vo) => vo.Value;
 
@@ -54,18 +41,5 @@ public abstract class ValueObject<T, TValue>
     public override string ToString()
     {
         return Value?.ToString() ?? string.Empty;
-    }
-
-    protected static Result<T> Validate(
-        TValue value,
-        Func<TValue, Result> validator,
-        Func<TValue, T> factory
-    )
-    {
-        var validationResult = validator(value);
-        if (validationResult.IsFailed)
-            return Result.Fail(validationResult.Errors);
-
-        return Result.Ok(factory(value));
     }
 }

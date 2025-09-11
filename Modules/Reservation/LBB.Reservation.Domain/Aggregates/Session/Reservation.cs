@@ -1,6 +1,8 @@
 using FluentResults;
 using LBB.Core;
+using LBB.Core.Errors;
 using LBB.Core.ValueObjects;
+using LBB.Reservation.Domain.Aggregates.Session.Commands;
 
 namespace LBB.Reservation.Domain.Aggregates.Session;
 
@@ -11,22 +13,6 @@ public class Reservation : Entity
     public int AttendeeCount { get; private set; }
     public EmailAddress Email { get; private set; }
     public PhoneNumber Phone { get; private set; }
-
-    internal Reservation(
-        string reference,
-        string firstname,
-        string lastname,
-        int attendeeCount,
-        string email,
-        string phone
-    )
-    {
-        Reference = new ReservationReference(reference);
-        Name = PersonName.Create(firstname, lastname).Value;
-        AttendeeCount = attendeeCount;
-        Email = EmailAddress.Create(email).Value;
-        Phone = PhoneNumber.Create(phone).Value;
-    }
 
     public Reservation(
         ReservationReference reference,
@@ -43,18 +29,17 @@ public class Reservation : Entity
         Phone = phone;
     }
 
-    public static Result<Reservation> Create(
-        string firstname,
-        string lastname,
-        string email,
-        string phone,
-        int guestCount = 1
-    )
+    public static Result<Reservation> Create(IAddReservationCommand command)
     {
-        var c = ValidateGuestCount(guestCount);
-        var name = PersonName.Create(firstname, lastname);
-        var emailAddress = EmailAddress.Create(email);
-        var phoneNumber = PhoneNumber.Create(phone);
+        var c = ValidateMemberCount(command.AttendeeCount ?? 1, nameof(command.AttendeeCount));
+        var name = PersonName.Create(
+            command.Firstname,
+            command.Lastname,
+            nameof(command.Firstname),
+            nameof(command.Lastname)
+        );
+        var emailAddress = EmailAddress.Create(command.Email, nameof(command.Email));
+        var phoneNumber = PhoneNumber.Create(command.PhoneNumber, nameof(command.PhoneNumber));
 
         var result = Result.Merge(name, emailAddress, phoneNumber, c);
         if (result.IsFailed)
@@ -65,16 +50,16 @@ public class Reservation : Entity
         return new Reservation(
             ReservationReference.New,
             name.Value,
-            guestCount,
+            c.ValueOrDefault,
             emailAddress.Value,
             phoneNumber.Value
         );
     }
 
-    private static Result<int> ValidateGuestCount(int guestCount)
+    private static Result<int> ValidateMemberCount(int guestCount, string guestCountPropertyName)
     {
         if (guestCount < 1)
-            return Result.Fail("Guest count must be at least 1");
+            return Result.Fail(new GreaterThanError(guestCountPropertyName, 1));
 
         return Result.Ok(guestCount);
     }

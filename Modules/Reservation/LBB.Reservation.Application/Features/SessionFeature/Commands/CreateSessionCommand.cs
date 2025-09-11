@@ -8,11 +8,12 @@ using LBB.Core.Errors;
 using LBB.Core.Mediator;
 using LBB.Reservation.Domain;
 using LBB.Reservation.Domain.Aggregates.Session;
+using LBB.Reservation.Domain.Aggregates.Session.Commands;
 using Microsoft.Extensions.Localization;
 
 namespace LBB.Reservation.Application.Features.SessionFeature.Commands;
 
-public sealed class CreateSessionCommand : ICommand<Result<int>>
+public sealed class CreateSessionCommand : ICreateGroupSessionCommand, ICommand<Result<int>>
 {
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public required Enums.SessionType Type { get; set; }
@@ -24,21 +25,7 @@ public sealed class CreateSessionCommand : ICommand<Result<int>>
     public int? Capacity { get; set; }
 }
 
-public sealed class CreateSessionCommandValidator : AbstractValidator<CreateSessionCommand>
-{
-    public CreateSessionCommandValidator()
-    {
-        RuleFor(x => x.Title).MaximumLength(Session.MaxTitleLength).NotEmpty();
-        RuleFor(x => x.Start).NotEmpty().LessThan(s => s.End);
-        RuleFor(x => x.End).NotEmpty().GreaterThan(s => s.Start);
-        RuleFor(x => x.Capacity).NotEmpty().When(c => c.Type == Enums.SessionType.Group).GreaterThan(0);
-        RuleFor(x => x.Type).IsInEnum();
-        RuleFor(x => x.Location).MaximumLength(Core.ValueObjects.Location.MaxLength);
-        RuleFor(x => x.Description).MaximumLength(Session.MaxDescriptionLength);
-    }
-}
-
-public sealed class CreateSessionCommandHandler(IUnitOfWork unitOfWork, IStringLocalizer<CreateSessionCommandHandler> localizer, FluentValidation.IValidator<CreateSessionCommand> validator)
+public sealed class CreateSessionCommandHandler(IUnitOfWork unitOfWork)
     : ICommandHandler<CreateSessionCommand, Result<int>>
 {
     public async Task<Result<int>> HandleAsync(
@@ -46,27 +33,10 @@ public sealed class CreateSessionCommandHandler(IUnitOfWork unitOfWork, IStringL
         CancellationToken cancellationToken = default
     )
     {
-        var result = validator.Validate(command);
-        if (!result.IsValid)
-            return Result.Fail(new ValidationError(result));
-
         var session =
             command.Type == Enums.SessionType.Individual
-                ? Session.CreateIndividual(
-                    title: command.Title,
-                    description: command.Description,
-                    location: command.Location,
-                    start: command.Start,
-                    end: command.End
-                )
-                : Session.CreateGroup(
-                    title: command.Title,
-                    description: command.Description,
-                    location: command.Location,
-                    start: command.Start,
-                    end: command.End,
-                    capacity: command.Capacity!.Value
-                );
+                ? Session.CreateIndividual(command)
+                : Session.CreateGroup(command);
         if (session.IsFailed)
             return session.ToResult<int>();
 

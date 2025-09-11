@@ -1,44 +1,43 @@
+using System.Runtime.CompilerServices;
 using FluentResults;
 using LBB.Core.Errors;
 
 namespace LBB.Core.ValueObjects;
 
-public sealed class PersonName : ValueObject<PersonName, PersonName.NameComponents>
+public sealed class PersonName : ValueObject<PersonName, string>
 {
     public const int MaxFirstnameLength = 200;
     public const int MaxLastnameLength = 200;
 
-    // Record to hold both name components
-    public record NameComponents(string Firstname, string Lastname);
+    public string Firstname { get; }
+    public string Lastname { get; }
 
-    private PersonName(NameComponents components)
-        : base(components) { }
+    public override string Value => $"{Firstname} {Lastname}";
 
-    public string Firstname => Value.Firstname;
-    public string Lastname => Value.Lastname;
-
-    public static Result<PersonName> Create(string firstname, string lastname)
+    private PersonName(string firstname, string lastname)
     {
-        return Validate(
-            new NameComponents(firstname, lastname),
-            ValidateName,
-            components => new PersonName(components)
-        );
+        Firstname = firstname;
+        Lastname = lastname;
     }
 
-    private static Result ValidateName(NameComponents components)
+    public static Result<PersonName> Create(
+        string firstname,
+        string lastname,
+        string firstnamePropertyName,
+        string lastnamePropertyName
+    )
     {
         var errors = new List<IError>();
 
-        if (string.IsNullOrWhiteSpace(components.Firstname))
-            errors.Add(new DomainValidationError("Firstname cannot be empty"));
-        else if (components.Firstname.Length > MaxFirstnameLength)
-            errors.Add(new DomainValidationError("Firstname too long"));
+        if (string.IsNullOrWhiteSpace(firstname))
+            errors.Add(new NotEmptyError(firstnamePropertyName));
+        else if (firstname.Length > MaxFirstnameLength)
+            errors.Add(new LengthExceededError(firstnamePropertyName, MaxFirstnameLength));
 
-        if (string.IsNullOrWhiteSpace(components.Lastname))
-            errors.Add(new DomainValidationError("Lastname cannot be empty"));
-        else if (components.Lastname.Length > MaxLastnameLength)
-            errors.Add(new DomainValidationError("Lastname too long"));
+        if (string.IsNullOrWhiteSpace(lastname))
+            errors.Add(new NotEmptyError(lastnamePropertyName));
+        else if (lastname.Length > MaxLastnameLength)
+            errors.Add(new LengthExceededError(lastnamePropertyName, MaxLastnameLength));
 
         return errors.Count > 0 ? Result.Fail(errors) : Result.Ok();
     }

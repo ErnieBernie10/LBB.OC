@@ -1,35 +1,40 @@
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using FluentResults;
+using LBB.Core.Errors;
 
 namespace LBB.Core.ValueObjects;
 
 public sealed class EmailAddress : ValueObject<EmailAddress, string>
 {
     public const int MaxLength = 200;
+
+    public override string Value { get; }
     private static readonly Regex EmailRegex = new(
         @"^[^@\s]+@[^@\s]+\.[^@\s]+$",
         RegexOptions.Compiled | RegexOptions.IgnoreCase
     );
 
-    private EmailAddress(string value)
-        : base(value.ToLower()) { }
-
-    public static Result<EmailAddress> Create(string value)
+    public static Result<EmailAddress> Create(string value, string valuePropertyName)
     {
-        return Validate(value, ValidateEmail, v => new EmailAddress(v));
-    }
-
-    private static Result ValidateEmail(string value)
-    {
+        var errors = new List<IError>();
         if (string.IsNullOrWhiteSpace(value))
-            return Result.Fail("Email address cannot be empty");
+            errors.Add(new NotEmptyError(valuePropertyName));
 
         if (value.Length > MaxLength)
-            return Result.Fail($"Email address cannot be longer than {MaxLength} characters");
+            errors.Add(new LengthExceededError(valuePropertyName, MaxLength));
 
         if (!EmailRegex.IsMatch(value))
-            return Result.Fail("Invalid email address format");
+            errors.Add(new InvalidEmailAddressError(valuePropertyName));
+
+        if (errors.Count > 0)
+            return Result.Fail(errors);
 
         return Result.Ok();
+    }
+
+    private EmailAddress(string value)
+    {
+        Value = value;
     }
 }

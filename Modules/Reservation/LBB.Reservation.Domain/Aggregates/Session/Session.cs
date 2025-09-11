@@ -1,7 +1,10 @@
+using System.Runtime.CompilerServices;
 using FluentResults;
 using LBB.Core;
+using LBB.Core.Errors;
 using LBB.Core.Mediator;
 using LBB.Core.ValueObjects;
+using LBB.Reservation.Domain.Aggregates.Session.Commands;
 using LBB.Reservation.Domain.Aggregates.Session.Events;
 using LBB.Reservation.Domain.Aggregates.Session.Policies;
 using LBB.Reservation.Domain.Contracts.Policy;
@@ -29,15 +32,15 @@ public sealed class Session : AggregateRoot
     )
         : this(
             (Enums.SessionType)sessionType,
-            Timeslot.Create(start, end).Value,
+            Timeslot.Create(start, end, nameof(start), nameof(end)).Value,
             title,
             description,
-            Location.Create(location).Value,
-            Capacity.Create(capacity).Value,
+            Location.Create(location, nameof(location)).Value,
+            Capacity.Create(capacity, nameof(capacity)).Value,
             reservations
         ) { }
 
-    public Session(
+    private Session(
         Enums.SessionType sessionType,
         Timeslot timeslot,
         string title,
@@ -72,18 +75,17 @@ public sealed class Session : AggregateRoot
         set => _reservations = value.ToList();
     }
 
-    public static Result<Session> CreateIndividual(
-        string title,
-        string description,
-        string location,
-        DateTime start,
-        DateTime end
-    )
+    public static Result<Session> CreateIndividual(ICreateIndividualSessionCommand command)
     {
-        var info = ValidateInfo(title, description);
-        var t = Timeslot.Create(start, end);
-        var l = Location.Create(location);
-        var c = Capacity.Create(1);
+        var info = ValidateInfo(command.Title, command.Description, nameof(command.Title), nameof(command.Description));
+        var t = Timeslot.Create(
+            command.Start,
+            command.End,
+            nameof(command.Start),
+            nameof(command.End)
+        );
+        var l = Location.Create(command.Location, nameof(command.Location));
+        var c = Capacity.Create(1, 1.ToString());
         var result = Result.Merge(t, l, c, info);
         if (result.IsFailed)
             return result;
@@ -91,8 +93,8 @@ public sealed class Session : AggregateRoot
         var session = new Session(
             Enums.SessionType.Individual,
             t.Value,
-            title,
-            description,
+            command.Title,
+            command.Description,
             l.Value,
             c.Value,
             new List<Reservation>()
@@ -101,33 +103,46 @@ public sealed class Session : AggregateRoot
         return session;
     }
 
-    private static ResultBase ValidateInfo(string title, string description)
+    private static ResultBase ValidateInfo(
+        string title,
+        string description,
+        string titlePropertyName,
+        string descriptionPropertyName
+    )
     {
+        var errors = new List<IError>();
         if (string.IsNullOrEmpty(title))
-            return Result.Fail("Title cannot be empty");
+            errors.Add(new NotEmptyError(titlePropertyName));
         if (title.Length > MaxTitleLength)
-            return Result.Fail($"Title cannot be longer than {MaxTitleLength} characters");
+            errors.Add(new LengthExceededError(titlePropertyName, MaxTitleLength));
         if (description.Length > MaxDescriptionLength)
-            return Result.Fail(
-                $"Description cannot be longer than {MaxDescriptionLength} characters"
-            );
+            errors.Add(new LengthExceededError(descriptionPropertyName, MaxDescriptionLength));
+
+        if (errors.Count > 0)
+            return Result.Fail(errors);
 
         return Result.Ok();
     }
 
-    public static Result<Session> CreateGroup(
-        string title,
-        string description,
-        string location,
-        DateTime start,
-        DateTime end,
-        int capacity
-    )
+    public static Result<Session> CreateGroup(ICreateGroupSessionCommand command)
     {
-        var info = ValidateInfo(title, description);
-        var t = Timeslot.Create(start, end);
-        var l = Location.Create(location);
-        var c = Capacity.Create(capacity);
+        var info = ValidateInfo(
+            command.Title,
+            command.Description,
+            nameof(command.Title),
+            nameof(command.Description)
+        );
+        var t = Timeslot.Create(
+            command.Start,
+            command.End,
+            nameof(command.Start),
+            nameof(command.End)
+        );
+        var l = Location.Create(command.Location, nameof(command.Location));
+        var c = Capacity.Create(
+            command.Capacity.HasValue ? command.Capacity.Value : 1,
+            nameof(command.Capacity)
+        );
         var result = Result.Merge(t, l, c, info);
         if (result.IsFailed)
             return result;
@@ -135,8 +150,8 @@ public sealed class Session : AggregateRoot
         var session = new Session(
             Enums.SessionType.Group,
             t.Value,
-            title,
-            description,
+            command.Title,
+            command.Description,
             l.Value,
             c.Value,
             new List<Reservation>()
@@ -145,13 +160,22 @@ public sealed class Session : AggregateRoot
         return session;
     }
 
-    public Result UpdateInfo(string title, string description, string location, int requestCapacity)
+    public Result UpdateInfo(IUpdateInfoCommand command)
     {
-        Title = title;
-        Description = description;
-        var c = Capacity.Create(requestCapacity, Reservations.Count);
-        var l = Location.Create(location);
-        var result = Result.Merge(c, l);
+        var infoResult = ValidateInfo(
+            command.Title,
+            command.Description,
+            nameof(command.Title),
+            nameof(command.Description)
+        );
+        var c = Capacity.Create(
+            command.Capacity,
+            Reservations.Count,
+            nameof(command.Capacity),
+            nameof(Reservations)
+        );
+        var l = Location.Create(command.Location, nameof(command.Location));
+        var result = Result.Merge(c, l, infoResult);
         if (result.IsFailed)
             return result;
 
@@ -163,23 +187,17 @@ public sealed class Session : AggregateRoot
         return Result.Ok();
     }
 
-    public Result AddReservation(
-        string firstname,
-        string lastname,
-        string email,
-        string phone,
-        int memberCount
-    )
+    public Result AddReservation(IAddReservationCommand command)
     {
         var canBook = _reservationPolicy.CanBook(this);
         if (canBook.IsFailed)
             return canBook;
 
-        var reservation = Reservation.Create(firstname, lastname, email, phone, memberCount);
+        var reservation = Reservation.Create(command);
         if (reservation.IsFailed)
             return reservation.ToResult();
 
-        var result = Capacity.Add(memberCount);
+        var result = Capacity.Add(command.AttendeeCount ?? 1, nameof(command.AttendeeCount));
         if (result.IsFailed)
             return result.ToResult();
 
@@ -191,9 +209,14 @@ public sealed class Session : AggregateRoot
         return Result.Ok();
     }
 
-    public Result UpdateTimeslot(DateTime requestStart, DateTime requestEnd)
+    public Result UpdateTimeslot(IUpdateTimeSlotCommand command)
     {
-        var ts = Timeslot.Create(requestStart, requestEnd);
+        var ts = Timeslot.Create(
+            command.Start,
+            command.End,
+            nameof(command.Start),
+            nameof(command.End)
+        );
         if (ts.IsFailed)
             return ts.ToResult();
 

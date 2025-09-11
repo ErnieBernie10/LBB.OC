@@ -1,48 +1,65 @@
 using FluentResults;
+using LBB.Core.Errors;
 using LBB.Core.ValueObjects;
 
 namespace LBB.Reservation.Domain.Aggregates.Session;
 
-public class Capacity : ValueObject<Capacity, Capacity.Component>
+public class Capacity : ValueObject<Capacity, (int Max, int Current)>
 {
-    public record Component(int Max, int Current);
+    public int Max { get; }
+    public int Current { get; }
+    public override (int Max, int Current) Value => (Max, Current);
 
-    public Capacity(Component value)
-        : base(value) { }
+    public bool IsFull => Current >= Max;
 
-    public bool IsFull => Value.Current >= Value.Max;
-
-    public static Result<Capacity> Create(int max, int current)
+    private Capacity(int max, int current)
     {
-        if (max < current)
-            return Result.Fail(new CapacityExceededError());
-
-        return new Capacity(new Component(max, current));
+        Max = max;
+        Current = current;
     }
 
-    public static Result<Capacity> Create(int max)
+    public static Result<Capacity> Create(
+        int max,
+        int current,
+        string maxPropertyName,
+        string currentPropertyName
+    )
     {
         if (max < 0)
-            return Result.Fail("Capacity must be positive");
+            return Result.Fail(new GreaterThanError(maxPropertyName, 0));
 
-        return new Capacity(new Component(max, 0));
+        if (current < 0)
+            return Result.Fail(new GreaterThanError(currentPropertyName, 0));
+
+        if (max < current)
+            return Result.Fail(new CapacityExceededError(currentPropertyName));
+
+        return new Capacity(max, current);
+    }
+
+    public static Result<Capacity> Create(int max, string maxPropertyName)
+    {
+        if (max < 0)
+            return Result.Fail(new GreaterThanError(maxPropertyName, 0));
+
+        return new Capacity(max, 0);
     }
 
     public static Result<Capacity> Create()
     {
-        return new Capacity(new Component(int.MaxValue, 0));
+        return new Capacity(int.MaxValue, 0);
     }
 
-    public Result<Capacity> Add(int memberCount)
+    public Result<Capacity> Add(int memberCount, string memberCountPropertyName)
     {
         if (memberCount < 0)
             return Result.Fail("Member count cannot be negative");
 
-        if (memberCount > Value.Max - Value.Current)
-            return Result.Fail(new CapacityExceededError());
+        if (memberCount > Max - Current)
+            return Result.Fail(new CapacityExceededError(memberCountPropertyName));
 
-        var newComponent = Value with { Current = Value.Current + memberCount };
-        return Result.Ok(new Capacity(newComponent));
+        var newCurrent = Current + memberCount;
+        return Result.Ok(new Capacity(Max, newCurrent));
     }
 
     public Result<Capacity> SetMax(int requestCapacity)
@@ -50,16 +67,17 @@ public class Capacity : ValueObject<Capacity, Capacity.Component>
         if (requestCapacity <= 0)
             return Result.Fail("Capacity must be positive");
 
-        if (requestCapacity < Value.Current)
+        if (requestCapacity < Current)
             return Result.Fail("Capacity cannot be less than current capacity");
 
-        var newComponent = Value with { Max = requestCapacity };
-        return Result.Ok(new Capacity(newComponent));
+        return Result.Ok(new Capacity(requestCapacity, Current));
     }
 
-    public class CapacityExceededError : Error
+    public class CapacityExceededError : DomainValidationError
     {
-        public CapacityExceededError()
-            : base("Capacity exceeded") { }
+        public CapacityExceededError(string propertyName)
+            : base(propertyName, "Capacity exceeded") { }
+
+        public override string ErrorCode => nameof(CapacityExceededError);
     }
 }

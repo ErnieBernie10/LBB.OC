@@ -43,6 +43,7 @@ public class SessionController(IMediator mediator) : ControllerBase
                 return BadRequest(session.MapValidationErrorsToProblemDetails());
             if (session.HasError<NotFoundError>())
                 return NotFound(session.Errors);
+            return BadRequest(session.Errors);
         }
         return Ok(session.Value);
     }

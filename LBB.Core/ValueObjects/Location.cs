@@ -1,28 +1,27 @@
+using System.Runtime.CompilerServices;
 using FluentResults;
+using LBB.Core.Errors;
 
 namespace LBB.Core.ValueObjects;
 
 public sealed class Location : ValueObject<Location, string>
 {
-    public const int MaxLength = 200;
-
     private Location(string description)
-        : base(description) { }
+    {
+        Value = description;
+    }
+
+    public const int MaxLength = 200;
 
     public string Description => Value;
 
-    public static Result<Location> Create(string description)
-    {
-        return Validate(description, ValidateDescription, value => new Location(value));
-    }
-
-    private static Result ValidateDescription(string description)
+    public static Result<Location> Create(string description, string descriptionPropertyName)
     {
         if (description.Length > MaxLength)
-            return Result.Fail(
-                $"Location description cannot be longer than {MaxLength} characters"
-            );
+            return Result.Fail(new LengthExceededError(descriptionPropertyName, MaxLength));
 
-        return Result.Ok();
+        return Result.Ok(new Location(description));
     }
+
+    public override string Value { get; }
 }

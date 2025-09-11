@@ -5,24 +5,21 @@ using LBB.Core.Errors;
 using LBB.Core.Mediator;
 using LBB.Core.ValueObjects;
 using LBB.Reservation.Domain.Aggregates.Session;
+using LBB.Reservation.Domain.Aggregates.Session.Commands;
 using LBB.Reservation.Domain.Contracts.Repository;
 using Microsoft.Extensions.Localization;
 
 namespace LBB.Reservation.Application.Features.SessionFeature.Commands;
 
-public class AddReservationCommand : ICommand<Result<int>>
+public class AddReservationCommand : IAddReservationCommand, ICommand<Result<int>>
 {
-    [MaxLength(PersonName.MaxFirstnameLength)]
     public required string Firstname { get; set; }
 
-    [MaxLength(PersonName.MaxLastnameLength)]
     public required string Lastname { get; set; }
     public int? AttendeeCount { get; set; }
 
-    [MaxLength(EmailAddress.MaxLength)]
     public required string Email { get; set; } = "";
 
-    [MaxLength(LBB.Core.ValueObjects.PhoneNumber.MaxLength)]
     public required string PhoneNumber { get; set; } = "";
     public int SessionId { get; set; }
 }
@@ -39,13 +36,7 @@ public class AddReservationCommandHandler(IUnitOfWork unitOfWork, ISessionReposi
         if (session == null)
             return Result.Fail(new NotFoundError("Session not found"));
 
-        var result = session.AddReservation(
-            command.Firstname,
-            command.Lastname,
-            command.Email,
-            command.PhoneNumber,
-            command.AttendeeCount ?? 1
-        );
+        var result = session.AddReservation(command);
         if (result.IsFailed)
             return result.ToResult<int>();
 

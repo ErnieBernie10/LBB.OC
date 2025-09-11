@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using FluentResults;
 using LBB.Core.Errors;
@@ -15,31 +16,27 @@ public sealed class PhoneNumber : ValueObject<PhoneNumber, string>
     private static readonly Regex PhoneRegex = new(@"^\+?[\d\s()\-]{6,20}$", RegexOptions.Compiled);
 
     private PhoneNumber(string value)
-        : base(value) { }
-
-    public static Result<PhoneNumber> Create(string value)
     {
-        if (string.IsNullOrWhiteSpace(value))
-            return Result.Fail(new DomainValidationError("Phone number cannot be empty"));
-
-        return Validate(
-            value.Trim(),
-            ValidatePhoneNumber,
-            v => new PhoneNumber(NormalizePhoneNumber(v))
-        );
+        Value = value;
     }
 
-    private static Result ValidatePhoneNumber(string value)
+    public static Result<PhoneNumber> Create(string value, string valuePropertyName)
     {
+        var val = NormalizePhoneNumber(value.Trim());
+        var errors = new List<IError>();
+        if (string.IsNullOrWhiteSpace(val))
+            errors.Add(new NotEmptyError(valuePropertyName));
+
         if (value.Length > MaxLength)
-            return Result.Fail(
-                new DomainValidationError($"Phone number cannot be longer than {MaxLength} characters")
-            );
+            errors.Add(new LengthExceededError(valuePropertyName, MaxLength));
 
         if (!PhoneRegex.IsMatch(value))
-            return Result.Fail(new DomainValidationError("Invalid phone number format"));
+            errors.Add(new InvalidPhoneNumberError(valuePropertyName));
 
-        return Result.Ok();
+        if (errors.Count > 0)
+            return Result.Fail(errors);
+
+        return new PhoneNumber(val);
     }
 
     private static string NormalizePhoneNumber(string value)
@@ -49,6 +46,8 @@ public sealed class PhoneNumber : ValueObject<PhoneNumber, string>
     }
 
     public static implicit operator string(PhoneNumber phoneNumber) => phoneNumber.Value;
+
+    public override string Value { get; }
 
     public override string ToString() => Value;
 }
