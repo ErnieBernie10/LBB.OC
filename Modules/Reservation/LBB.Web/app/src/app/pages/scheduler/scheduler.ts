@@ -4,7 +4,7 @@ import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { SessionService, WithState } from '../../services/session.service';
 import { Observable, take } from 'rxjs';
 import { toFormDate } from '../../util/dateutils';
-import { FormInput } from '../../components/input-errors/form-input';
+import { FormInput, FormLabelRegistry } from '../../components/input-errors/form-input';
 import { Modal, ModalContent, ModalFooter, ModalHeader } from '../../components/modal/modal';
 import { InvalidPipe } from '../../pipes/invalid-pipe';
 import { Alert } from '../../components/alert/alert';
@@ -23,6 +23,7 @@ import { FormValidationService } from '../../services/form-validation.service';
     Alert,
     SchedulerC,
   ],
+  providers: [FormLabelRegistry],
   templateUrl: './scheduler.html',
   styleUrl: './scheduler.scss',
 })

@@ -58,11 +58,16 @@ export class FormInput implements OnChanges {
     min: (value) => `Minimum value is ${value.min}`,
     max: (value) => `Maximum value is ${value.max}`,
     NotEmptyError: $localize`This field is required`,
-    GreaterThanError: (value) => $localize`${this.label} must be greater than ${value.min}`,
-    // Use this control’s label and the sibling control’s label (looked up by control name from validator metadata)
+    GreaterThanError: (value) =>
+      $localize`:validation|Numeric greater-than@@GreaterThanError:${this.label} must be greater than ${value.min}`,
     GreaterThanDateError: (value) =>
-      $localize`${this.label} must be greater than ${this.lookupLabel(value?.property2Name)}`,
-    LessThanDateError: (value) => $localize`${this.label} must be less than ${this.lookupLabel(value?.property2Name)}`,
+      $localize`:validation|Date greater-than@@GreaterThanDateError:${this.label} must be greater than ${this.lookupLabel(
+        value?.property2Name
+      )}`,
+    LessThanDateError: (value) =>
+      $localize`:validation|Date less-than@@LessThanDateError:${this.label} must be less than ${this.lookupLabel(
+        value?.property2Name
+      )}`,
     LengthExceededError: (value) => $localize`Maximum length is ${value.max}`,
   };
 

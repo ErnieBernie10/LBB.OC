@@ -5,49 +5,19 @@
     </modal-header>
     <modal-content>
       <app-input [controlName]="'title'" label="Title" i18n-label="@@scheduler.label.title" [required]="true">
-        <input
-          id="title"
-          type="text"
-          name="title"
-          placeholder="Titel"
-          formControlName="title"
-          [attr.aria-invalid]="title | invalid"
-        />
+        <input id="title" type="text" name="title" formControlName="title" [attr.aria-invalid]="title | invalid" />
       </app-input>
       <app-input [controlName]="'description'" label="Description" i18n-label="@@scheduler.label.description">
-        <textarea
-          id="description"
-          placeholder="Beschrijving"
-          formControlName="description"
-          [attr.aria-invalid]="description | invalid"
-        ></textarea>
+        <textarea id="description" formControlName="description" [attr.aria-invalid]="description | invalid"></textarea>
       </app-input>
       <app-input [controlName]="'location'" label="Location" i18n-label="@@scheduler.label.location">
-        <input
-          id="location"
-          type="text"
-          placeholder="Locatie"
-          formControlName="location"
-          [attr.aria-invalid]="location | invalid"
-        />
+        <input id="location" type="text" formControlName="location" [attr.aria-invalid]="location | invalid" />
       </app-input>
       <app-input [controlName]="'start'" label="Start" i18n-label="@@scheduler.label.start">
-        <input
-          id="start"
-          type="datetime-local"
-          placeholder="Start"
-          formControlName="start"
-          [attr.aria-invalid]="start | invalid"
-        />
+        <input id="start" type="datetime-local" formControlName="start" [attr.aria-invalid]="start | invalid" />
       </app-input>
       <app-input [controlName]="'end'" label="End" i18n-label="@@scheduler.label.end">
-        <input
-          id="end"
-          type="datetime-local"
-          placeholder="Eind"
-          formControlName="end"
-          [attr.aria-invalid]="end | invalid"
-        />
+        <input id="end" type="datetime-local" formControlName="end" [attr.aria-invalid]="end | invalid" />
       </app-input>
       <app-input
         [controlName]="'type'"
@@ -67,13 +37,7 @@
           label="Capacity"
           i18n-label="@@scheduler.label.capacity"
         >
-          <input
-            id="capacity"
-            type="number"
-            placeholder="Capaciteit"
-            formControlName="capacity"
-            [attr.aria-invalid]="capacity | invalid"
-          />
+          <input id="capacity" type="number" formControlName="capacity" [attr.aria-invalid]="capacity | invalid" />
         </app-input>
       }
     </modal-content>

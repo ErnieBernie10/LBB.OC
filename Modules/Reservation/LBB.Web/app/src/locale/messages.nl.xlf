@@ -1,202 +1,112 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
-  <file source-language="en" datatype="plaintext" original="ng2.template" target-language="nl">
+  <file source-language="en" target-language="nl" datatype="plaintext" original="ng2.template">
     <body>
       <trans-unit id="home" datatype="html">
         <source>Home</source>
         <target state="translated">Thuis</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/app.html</context>
-          <context context-type="linenumber">13,14</context>
-        </context-group>
       </trans-unit>
       <trans-unit id="reservations" datatype="html">
         <source>Reservations</source>
         <target state="translated">Reservaties</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/app.html</context>
-          <context context-type="linenumber">14,15</context>
-        </context-group>
       </trans-unit>
       <trans-unit id="planner" datatype="html">
         <source>Planner</source>
         <target state="translated">Planner</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/app.html</context>
-          <context context-type="linenumber">15,16</context>
-        </context-group>
       </trans-unit>
       <trans-unit id="logoff" datatype="html">
         <source>Logoff</source>
         <target state="translated">Afmelden</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/app.html</context>
-          <context context-type="linenumber">24,25</context>
-        </context-group>
       </trans-unit>
       <trans-unit id="2501969335659826225" datatype="html">
         <source>This field is required</source>
         <target state="translated">Dit veld is verplicht</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/components/input-errors/form-input.ts</context>
-          <context context-type="linenumber">60</context>
-        </context-group>
       </trans-unit>
-      <trans-unit id="2728961715564925036" datatype="html">
+      <trans-unit id="GreaterThanDateError" datatype="html">
+        <source><x id="PH" equiv-text="this.label"/> must be greater than <x id="PH_1" equiv-text="this.lookupLabel( value?.property2Name )"/></source>
+        <target state="translated"><x id="PH" equiv-text="this.label"/> moet na <x id="PH_1" equiv-text="this.lookupLabel( value?.property2Name )"/> komen</target>
+        <note priority="1" from="description">Date greater-than</note>
+        <note priority="1" from="meaning">validation</note>
+      </trans-unit>
+      <trans-unit id="GreaterThanError" datatype="html">
         <source><x id="PH" equiv-text="this.label"/> must be greater than <x id="PH_1" equiv-text="value.min"/></source>
         <target state="translated"><x id="PH" equiv-text="this.label"/> moet groter zijn dan <x id="PH_1" equiv-text="value.min"/></target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/components/input-errors/form-input.ts</context>
-          <context context-type="linenumber">61</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/components/input-errors/form-input.ts</context>
-          <context context-type="linenumber">64</context>
-        </context-group>
+        <note priority="1" from="description">Numeric greater-than</note>
+        <note priority="1" from="meaning">validation</note>
       </trans-unit>
-      <trans-unit id="3522695935305547457" datatype="html">
-        <source><x id="PH" equiv-text="this.label"/> must be less than <x id="PH_1" equiv-text="this.lookupLabel(value?.property2Name)"/></source>
-        <target state="translated"><x id="PH" equiv-text="this.label"/> moet groter zijn dan <x id="PH_1" equiv-text="this.lookupLabel(value?.property2Name)"/></target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/components/input-errors/form-input.ts</context>
-          <context context-type="linenumber">65</context>
-        </context-group>
+      <trans-unit id="LessThanDateError" datatype="html">
+        <source><x id="PH" equiv-text="this.label"/> must be less than <x id="PH_1" equiv-text="this.lookupLabel( value?.property2Name )"/></source>
+        <target state="translated"><x id="PH" equiv-text="this.label"/> moet voor <x id="PH_1" equiv-text="this.lookupLabel( value?.property2Name )"/> komen</target>
+        <note priority="1" from="description">Date less-than</note>
+        <note priority="1" from="meaning">validation</note>
       </trans-unit>
       <trans-unit id="5568145565661725792" datatype="html">
         <source>Maximum length is <x id="PH" equiv-text="value.max"/></source>
         <target state="translated">Maximum lengte is <x id="PH" equiv-text="value.max"/></target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/components/input-errors/form-input.ts</context>
-          <context context-type="linenumber">66</context>
-        </context-group>
       </trans-unit>
       <trans-unit id="loading" datatype="html">
         <source>Loading...</source>
         <target state="translated">Laden...</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/components/scheduler/scheduler.html</context>
-          <context context-type="linenumber">10,12</context>
-        </context-group>
       </trans-unit>
       <trans-unit id="recent reservations" datatype="html">
         <source>Recent reservations</source>
         <target state="translated">Recente reservaties</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/pages/home/home.html</context>
-          <context context-type="linenumber">5,7</context>
-        </context-group>
       </trans-unit>
       <trans-unit id="date" datatype="html">
         <source>Date</source>
         <target state="translated">Datum</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/pages/home/home.html</context>
-          <context context-type="linenumber">10,11</context>
-        </context-group>
       </trans-unit>
       <trans-unit id="name" datatype="html">
         <source>Name</source>
         <target state="translated">Naam</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/pages/home/home.html</context>
-          <context context-type="linenumber">11,12</context>
-        </context-group>
       </trans-unit>
       <trans-unit id="email" datatype="html">
         <source>Email</source>
         <target state="translated">Email</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/pages/home/home.html</context>
-          <context context-type="linenumber">12,13</context>
-        </context-group>
       </trans-unit>
       <trans-unit id="phone" datatype="html">
         <source>Phone</source>
         <target state="translated">Tel.</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/pages/home/home.html</context>
-          <context context-type="linenumber">13,14</context>
-        </context-group>
       </trans-unit>
       <trans-unit id="attendees" datatype="html">
         <source>Attendees</source>
         <target state="translated">Deelnemers</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/pages/home/home.html</context>
-          <context context-type="linenumber">14,16</context>
-        </context-group>
       </trans-unit>
       <trans-unit id="scheduler.label.title" datatype="html">
         <source>Title</source>
         <target state="translated">Titel</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/pages/scheduler/scheduler.html</context>
-          <context context-type="linenumber">7</context>
-        </context-group>
       </trans-unit>
       <trans-unit id="scheduler.label.description" datatype="html">
         <source>Description</source>
         <target state="translated">Beschrijving</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/pages/scheduler/scheduler.html</context>
-          <context context-type="linenumber">17</context>
-        </context-group>
       </trans-unit>
       <trans-unit id="scheduler.label.location" datatype="html">
         <source>Location</source>
         <target state="translated">Locatie</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/pages/scheduler/scheduler.html</context>
-          <context context-type="linenumber">25</context>
-        </context-group>
       </trans-unit>
       <trans-unit id="scheduler.label.start" datatype="html">
         <source>Start</source>
         <target state="translated">Start</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/pages/scheduler/scheduler.html</context>
-          <context context-type="linenumber">34</context>
-        </context-group>
       </trans-unit>
       <trans-unit id="scheduler.label.end" datatype="html">
         <source>End</source>
         <target state="translated">Eind</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/pages/scheduler/scheduler.html</context>
-          <context context-type="linenumber">43</context>
-        </context-group>
       </trans-unit>
       <trans-unit id="scheduler.label.type" datatype="html">
         <source>Type</source>
         <target state="translated">Type</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/pages/scheduler/scheduler.html</context>
-          <context context-type="linenumber">55</context>
-        </context-group>
       </trans-unit>
       <trans-unit id="scheduler.label.capacity" datatype="html">
         <source>Capacity</source>
         <target state="translated">Capaciteit</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/pages/scheduler/scheduler.html</context>
-          <context context-type="linenumber">67,68</context>
-        </context-group>
       </trans-unit>
       <trans-unit id="9178182467454450952" datatype="html">
         <source>Confirm</source>
         <target state="translated">Bevestigen</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/pages/scheduler/scheduler.html</context>
-          <context context-type="linenumber">81,82</context>
-        </context-group>
       </trans-unit>
       <trans-unit id="663123531054113155" datatype="html">
         <source>An unexpected error occurred, please contact your administrator.</source>
         <target state="translated">Een onverwachte error is opgetreden. Contacteer aub uw administrator.</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/services/form-validation.service.ts</context>
-          <context context-type="linenumber">26</context>
-        </context-group>
       </trans-unit>
     </body>
   </file>
