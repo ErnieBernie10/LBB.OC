@@ -4,7 +4,7 @@
       <strong> Nieuwe sessie </strong>
     </modal-header>
     <modal-content>
-      <app-input [controlName]="'title'" label="Titel" [required]="true">
+      <app-input [controlName]="'title'" label="Title" i18n-label="@@scheduler.label.title" [required]="true">
         <input
           id="title"
           type="text"
@@ -14,7 +14,7 @@
           [attr.aria-invalid]="title | invalid"
         />
       </app-input>
-      <app-input [controlName]="'description'" label="Beschrijving">
+      <app-input [controlName]="'description'" label="Description" i18n-label="@@scheduler.label.description">
         <textarea
           id="description"
           placeholder="Beschrijving"
@@ -22,7 +22,7 @@
           [attr.aria-invalid]="description | invalid"
         ></textarea>
       </app-input>
-      <app-input [controlName]="'location'" label="Locatie">
+      <app-input [controlName]="'location'" label="Location" i18n-label="@@scheduler.label.location">
         <input
           id="location"
           type="text"
@@ -31,7 +31,7 @@
           [attr.aria-invalid]="location | invalid"
         />
       </app-input>
-      <app-input [controlName]="'start'" label="Start">
+      <app-input [controlName]="'start'" label="Start" i18n-label="@@scheduler.label.start">
         <input
           id="start"
           type="datetime-local"
@@ -40,7 +40,7 @@
           [attr.aria-invalid]="start | invalid"
         />
       </app-input>
-      <app-input [controlName]="'end'" label="Eind">
+      <app-input [controlName]="'end'" label="End" i18n-label="@@scheduler.label.end">
         <input
           id="end"
           type="datetime-local"
@@ -49,14 +49,24 @@
           [attr.aria-invalid]="end | invalid"
         />
       </app-input>
-      <app-input [controlName]="'type'" label="Type" [attr.aria-invalid]="type | invalid">
+      <app-input
+        [controlName]="'type'"
+        label="Type"
+        [attr.aria-invalid]="type | invalid"
+        i18n-label="@@scheduler.label.type"
+      >
         <select name="type" id="type" formControlName="type">
           <option value="Individual">Individueel</option>
           <option value="Group">Groep</option>
         </select>
       </app-input>
       @if (type?.getRawValue() === 'Group') {
-        <app-input [controlName]="'capacity'" [required]="true" label="Capaciteit">
+        <app-input
+          [controlName]="'capacity'"
+          [required]="true"
+          label="Capacity"
+          i18n-label="@@scheduler.label.capacity"
+        >
           <input
             id="capacity"
             type="number"
@@ -68,7 +78,7 @@
       }
     </modal-content>
     <modal-footer>
-      <button [attr.aria-busy]="savingSession" type="submit">Confirm</button>
+      <button [attr.aria-busy]="savingSession" type="submit" i18n>Confirm</button>
     </modal-footer>
   </app-modal>
 </form>

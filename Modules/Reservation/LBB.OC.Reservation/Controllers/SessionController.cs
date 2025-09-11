@@ -23,11 +23,10 @@ public class SessionController(IMediator mediator) : ControllerBase
     [Authorize(Constants.Policies.ManageReservations)]
     public async Task<IActionResult> GetSessions(DateTimeOffset? from, DateTimeOffset? to)
     {
-        var sessions = await mediator.SendQueryAsync<GetSessionsQuery, IEnumerable<GetSessionsResponseDto>>(new GetSessionsQuery()
-        {
-            Start = from,
-            End = to
-        });
+        var sessions = await mediator.SendQueryAsync<
+            GetSessionsQuery,
+            IEnumerable<GetSessionsResponseDto>
+        >(new GetSessionsQuery() { Start = from, End = to });
 
         return Ok(sessions);
     }
@@ -39,7 +38,7 @@ public class SessionController(IMediator mediator) : ControllerBase
         var session = await mediator.SendCommandAsync<CreateSessionCommand, Result<int>>(command);
         if (session.IsFailed)
         {
-            if (session.HasError<ValidationError>())
+            if (session.HasError<DomainValidationError>() || session.HasError<ValidationError>())
                 return BadRequest(session.MapValidationErrorsToProblemDetails());
             if (session.HasError<NotFoundError>())
                 return NotFound(session.Errors);
@@ -49,7 +48,10 @@ public class SessionController(IMediator mediator) : ControllerBase
     }
 
     [HttpPost("{sessionId:int}/reservations")]
-    public async Task<IActionResult> AddReservation(int sessionId, [FromBody] AddReservationCommand command)
+    public async Task<IActionResult> AddReservation(
+        int sessionId,
+        [FromBody] AddReservationCommand command
+    )
     {
         command.SessionId = sessionId;
         var session = await mediator.SendCommandAsync<AddReservationCommand, Result<int>>(command);

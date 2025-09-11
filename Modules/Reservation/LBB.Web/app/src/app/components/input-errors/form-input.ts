@@ -1,5 +1,18 @@
-import { Component, inject, Input } from '@angular/core';
+import { Component, inject, Input, OnChanges, SimpleChanges, Injectable } from '@angular/core';
 import { AbstractControl, ControlContainer } from '@angular/forms';
+
+@Injectable()
+export class FormLabelRegistry {
+  private labels = new Map<string, string>();
+  set(name: string, label: string): void {
+    if (!name) return;
+    this.labels.set(name, label);
+  }
+  get(name: unknown): string {
+    if (typeof name !== 'string') return String(name ?? '');
+    return this.labels.get(name) ?? name;
+  }
+}
 
 @Component({
   selector: 'app-input',
@@ -21,13 +34,21 @@ import { AbstractControl, ControlContainer } from '@angular/forms';
     </ng-container>
   `,
 })
-export class FormInput {
+export class FormInput implements OnChanges {
   private controlContainer: ControlContainer = inject(ControlContainer);
+  private labelRegistry = inject(FormLabelRegistry, { optional: true });
+
   @Input() for: string = '';
   @Input() label: string = '';
   @Input() controlName: string = '';
   @Input() customMessages: { [key: string]: string | ((value: any) => string) } = {};
   @Input() required: boolean = false;
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if ((changes['controlName'] || changes['label']) && this.labelRegistry) {
+      this.labelRegistry.set(this.controlName, this.label);
+    }
+  }
 
   private defaultMessages: { [key: string]: string | ((value: any) => string) } = {
     required: 'This field is required',
@@ -36,10 +57,19 @@ export class FormInput {
     email: 'Please enter a valid email address',
     min: (value) => `Minimum value is ${value.min}`,
     max: (value) => `Maximum value is ${value.max}`,
-    NotEmptyValidator: $localize`This field is required`,
-    GreaterThanValidator: (value) => $localize`Value must be greater than ${value.min}`,
-    MaximumLengthValidator: (value) => $localize`Maximum length is ${value.max}`,
+    NotEmptyError: $localize`This field is required`,
+    GreaterThanError: (value) => $localize`${this.label} must be greater than ${value.min}`,
+    // Use this control’s label and the sibling control’s label (looked up by control name from validator metadata)
+    GreaterThanDateError: (value) =>
+      $localize`${this.label} must be greater than ${this.lookupLabel(value?.property2Name)}`,
+    LessThanDateError: (value) => $localize`${this.label} must be less than ${this.lookupLabel(value?.property2Name)}`,
+    LengthExceededError: (value) => $localize`Maximum length is ${value.max}`,
   };
+
+  private lookupLabel(otherName: unknown): string {
+    // Falls back to the raw name if no registry is provided.
+    return this.labelRegistry?.get(otherName) ?? String(otherName ?? '');
+  }
 
   public get control() {
     return this.controlContainer?.control?.get(this.controlName) as AbstractControl;
@@ -60,7 +90,6 @@ export class FormInput {
       return message(value);
     }
     if (message) return message as string;
-    // Fallback: if the control error's value is a string (e.g., server message), show it
     if (typeof value === 'string') return value;
     return `Invalid ${key}`;
   }

@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
-import { mapMetadataForCode, normalizeFieldPath } from '../util/formutils';
+import { normalizeFieldPath } from '../util/formutils';
 import { AlertService } from './alert.service';
 
 @Injectable({
@@ -17,7 +17,7 @@ export class FormValidationService {
 
         // Prefer detailed errors if available; fallback to simple errors dictionary
         const detailed = response.error?.errorsDetailed as
-          | Record<string, Array<{ message: string; code: string; metadata?: any }>>
+          | Record<string, Array<{ message: string; errorCode: string; metadata?: any }>>
           | undefined;
 
         if (detailed === undefined || detailed === null) {
@@ -34,7 +34,7 @@ export class FormValidationService {
             const errCol: Record<string, any> = {};
             for (const err of detailed[field] ?? []) {
               // Use the server-provided validator code as the error key so the UI can map messages
-              errCol[err.code] = mapMetadataForCode(err.code, err.metadata) ?? err.message ?? true;
+              errCol[err.errorCode] = err;
             }
             // Merge with existing errors if any
             if (control) {
