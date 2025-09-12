@@ -3,6 +3,7 @@ import { FormGroup } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { normalizeFieldPath } from '../util/formutils';
 import { AlertService } from './alert.service';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -42,6 +43,9 @@ export class FormValidationService {
               control.setErrors({ ...existing, ...errCol });
             }
           }
+        }
+        if (!environment.production) {
+          console.log(detailed);
         }
 
         then?.();

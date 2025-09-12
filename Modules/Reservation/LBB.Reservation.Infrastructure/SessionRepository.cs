@@ -6,8 +6,7 @@ namespace LBB.Reservation.Infrastructure;
 
 public class SessionRepository : ISessionRepository
 {
-
-    public async Task<Session?> FindById(int id, string? tenantId)
+    public async Task<Session?> FindById(int id)
     {
         throw new NotImplementedException();
     }

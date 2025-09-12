@@ -32,7 +32,7 @@ public class AddReservationCommandHandler(IUnitOfWork unitOfWork, ISessionReposi
         CancellationToken cancellationToken = default
     )
     {
-        var session = await repo.FindById(command.SessionId, null);
+        var session = await repo.FindById(command.SessionId);
         if (session == null)
             return Result.Fail(new NotFoundError("Session not found"));
 

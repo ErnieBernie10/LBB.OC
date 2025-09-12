@@ -77,7 +77,12 @@ public sealed class Session : AggregateRoot
 
     public static Result<Session> CreateIndividual(ICreateIndividualSessionCommand command)
     {
-        var info = ValidateInfo(command.Title, command.Description, nameof(command.Title), nameof(command.Description));
+        var info = ValidateInfo(
+            command.Title,
+            command.Description,
+            nameof(command.Title),
+            nameof(command.Description)
+        );
         var t = Timeslot.Create(
             command.Start,
             command.End,
@@ -139,10 +144,7 @@ public sealed class Session : AggregateRoot
             nameof(command.End)
         );
         var l = Location.Create(command.Location, nameof(command.Location));
-        var c = Capacity.Create(
-            command.Capacity.HasValue ? command.Capacity.Value : 1,
-            nameof(command.Capacity)
-        );
+        var c = Capacity.Create(command.Capacity, nameof(command.Capacity));
         var result = Result.Merge(t, l, c, info);
         if (result.IsFailed)
             return result;
@@ -160,7 +162,7 @@ public sealed class Session : AggregateRoot
         return session;
     }
 
-    public Result UpdateInfo(IUpdateInfoCommand command)
+    public Result UpdateInfo(IUpdateSessionInfoCommand command)
     {
         var infoResult = ValidateInfo(
             command.Title,

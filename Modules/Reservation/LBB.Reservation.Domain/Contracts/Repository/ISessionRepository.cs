@@ -5,5 +5,5 @@ namespace LBB.Reservation.Domain.Contracts.Repository;
 
 public interface ISessionRepository : IRepository
 {
-    Task<Session?> FindById(int id, string? tenantId);
+    Task<Session?> FindById(int id);
 }

@@ -2,12 +2,12 @@
 
 public class GreaterThanError : DomainValidationError
 {
-    public int Min { get;  }
+    public int GreaterThanValue { get; }
 
-    public GreaterThanError(string propertyName, int minValue)
-        : base(propertyName, $"{propertyName} must be greater than {minValue}.")
+    public GreaterThanError(string propertyName, int greaterThanValue)
+        : base(propertyName, $"{propertyName} must be greater than {greaterThanValue}.")
     {
-        Min = minValue;
+        GreaterThanValue = greaterThanValue;
     }
 
     public override string ErrorCode => nameof(GreaterThanError);

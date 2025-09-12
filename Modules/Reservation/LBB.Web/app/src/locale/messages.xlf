@@ -8,32 +8,32 @@
       <trans-unit id="reservations" datatype="html">
         <source>Reservations</source>
       </trans-unit>
+      <trans-unit id="scheduler.label.capacity" datatype="html">
+        <source>Capacity</source>
+      </trans-unit>
+      <trans-unit id="scheduler.label.description" datatype="html">
+        <source>Description</source>
+      </trans-unit>
+      <trans-unit id="scheduler.label.end" datatype="html">
+        <source>End</source>
+      </trans-unit>
+      <trans-unit id="scheduler.label.location" datatype="html">
+        <source>Location</source>
+      </trans-unit>
+      <trans-unit id="scheduler.label.start" datatype="html">
+        <source>Start</source>
+      </trans-unit>
+      <trans-unit id="scheduler.label.title" datatype="html">
+        <source>Title</source>
+      </trans-unit>
+      <trans-unit id="scheduler.label.type" datatype="html">
+        <source>Type</source>
+      </trans-unit>
       <trans-unit id="planner" datatype="html">
         <source>Planner</source>
       </trans-unit>
       <trans-unit id="logoff" datatype="html">
         <source>Logoff</source>
-      </trans-unit>
-      <trans-unit id="2501969335659826225" datatype="html">
-        <source>This field is required</source>
-      </trans-unit>
-      <trans-unit id="GreaterThanError" datatype="html">
-        <source><x id="PH" equiv-text="this.label"/> must be greater than <x id="PH_1" equiv-text="value.min"/></source>
-        <note priority="1" from="description">Numeric greater-than</note>
-        <note priority="1" from="meaning">validation</note>
-      </trans-unit>
-      <trans-unit id="GreaterThanDateError" datatype="html">
-        <source><x id="PH" equiv-text="this.label"/> must be greater than <x id="PH_1" equiv-text="this.lookupLabel( value?.property2Name )"/></source>
-        <note priority="1" from="description">Date greater-than</note>
-        <note priority="1" from="meaning">validation</note>
-      </trans-unit>
-      <trans-unit id="LessThanDateError" datatype="html">
-        <source><x id="PH" equiv-text="this.label"/> must be less than <x id="PH_1" equiv-text="this.lookupLabel( value?.property2Name )"/></source>
-        <note priority="1" from="description">Date less-than</note>
-        <note priority="1" from="meaning">validation</note>
-      </trans-unit>
-      <trans-unit id="5568145565661725792" datatype="html">
-        <source>Maximum length is <x id="PH" equiv-text="value.max"/></source>
       </trans-unit>
       <trans-unit id="loading" datatype="html">
         <source>Loading...</source>
@@ -56,32 +56,29 @@
       <trans-unit id="attendees" datatype="html">
         <source>Attendees</source>
       </trans-unit>
-      <trans-unit id="scheduler.label.title" datatype="html">
-        <source>Title</source>
+      <trans-unit id="1725258139659526692" datatype="html">
+        <source>Start time is required</source>
       </trans-unit>
-      <trans-unit id="scheduler.label.description" datatype="html">
-        <source>Description</source>
+      <trans-unit id="5352380489201761312" datatype="html">
+        <source>Title must be less than <x id="INTERPOLATION" equiv-text="{{ title?.getError(Errors.LengthExceededError).maxLength }}"/> characters</source>
       </trans-unit>
-      <trans-unit id="scheduler.label.location" datatype="html">
-        <source>Location</source>
+      <trans-unit id="5642836248241530789" datatype="html">
+        <source>Title is required</source>
       </trans-unit>
-      <trans-unit id="scheduler.label.start" datatype="html">
-        <source>Start</source>
+      <trans-unit id="653649827000852183" datatype="html">
+        <source>Start time must be before end time</source>
       </trans-unit>
-      <trans-unit id="scheduler.label.end" datatype="html">
-        <source>End</source>
-      </trans-unit>
-      <trans-unit id="scheduler.label.type" datatype="html">
-        <source>Type</source>
-      </trans-unit>
-      <trans-unit id="scheduler.label.capacity" datatype="html">
-        <source>Capacity</source>
-      </trans-unit>
-      <trans-unit id="9178182467454450952" datatype="html">
-        <source>Confirm</source>
+      <trans-unit id="6578542269308601266" datatype="html">
+        <source>End time is required</source>
       </trans-unit>
       <trans-unit id="663123531054113155" datatype="html">
         <source>An unexpected error occurred, please contact your administrator.</source>
+      </trans-unit>
+      <trans-unit id="6876222640762924633" datatype="html">
+        <source>End time must be after start time</source>
+      </trans-unit>
+      <trans-unit id="9178182467454450952" datatype="html">
+        <source>Confirm</source>
       </trans-unit>
     </body>
   </file>

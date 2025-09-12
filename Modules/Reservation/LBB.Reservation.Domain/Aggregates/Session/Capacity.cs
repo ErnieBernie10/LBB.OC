@@ -37,12 +37,14 @@ public class Capacity : ValueObject<Capacity, (int Max, int Current)>
         return new Capacity(max, current);
     }
 
-    public static Result<Capacity> Create(int max, string maxPropertyName)
+    public static Result<Capacity> Create(int? max, string maxPropertyName)
     {
-        if (max < 0)
-            return Result.Fail(new GreaterThanError(maxPropertyName, 0));
-
-        return new Capacity(max, 0);
+        return max switch
+        {
+            null => Result.Fail(new NotEmptyError(maxPropertyName)),
+            <= 0 => Result.Fail(new GreaterThanError(maxPropertyName, 0)),
+            _ => new Capacity(max.Value, 0),
+        };
     }
 
     public static Result<Capacity> Create()
@@ -52,8 +54,8 @@ public class Capacity : ValueObject<Capacity, (int Max, int Current)>
 
     public Result<Capacity> Add(int memberCount, string memberCountPropertyName)
     {
-        if (memberCount < 0)
-            return Result.Fail("Member count cannot be negative");
+        if (memberCount <= 0)
+            return Result.Fail(new GreaterThanError(memberCountPropertyName, 0));
 
         if (memberCount > Max - Current)
             return Result.Fail(new CapacityExceededError(memberCountPropertyName));
@@ -62,13 +64,13 @@ public class Capacity : ValueObject<Capacity, (int Max, int Current)>
         return Result.Ok(new Capacity(Max, newCurrent));
     }
 
-    public Result<Capacity> SetMax(int requestCapacity)
+    public Result<Capacity> SetMax(int requestCapacity, string requestCapacityProperty)
     {
         if (requestCapacity <= 0)
-            return Result.Fail("Capacity must be positive");
+            return Result.Fail(new GreaterThanError(requestCapacityProperty, 0));
 
         if (requestCapacity < Current)
-            return Result.Fail("Capacity cannot be less than current capacity");
+            return Result.Fail(new CapacityExceededError(requestCapacityProperty));
 
         return Result.Ok(new Capacity(requestCapacity, Current));
     }

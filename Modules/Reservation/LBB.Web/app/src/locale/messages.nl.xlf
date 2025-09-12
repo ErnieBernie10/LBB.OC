@@ -10,6 +10,34 @@
         <source>Reservations</source>
         <target state="translated">Reservaties</target>
       </trans-unit>
+      <trans-unit id="scheduler.label.capacity" datatype="html">
+        <source>Capacity</source>
+        <target state="translated">Capaciteit</target>
+      </trans-unit>
+      <trans-unit id="scheduler.label.description" datatype="html">
+        <source>Description</source>
+        <target state="translated">Beschrijving</target>
+      </trans-unit>
+      <trans-unit id="scheduler.label.end" datatype="html">
+        <source>End</source>
+        <target state="translated">Einde</target>
+      </trans-unit>
+      <trans-unit id="scheduler.label.location" datatype="html">
+        <source>Location</source>
+        <target state="translated">Locatie</target>
+      </trans-unit>
+      <trans-unit id="scheduler.label.start" datatype="html">
+        <source>Start</source>
+        <target state="translated">Start</target>
+      </trans-unit>
+      <trans-unit id="scheduler.label.title" datatype="html">
+        <source>Title</source>
+        <target state="translated">Titel</target>
+      </trans-unit>
+      <trans-unit id="scheduler.label.type" datatype="html">
+        <source>Type</source>
+        <target state="translated">Type</target>
+      </trans-unit>
       <trans-unit id="planner" datatype="html">
         <source>Planner</source>
         <target state="translated">Planner</target>
@@ -17,32 +45,6 @@
       <trans-unit id="logoff" datatype="html">
         <source>Logoff</source>
         <target state="translated">Afmelden</target>
-      </trans-unit>
-      <trans-unit id="2501969335659826225" datatype="html">
-        <source>This field is required</source>
-        <target state="translated">Dit veld is verplicht</target>
-      </trans-unit>
-      <trans-unit id="GreaterThanDateError" datatype="html">
-        <source><x id="PH" equiv-text="this.label"/> must be greater than <x id="PH_1" equiv-text="this.lookupLabel( value?.property2Name )"/></source>
-        <target state="translated"><x id="PH" equiv-text="this.label"/> moet na <x id="PH_1" equiv-text="this.lookupLabel( value?.property2Name )"/> komen</target>
-        <note priority="1" from="description">Date greater-than</note>
-        <note priority="1" from="meaning">validation</note>
-      </trans-unit>
-      <trans-unit id="GreaterThanError" datatype="html">
-        <source><x id="PH" equiv-text="this.label"/> must be greater than <x id="PH_1" equiv-text="value.min"/></source>
-        <target state="translated"><x id="PH" equiv-text="this.label"/> moet groter zijn dan <x id="PH_1" equiv-text="value.min"/></target>
-        <note priority="1" from="description">Numeric greater-than</note>
-        <note priority="1" from="meaning">validation</note>
-      </trans-unit>
-      <trans-unit id="LessThanDateError" datatype="html">
-        <source><x id="PH" equiv-text="this.label"/> must be less than <x id="PH_1" equiv-text="this.lookupLabel( value?.property2Name )"/></source>
-        <target state="translated"><x id="PH" equiv-text="this.label"/> moet voor <x id="PH_1" equiv-text="this.lookupLabel( value?.property2Name )"/> komen</target>
-        <note priority="1" from="description">Date less-than</note>
-        <note priority="1" from="meaning">validation</note>
-      </trans-unit>
-      <trans-unit id="5568145565661725792" datatype="html">
-        <source>Maximum length is <x id="PH" equiv-text="value.max"/></source>
-        <target state="translated">Maximum lengte is <x id="PH" equiv-text="value.max"/></target>
       </trans-unit>
       <trans-unit id="loading" datatype="html">
         <source>Loading...</source>
@@ -72,41 +74,37 @@
         <source>Attendees</source>
         <target state="translated">Deelnemers</target>
       </trans-unit>
-      <trans-unit id="scheduler.label.title" datatype="html">
-        <source>Title</source>
-        <target state="translated">Titel</target>
+      <trans-unit id="1725258139659526692" datatype="html">
+        <source>Start time is required</source>
+        <target state="translated">Start is verplicht</target>
       </trans-unit>
-      <trans-unit id="scheduler.label.description" datatype="html">
-        <source>Description</source>
-        <target state="translated">Beschrijving</target>
+      <trans-unit id="5352380489201761312" datatype="html">
+        <source>Title must be less than <x id="INTERPOLATION" equiv-text="{{ title?.getError(Errors.LengthExceededError).maxLength }}"/> characters</source>
+        <target state="translated">Titel moet minder dan <x id="INTERPOLATION" equiv-text="{{ title?.getError(Errors.LengthExceededError).maxLength }}"/> characters bevatten</target>
       </trans-unit>
-      <trans-unit id="scheduler.label.location" datatype="html">
-        <source>Location</source>
-        <target state="translated">Locatie</target>
+      <trans-unit id="5642836248241530789" datatype="html">
+        <source>Title is required</source>
+        <target state="translated">Titel is verplicht</target>
       </trans-unit>
-      <trans-unit id="scheduler.label.start" datatype="html">
-        <source>Start</source>
-        <target state="translated">Start</target>
+      <trans-unit id="653649827000852183" datatype="html">
+        <source>Start time must be before end time</source>
+        <target state="translated">Start moet voor einde komen</target>
       </trans-unit>
-      <trans-unit id="scheduler.label.end" datatype="html">
-        <source>End</source>
-        <target state="translated">Eind</target>
-      </trans-unit>
-      <trans-unit id="scheduler.label.type" datatype="html">
-        <source>Type</source>
-        <target state="translated">Type</target>
-      </trans-unit>
-      <trans-unit id="scheduler.label.capacity" datatype="html">
-        <source>Capacity</source>
-        <target state="translated">Capaciteit</target>
-      </trans-unit>
-      <trans-unit id="9178182467454450952" datatype="html">
-        <source>Confirm</source>
-        <target state="translated">Bevestigen</target>
+      <trans-unit id="6578542269308601266" datatype="html">
+        <source>End time is required</source>
+        <target state="translated">Eind is verplicht</target>
       </trans-unit>
       <trans-unit id="663123531054113155" datatype="html">
         <source>An unexpected error occurred, please contact your administrator.</source>
         <target state="translated">Een onverwachte error is opgetreden. Contacteer aub uw administrator.</target>
+      </trans-unit>
+      <trans-unit id="6876222640762924633" datatype="html">
+        <source>End time must be after start time</source>
+        <target state="translated">Einde moet na start komen</target>
+      </trans-unit>
+      <trans-unit id="9178182467454450952" datatype="html">
+        <source>Confirm</source>
+        <target state="translated">Bevestig</target>
       </trans-unit>
     </body>
   </file>

@@ -1,6 +1,6 @@
 ﻿namespace LBB.Reservation.Domain.Aggregates.Session.Commands;
 
-public interface IUpdateInfoCommand
+public interface IUpdateSessionInfoCommand
 {
     public string Title { get; set; }
     public string Description { get; set; }
