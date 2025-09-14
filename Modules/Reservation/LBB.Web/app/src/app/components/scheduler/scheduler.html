@@ -18,7 +18,9 @@
         <div class="time-header"></div>
         @for (time of timeSlots; track time) {
           <div class="time-label" [class.work-hour]="isWorkHour(time)">
-            {{ time }}
+            @if (isFullHour(time)) {
+              {{ time }}
+            }
           </div>
         }
       </div>

@@ -22,7 +22,6 @@
   }
 
   .calendar-container {
-    border: 1px solid var(--pico-border-color);
     border-radius: var(--pico-border-radius);
     overflow: hidden;
     height: 660px;
@@ -50,12 +49,10 @@
 
   .time-column {
     width: 60px;
-    border-right: 1px solid var(--pico-border-color);
     flex-shrink: 0;
 
     .time-header {
       height: 40px;
-      border-bottom: 1px solid var(--pico-border-color);
       position: sticky;
       top: 0;
       z-index: 2;
@@ -63,8 +60,8 @@
     }
 
     .time-label {
-      height: 60px;
-      line-height: 60px;
+      height: 15px; // 15-minute increments at 60px per hour
+      line-height: 15px;
       text-align: right;
       padding-right: 0.5rem;
       font-size: 0.75rem;
@@ -80,28 +77,30 @@
   .day-columns {
     display: flex;
     flex: 1;
+    position: relative;
 
     .day-column {
       flex: 1;
-      border-left: 1px solid var(--pico-border-color);
       min-height: 1440px;
+      border-left: 1px solid var(--pico-muted-color);
 
       &:first-child {
         border-left: none;
       }
 
       .day-header {
-        height: 40px;
+        height: 64px;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         background: var(--pico-background-color);
-        border-bottom: 1px solid var(--pico-border-color);
         font-size: 0.9rem;
         position: sticky;
         top: 0;
-        z-index: 1;
+        z-index: 3; // ensure header stays above events
+        padding: 0.35rem 0; /* add some vertical padding for nicer look */
+        gap: 2px;
 
         small {
           color: var(--pico-muted-color);
@@ -111,13 +110,26 @@
       .events-container {
         position: relative;
         height: 1440px; // 24 hours * 60px per hour
-        background-image: repeating-linear-gradient(
-          to bottom,
-          transparent,
-          transparent 59px,
-          var(--pico-stripe-color) 59px,
-          var(--pico-stripe-color) 60px
-        );
+        padding-top: 40px; // push events below sticky header
+        background-color: var(--pico-background-color, #ffffff);
+        /* Use fallbacks to ensure lines are visible even if theme variables are missing */
+        background-image:
+          /* Minor 15-minute lines */
+          repeating-linear-gradient(
+            to bottom,
+            var(--pico-muted-border-color, rgba(0, 0, 0, 0.08)) 0,
+            var(--pico-muted-border-color, rgba(0, 0, 0, 0.08)) 1px,
+            transparent 1px,
+            transparent 15px
+          ),
+          /* Major hourly lines */
+          repeating-linear-gradient(
+            to bottom,
+            var(--pico-stripe-color, var(--pico-muted-color, rgba(0, 0, 0, 0.2))) 0,
+            var(--pico-stripe-color, var(--pico-muted-color, rgba(0, 0, 0, 0.2))) 2px,
+            transparent 2px,
+            transparent 60px
+          );
       }
 
       .event {
@@ -132,7 +144,7 @@
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
-        z-index: 2;
+        z-index: 1; // keep below sticky header
       }
     }
   }

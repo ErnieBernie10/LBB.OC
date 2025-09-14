@@ -68,9 +68,13 @@ export class Scheduler implements OnInit, AfterViewInit, OnDestroy {
   pixelsPerHour = 60; // Increased from 30 to 60 for better precision
 
   generateTimeSlots() {
-    this.timeSlots = Array.from({ length: 24 }, (_, i) =>
-      format(new Date().setHours(i, 0), 'HH:mm', { locale: this.l })
-    );
+    // Generate 15-minute slots (96 per day), labels shown only on full hours in template
+    this.timeSlots = Array.from({ length: 96 }, (_, i) => {
+      const hours = Math.floor(i / 4);
+      const minutes = (i % 4) * 15;
+      const date = setMinutes(setHours(new Date(), hours), minutes);
+      return format(date, 'HH:mm', { locale: this.l });
+    });
   }
 
   updateWeekDays() {
@@ -110,6 +114,11 @@ export class Scheduler implements OnInit, AfterViewInit, OnDestroy {
   isWorkHour(time: string): boolean {
     const hour = parseInt(time.split(':')[0], 10);
     return hour >= this.workHourStart && hour <= this.workHourEnd;
+  }
+
+  isFullHour(time: string): boolean {
+    // time is in format HH:mm
+    return time.endsWith(':00');
   }
 
   getWeekStart(): Date {
@@ -168,14 +177,25 @@ export class Scheduler implements OnInit, AfterViewInit, OnDestroy {
 
     // If we didn't click on an event, proceed with creating a new appointment
     const rect = container.getBoundingClientRect();
-    const y = event.clientY - rect.top + container.scrollTop;
+    // Adjust for the sticky header (40px) and padding-top we add to events-container
+    const headerOffset = 40;
+    const y = event.clientY - rect.top + container.scrollTop - headerOffset;
 
-    const totalMinutes = Math.floor((y * 60) / this.pixelsPerHour);
-    const hours = Math.floor(totalMinutes / 60);
-    const minutes = Math.round((totalMinutes % 60) / 15) * 15;
+    const totalMinutes = Math.max(0, Math.floor((y * 60) / this.pixelsPerHour));
+    let hours = Math.floor(totalMinutes / 60);
+    let minutes = Math.round((totalMinutes % 60) / 15) * 15;
 
-    const startDate = setMinutes(setHours(day, hours - 1), minutes);
-    const endDate = setMinutes(setHours(day, hours), minutes);
+    if (minutes === 60) {
+      minutes = 0;
+      hours += 1;
+    }
+    // clamp to day bounds
+    if (hours < 0) hours = 0;
+    if (hours > 23) hours = 23;
+
+    const startDate = setMinutes(setHours(day, hours), minutes);
+    // Default duration 15 minutes
+    const endDate = setMinutes(setHours(day, hours), minutes === 45 ? 0 : minutes + 15);
     this.appointmentCreate.emit({ start: startDate, end: endDate });
   }
 
