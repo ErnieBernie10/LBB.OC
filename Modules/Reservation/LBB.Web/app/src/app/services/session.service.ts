@@ -48,7 +48,12 @@ export class SessionService {
       capacity: number;
     }
   ) {
-    return this.client.patch(this.baseUrl + `sessions/${id}/info`, session);
+    return this.client.patch(this.baseUrl + `sessions/${id}/info`, session, {
+      withCredentials: true,
+      headers: {
+        RequestVerificationToken: this.authService.getXsrfToken(),
+      },
+    });
   }
 
   updateSessionTimeslot(
@@ -58,7 +63,12 @@ export class SessionService {
       end: string;
     }
   ) {
-    this.client.patch(this.baseUrl + `sessions/${id}/timeslot`, value);
+    return this.client.patch(this.baseUrl + `sessions/${id}/timeslot`, value, {
+      withCredentials: true,
+      headers: {
+        RequestVerificationToken: this.authService.getXsrfToken(),
+      },
+    });
   }
 
   public getSessions(currentWeek: Signal<{ start: Date; end: Date }>) {

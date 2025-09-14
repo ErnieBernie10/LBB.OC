@@ -2,8 +2,8 @@
 using LBB.Core.Contracts;
 using LBB.Core.Errors;
 using LBB.Core.Mediator;
+using LBB.Reservation.Domain.Aggregates.Session;
 using LBB.Reservation.Domain.Aggregates.Session.Commands;
-using LBB.Reservation.Domain.Contracts.Repository;
 
 namespace LBB.Reservation.Application.Features.SessionFeature.Commands;
 
@@ -14,20 +14,24 @@ public class UpdateSessionTimeslotCommand : ICommand<Result>, IUpdateSessionTime
     public DateTime End { get; set; }
 }
 
-public class UpdateSessionTimeslotCommandHandler(ISessionRepository repository, IUnitOfWork uow)
-    : ICommandHandler<UpdateSessionTimeslotCommand, Result>
+public class UpdateSessionTimeslotCommandHandler(
+    IAggregateStore<Session, int> store,
+    IUnitOfWork uow
+) : ICommandHandler<UpdateSessionTimeslotCommand, Result>
 {
     public async Task<Result> HandleAsync(
         UpdateSessionTimeslotCommand command,
         CancellationToken cancellationToken = default
     )
     {
-        var session = await repository.FindById(command.Id);
+        var session = await store.GetByIdAsync(command.Id);
 
         if (session == null)
             return Result.Fail(new NotFoundError("Session not found"));
 
-        session.UpdateTimeslot(command);
+        var result = session.UpdateTimeslot(command);
+        if (result.IsFailed)
+            return result;
 
         uow.RegisterChange(session);
         await uow.CommitAsync(cancellationToken);

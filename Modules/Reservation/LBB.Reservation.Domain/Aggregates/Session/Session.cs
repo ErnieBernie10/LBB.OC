@@ -21,7 +21,8 @@ public sealed class Session : AggregateRoot
     public Capacity Capacity { get; private set; }
 
     internal Session(
-        short sessionType,
+        int id,
+        int sessionType,
         DateTime start,
         DateTime end,
         string title,
@@ -38,7 +39,10 @@ public sealed class Session : AggregateRoot
             Location.Create(location, nameof(location)).Value,
             Capacity.Create(capacity, nameof(capacity)).Value,
             reservations
-        ) { }
+        )
+    {
+        Id = id;
+    }
 
     private Session(
         Enums.SessionType sessionType,

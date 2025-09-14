@@ -13,7 +13,6 @@ export class FormValidationService {
   public setServerErrors(formGroup: FormGroup, then?: () => void) {
     return (response: HttpErrorResponse) => {
       if (response.status === 400) {
-        formGroup.markAllAsDirty();
         formGroup.markAllAsTouched();
 
         // Prefer detailed errors if available; fallback to simple errors dictionary

@@ -2,8 +2,8 @@
 using LBB.Core.Contracts;
 using LBB.Core.Errors;
 using LBB.Core.Mediator;
+using LBB.Reservation.Domain.Aggregates.Session;
 using LBB.Reservation.Domain.Aggregates.Session.Commands;
-using LBB.Reservation.Domain.Contracts.Repository;
 
 namespace LBB.Reservation.Application.Features.SessionFeature.Commands;
 
@@ -17,7 +17,7 @@ public class UpdateSessionInfoCommand : IUpdateSessionInfoCommand, ICommand<Resu
     public int SessionId { get; set; }
 }
 
-public class UpdateSessionInfoCommandHandler(IUnitOfWork uow, ISessionRepository repository)
+public class UpdateSessionInfoCommandHandler(IUnitOfWork uow, IAggregateStore<Session, int> store)
     : ICommandHandler<UpdateSessionInfoCommand, Result>
 {
     public async Task<Result> HandleAsync(
@@ -25,11 +25,13 @@ public class UpdateSessionInfoCommandHandler(IUnitOfWork uow, ISessionRepository
         CancellationToken cancellationToken = default
     )
     {
-        var session = await repository.FindById(command.SessionId);
+        var session = await store.GetByIdAsync(command.SessionId);
         if (session == null)
             return Result.Fail(new NotFoundError("Session not found"));
 
-        session.UpdateInfo(command);
+        var result = session.UpdateInfo(command);
+        if (result.IsFailed)
+            return result;
 
         uow.RegisterChange(session);
 

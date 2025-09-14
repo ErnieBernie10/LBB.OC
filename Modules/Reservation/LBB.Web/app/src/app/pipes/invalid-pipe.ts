@@ -10,7 +10,7 @@ export class InvalidPipe implements PipeTransform {
   transform(control: AbstractControl | null, errors?: string[]): boolean | undefined {
     if (!control) return undefined;
 
-    const isInteracted = control.touched && control.dirty;
+    const isInteracted = control.touched;
 
     if (!isInteracted) return undefined;
 

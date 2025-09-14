@@ -8,10 +8,10 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using OrchardCore.Data.Migration;
 using OrchardCore.Environment.Shell;
 using StartupBase = OrchardCore.Modules.StartupBase;
-using Microsoft.Extensions.Hosting;
 
 namespace LBB.OC.Reservation;
 
@@ -23,31 +23,37 @@ public class Startup : StartupBase
     {
         _webHostEnvironment = webHostEnvironment;
     }
+
     public override void ConfigureServices(IServiceCollection services)
     {
         services.AddDataMigration<ReservationMigrations>();
 
-        services.AddCore(typeof(Startup).Assembly, typeof(ApplicationAssembly).Assembly);
-        services.AddApplication();
+        services
+            .AddCore(typeof(Startup).Assembly, typeof(ApplicationAssembly).Assembly)
+            .AddApplication()
+            .AddInfrastructure();
 
-        services.AddDbContext<LbbDbContext>((serviceProvider, options) =>
-        {
-            var shellSettings = serviceProvider.GetRequiredService<ShellSettings>();
-            var connectionString = $"Data Source=App_Data/Sites/{shellSettings.Name}/{shellSettings["DatabaseName"]}";
-            options.UseSqlite(connectionString);
-        });
-        services.AddScoped<IUnitOfWorkHandler, UnitOfWorkHandler>();
-
+        services.AddDbContext<LbbDbContext>(
+            (serviceProvider, options) =>
+            {
+                var shellSettings = serviceProvider.GetRequiredService<ShellSettings>();
+                var connectionString =
+                    $"Data Source=App_Data/Sites/{shellSettings.Name}/{shellSettings["DatabaseName"]}";
+                options.UseSqlite(connectionString);
+            }
+        );
         services.ConfigureReservationModuleAuthorization();
         services.AddSwaggerGen();
         services.AddHttpContextAccessor();
 
         services.AddSingleton<ISpaProvider, SpaProvider>();
-
     }
 
-    public override void Configure(IApplicationBuilder builder, IEndpointRouteBuilder routes,
-        IServiceProvider serviceProvider)
+    public override void Configure(
+        IApplicationBuilder builder,
+        IEndpointRouteBuilder routes,
+        IServiceProvider serviceProvider
+    )
     {
         builder.UseAntiforgery();
 
@@ -63,6 +69,7 @@ public class Startup : StartupBase
             name: "ReservationSpa",
             areaName: Constants.ModuleName,
             pattern: Constants.ModuleBasePath + "/{**slug}",
-            defaults: new { controller = "Home", action = "Index" });
+            defaults: new { controller = "Home", action = "Index" }
+        );
     }
 }

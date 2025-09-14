@@ -14,7 +14,7 @@ public class SessionTimeslotUpdatedEventHandler(LbbDbContext context)
         CancellationToken cancellationToken = default
     )
     {
-        var session = await context.Sessions.FindAsync(command.Session.Id, cancellationToken);
+        var session = await context.Sessions.FindAsync(command.Session.Id);
         if (session == null)
             throw new ArgumentException("Session is null");
 

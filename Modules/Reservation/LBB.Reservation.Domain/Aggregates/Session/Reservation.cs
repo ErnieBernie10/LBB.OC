@@ -14,7 +14,23 @@ public class Reservation : Entity
     public EmailAddress Email { get; private set; }
     public PhoneNumber Phone { get; private set; }
 
-    public Reservation(
+    internal Reservation(
+        string reference,
+        string firstname,
+        string lastname,
+        int attendeeCount,
+        string email,
+        string phoneNumber
+    )
+    {
+        Reference = ReservationReference.Parse(reference, nameof(reference)).Value;
+        Name = PersonName.Create(firstname, lastname, nameof(firstname), nameof(lastname)).Value;
+        AttendeeCount = attendeeCount;
+        Email = EmailAddress.Create(email, nameof(email)).Value;
+        Phone = PhoneNumber.Create(phoneNumber, nameof(phoneNumber)).Value;
+    }
+
+    private Reservation(
         ReservationReference reference,
         PersonName name,
         int attendeeCount,

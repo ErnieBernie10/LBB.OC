@@ -6,7 +6,6 @@ using LBB.Core.Mediator;
 using LBB.Core.ValueObjects;
 using LBB.Reservation.Domain.Aggregates.Session;
 using LBB.Reservation.Domain.Aggregates.Session.Commands;
-using LBB.Reservation.Domain.Contracts.Repository;
 using Microsoft.Extensions.Localization;
 
 namespace LBB.Reservation.Application.Features.SessionFeature.Commands;
@@ -24,15 +23,17 @@ public class AddReservationCommand : IAddReservationCommand, ICommand<Result<int
     public int SessionId { get; set; }
 }
 
-public class AddReservationCommandHandler(IUnitOfWork unitOfWork, ISessionRepository repo)
-    : ICommandHandler<AddReservationCommand, Result<int>>
+public class AddReservationCommandHandler(
+    IUnitOfWork unitOfWork,
+    IAggregateStore<Session, int> store
+) : ICommandHandler<AddReservationCommand, Result<int>>
 {
     public async Task<Result<int>> HandleAsync(
         AddReservationCommand command,
         CancellationToken cancellationToken = default
     )
     {
-        var session = await repo.FindById(command.SessionId);
+        var session = await store.GetByIdAsync(command.SessionId);
         if (session == null)
             return Result.Fail(new NotFoundError("Session not found"));
 
