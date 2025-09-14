@@ -1,7 +1,12 @@
 <form [formGroup]="appointmentForm" (ngSubmit)="handleSubmit()">
   <app-modal [isOpen]="showModal" (close)="onClose()">
     <modal-header>
-      <strong> Nieuwe sessie </strong>
+      @if (isEditing) {
+        <strong i18n>Edit session</strong>
+      }
+      @if (!isEditing) {
+        <strong i18n>Create session</strong>
+      }
     </modal-header>
     <modal-content>
       <app-input [controlName]="'title'" label="Title" i18n-label="@@scheduler.label.title" [required]="true">

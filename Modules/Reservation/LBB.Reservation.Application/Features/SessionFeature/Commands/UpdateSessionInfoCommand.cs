@@ -7,7 +7,7 @@ using LBB.Reservation.Domain.Contracts.Repository;
 
 namespace LBB.Reservation.Application.Features.SessionFeature.Commands;
 
-public class UpdateSessionSessionInfoCommand : IUpdateSessionInfoCommand, ICommand<Result>
+public class UpdateSessionInfoCommand : IUpdateSessionInfoCommand, ICommand<Result>
 {
     public string Title { get; set; }
     public string Description { get; set; }
@@ -18,10 +18,10 @@ public class UpdateSessionSessionInfoCommand : IUpdateSessionInfoCommand, IComma
 }
 
 public class UpdateSessionInfoCommandHandler(IUnitOfWork uow, ISessionRepository repository)
-    : ICommandHandler<UpdateSessionSessionInfoCommand, Result>
+    : ICommandHandler<UpdateSessionInfoCommand, Result>
 {
     public async Task<Result> HandleAsync(
-        UpdateSessionSessionInfoCommand command,
+        UpdateSessionInfoCommand command,
         CancellationToken cancellationToken = default
     )
     {

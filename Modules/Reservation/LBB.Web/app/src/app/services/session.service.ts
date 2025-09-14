@@ -1,14 +1,9 @@
 import { inject, Injectable, Signal } from '@angular/core';
 import { HttpClient, httpResource } from '@angular/common/http';
 import { AuthService } from './auth.service';
-import { PlatformLocation } from '@angular/common';
 import { Appointment } from '../components/scheduler/scheduler';
 
-export interface WithState<T> {
-  data?: T;
-  error?: string;
-  loading: boolean;
-}
+export type SessionType = 'Individual' | 'Group';
 
 export interface Session {
   capacity: number;
@@ -18,6 +13,16 @@ export interface Session {
   description: string;
   start: Date;
   end: Date;
+  type: SessionType;
+}
+
+export interface CreateSession {
+  capacity: number;
+  title: string;
+  description: string;
+  start: string;
+  end: string;
+  type: SessionType;
 }
 @Injectable({
   providedIn: 'root',
@@ -27,7 +32,7 @@ export class SessionService {
   private authService: AuthService = inject(AuthService);
   private baseUrl = '/reservation/';
 
-  public createSession(session: unknown) {
+  public createSession(session: CreateSession) {
     return this.client.post(`${this.baseUrl}sessions`, session, {
       withCredentials: true,
       headers: {
@@ -35,8 +40,25 @@ export class SessionService {
       },
     });
   }
-  public updateSession(id: number, session: unknown) {
-    return this.client.put(this.baseUrl + `/api/sessions/${id}`, session);
+  public updateSessionInfo(
+    id: number,
+    session: {
+      title: string;
+      description: string;
+      capacity: number;
+    }
+  ) {
+    return this.client.patch(this.baseUrl + `sessions/${id}/info`, session);
+  }
+
+  updateSessionTimeslot(
+    id: number,
+    value: {
+      start: string;
+      end: string;
+    }
+  ) {
+    this.client.patch(this.baseUrl + `sessions/${id}/timeslot`, value);
   }
 
   public getSessions(currentWeek: Signal<{ start: Date; end: Date }>) {

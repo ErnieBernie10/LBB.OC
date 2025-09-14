@@ -211,7 +211,7 @@ public sealed class Session : AggregateRoot
         return Result.Ok();
     }
 
-    public Result UpdateTimeslot(IUpdateTimeSlotCommand command)
+    public Result UpdateTimeslot(IUpdateSessionTimeSlotCommand command)
     {
         var ts = Timeslot.Create(
             command.Start,
@@ -223,6 +223,8 @@ public sealed class Session : AggregateRoot
             return ts.ToResult();
 
         Timeslot = ts.ValueOrDefault;
+
+        AddDomainEvent(new SessionTimeslotUpdatedEvent(this));
         return Result.Ok();
     }
 
