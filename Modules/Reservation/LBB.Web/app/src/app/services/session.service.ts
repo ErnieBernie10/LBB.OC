@@ -1,7 +1,6 @@
 import { inject, Injectable, Signal } from '@angular/core';
 import { HttpClient, httpResource } from '@angular/common/http';
 import { AuthService } from './auth.service';
-import { Appointment } from '../components/scheduler/scheduler';
 
 export type SessionType = 'Individual' | 'Group';
 
@@ -14,6 +13,7 @@ export interface Session {
   start: Date;
   end: Date;
   type: SessionType;
+  location: string;
 }
 
 export interface CreateSession {
@@ -46,24 +46,11 @@ export class SessionService {
       title: string;
       description: string;
       capacity: number;
-    }
-  ) {
-    return this.client.patch(this.baseUrl + `sessions/${id}/info`, session, {
-      withCredentials: true,
-      headers: {
-        RequestVerificationToken: this.authService.getXsrfToken(),
-      },
-    });
-  }
-
-  updateSessionTimeslot(
-    id: number,
-    value: {
       start: string;
       end: string;
     }
   ) {
-    return this.client.patch(this.baseUrl + `sessions/${id}/timeslot`, value, {
+    return this.client.patch(this.baseUrl + `sessions/${id}`, session, {
       withCredentials: true,
       headers: {
         RequestVerificationToken: this.authService.getXsrfToken(),
@@ -72,18 +59,21 @@ export class SessionService {
   }
 
   public getSessions(currentWeek: Signal<{ start: Date; end: Date }>) {
-    return httpResource<Appointment[]>(
+    return httpResource<Session[]>(
       () => `${this.baseUrl}sessions?start=${currentWeek().start.toISOString()}&end=${currentWeek().end.toISOString()}`,
       {
         parse: (sessions) => {
           return (sessions as Session[]).map(
-            (s): Appointment => ({
+            (s): Session => ({
               start: new Date(s.start),
               end: new Date(s.end),
               id: s.id,
               title: s.title,
-              reservations: s.attendeeCount,
+              description: s.description,
+              attendeeCount: s.attendeeCount,
+              type: s.type,
               capacity: s.capacity,
+              location: s.location,
             })
           );
         },

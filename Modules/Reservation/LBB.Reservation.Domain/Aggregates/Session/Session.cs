@@ -181,12 +181,22 @@ public sealed class Session : AggregateRoot
             nameof(Reservations)
         );
         var l = Location.Create(command.Location, nameof(command.Location));
-        var result = Result.Merge(c, l, infoResult);
+        var ts = Timeslot.Create(
+            command.Start,
+            command.End,
+            nameof(command.Start),
+            nameof(command.End)
+        );
+
+        var result = Result.Merge(c, l, infoResult, ts);
         if (result.IsFailed)
             return result;
 
+        Timeslot = ts.ValueOrDefault;
         Capacity = c.ValueOrDefault;
         Location = l.ValueOrDefault;
+        Title = command.Title;
+        Description = command.Description;
 
         AddDomainEvent(new SessionInfoUpdatedEvent(this));
 
@@ -212,23 +222,6 @@ public sealed class Session : AggregateRoot
 
         AddDomainEvent(new ReservationAddedEvent(this, reservation.Value));
 
-        return Result.Ok();
-    }
-
-    public Result UpdateTimeslot(IUpdateSessionTimeSlotCommand command)
-    {
-        var ts = Timeslot.Create(
-            command.Start,
-            command.End,
-            nameof(command.Start),
-            nameof(command.End)
-        );
-        if (ts.IsFailed)
-            return ts.ToResult();
-
-        Timeslot = ts.ValueOrDefault;
-
-        AddDomainEvent(new SessionTimeslotUpdatedEvent(this));
         return Result.Ok();
     }
 

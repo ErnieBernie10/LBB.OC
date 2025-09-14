@@ -47,7 +47,7 @@ public class SessionController(IMediator mediator) : ControllerBase
         return Ok(session.Value);
     }
 
-    [HttpPatch("{id:int}/info")]
+    [HttpPatch("{id:int}")]
     [Authorize(Constants.Policies.ManageReservations)]
     public async Task<IActionResult> UpdateSessionInfo(
         [FromBody] UpdateSessionInfoCommand command,
@@ -63,27 +63,6 @@ public class SessionController(IMediator mediator) : ControllerBase
             if (session.HasError<NotFoundError>())
                 return NotFound(session.Errors);
             return BadRequest(session.Errors);
-        }
-        return Ok();
-    }
-
-    [HttpPatch("{id:int}/timeslot")]
-    [Authorize(Constants.Policies.ManageReservations)]
-    public async Task<IActionResult> UpdateSessionTimeslot(
-        [FromBody] UpdateSessionTimeslotCommand command,
-        [FromRoute] int id
-    )
-    {
-        command.Id = id;
-        var session = await mediator.SendCommandAsync<UpdateSessionTimeslotCommand, Result>(
-            command
-        );
-        if (session.IsFailed)
-        {
-            if (session.HasError<DomainValidationError>() || session.HasError<ValidationError>())
-                return BadRequest(session.MapValidationErrorsToProblemDetails());
-            if (session.HasError<NotFoundError>())
-                return NotFound(session.Errors);
         }
         return Ok();
     }

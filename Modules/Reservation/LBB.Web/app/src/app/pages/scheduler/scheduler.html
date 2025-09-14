@@ -100,13 +100,13 @@
     </modal-footer>
   </app-modal>
 </form>
-@if (appointments.error()) {
-  <app-alert [dismissible]="true" type="danger" [message]="appointments.error()?.message ?? ''"></app-alert>
+@if (sessions.error()) {
+  <app-alert [dismissible]="true" type="danger" [message]="sessions.error()?.message ?? ''"></app-alert>
 }
 
 <app-scheduler
-  [loading]="appointments.isLoading()"
-  [appointments]="appointments.value() ?? []"
+  [loading]="sessions.isLoading()"
+  [appointments]="appointments() ?? []"
   (appointmentCreate)="onAppointmentCreate($event)"
   (appointmentUpdate)="onAppointmentUpdate($event)"
   (loadAppointments)="loadAppointments($event)"

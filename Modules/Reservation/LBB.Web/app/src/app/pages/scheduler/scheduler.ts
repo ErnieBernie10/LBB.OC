@@ -1,7 +1,7 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { Appointment, Scheduler as SchedulerC } from '../../components/scheduler/scheduler';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { SessionService } from '../../services/session.service';
+import { Session, SessionService } from '../../services/session.service';
 import { toFormDate } from '../../util/dateutils';
 import { FormInput } from '../../components/input-errors/form-input';
 import { Modal, ModalContent, ModalFooter, ModalHeader } from '../../components/modal/modal';
@@ -35,7 +35,22 @@ export class Scheduler {
   public showModal = false;
   public currentWeek = signal({ start: new Date(), end: new Date() });
 
-  public appointments = this.sessionService.getSessions(this.currentWeek);
+  public sessions = this.sessionService.getSessions(this.currentWeek);
+  public appointments = computed(() => {
+    return (
+      this.sessions.value()?.map(
+        (s): Appointment => ({
+          id: s.id,
+          title: s.title,
+          description: s.description,
+          start: new Date(s.start),
+          end: new Date(s.end),
+          capacity: s.capacity,
+          reservations: s.attendeeCount,
+        })
+      ) ?? []
+    );
+  });
 
   public appointmentForm = new FormBuilder().nonNullable.group({
     title: [''],
@@ -81,12 +96,7 @@ export class Scheduler {
     this.savingSession = true;
     const value = this.appointmentForm.getRawValue();
     if (value.id) {
-      if (this.title?.dirty || this.description?.dirty || this.location?.dirty) {
-        this.sessionService.updateSessionInfo(value.id, value).subscribe(this.finalize);
-      }
-      if (this.start?.dirty || this.end?.dirty) {
-        this.sessionService.updateSessionTimeslot(value.id, value).subscribe(this.finalize);
-      }
+      this.sessionService.updateSessionInfo(value.id, value).subscribe(this.finalize);
     } else {
       this.sessionService
         .createSession({
@@ -105,7 +115,7 @@ export class Scheduler {
       this.showModal = false;
       this.savingSession = false;
       this.appointmentForm.reset();
-      this.appointments.reload();
+      this.sessions.reload();
     },
   };
 
@@ -119,29 +129,30 @@ export class Scheduler {
   }
 
   onAppointmentUpdate($event: { id: number; start: Date; end: Date }) {
-    const value = this.appointments.value();
+    const value = this.sessions.value();
 
     const session = value?.find((a) => a.id === $event.id);
-    const selected =
-      session ??
-      ({
-        id: $event.id,
-        title: '',
-        description: '',
-        start: $event.start,
-        end: $event.end,
-        reservations: 0,
-        capacity: 12,
-      } as Appointment);
+    const selected: Session = session ?? {
+      id: $event.id,
+      title: '',
+      description: '',
+      start: $event.start,
+      end: $event.end,
+      capacity: 12,
+      attendeeCount: 0,
+      type: 'Individual',
+      location: '',
+    };
+    console.log(selected);
 
     this.appointmentForm.setValue({
       title: selected.title ?? '',
-      description: selected.title ?? '',
+      description: selected.description ?? '',
       end: toFormDate(new Date(selected.end)),
       start: toFormDate(new Date(selected.start)),
-      capacity: (selected as any).capacity ?? 12,
-      type: (selected as any).type ?? 'Individual',
-      location: (selected as any).location ?? '',
+      capacity: selected.capacity ?? 12,
+      type: selected.type ?? 'Individual',
+      location: selected.location ?? '',
       id: selected.id,
     });
     this.isEditing = true;

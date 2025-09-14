@@ -20,6 +20,7 @@ import { withDelayedLoading } from '../../operators/withDelayedLoading';
 export interface Appointment {
   reservations: number;
   capacity: number;
+  description: string;
   id: number;
   title: string;
   start: Date;
@@ -129,19 +130,32 @@ export class Scheduler implements OnInit, AfterViewInit, OnDestroy {
 
   onColumnClick(event: MouseEvent, day: Date, container: HTMLElement) {
     // First, check if we clicked directly on an event element
-    const eventElement = (event.target as HTMLElement).closest('.event');
+    const eventElement = (event.target as HTMLElement).closest('.event') as HTMLElement | null;
     if (eventElement) {
-      // If we clicked directly on an event, find the corresponding appointment
+      // Prefer a direct mapping using a data attribute for reliability
+      const idAttr = eventElement.getAttribute('data-appointment-id');
+      if (idAttr) {
+        const id = Number(idAttr);
+        const existingAppointment = this.getAppointmentsForDay(day).find((a) => a.id === id);
+        if (existingAppointment) {
+          this.appointmentUpdate.emit({
+            id: existingAppointment.id,
+            start: existingAppointment.start,
+            end: existingAppointment.end,
+          });
+          return;
+        }
+      }
+
+      // Fallback: keep old behavior but limit to the day column
       const appointments = this.getAppointmentsForDay(day);
-      // We'll match based on position and time to find the right appointment
       const rect = eventElement.getBoundingClientRect();
-      const existingAppointment = appointments.find((apt) => {
+      const existingAppointment = appointments.find(() => {
         const eventTop = rect.top;
         const eventBottom = rect.bottom;
         const clickY = event.clientY;
         return clickY >= eventTop && clickY <= eventBottom;
       });
-
       if (existingAppointment) {
         this.appointmentUpdate.emit({
           id: existingAppointment.id,

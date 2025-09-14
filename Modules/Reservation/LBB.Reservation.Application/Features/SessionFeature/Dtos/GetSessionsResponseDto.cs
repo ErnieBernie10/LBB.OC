@@ -1,3 +1,6 @@
+using System.Text.Json.Serialization;
+using LBB.Reservation.Domain;
+
 namespace LBB.Reservation.Application.Features.SessionFeature.Dtos;
 
 public class GetSessionsResponseDto
@@ -10,4 +13,7 @@ public class GetSessionsResponseDto
     public string Location { get; set; }
     public int Capacity { get; set; }
     public int Id { get; set; }
+
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public Enums.SessionType Type { get; set; }
 }
