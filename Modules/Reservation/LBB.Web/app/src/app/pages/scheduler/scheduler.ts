@@ -1,7 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { Appointment, Scheduler as SchedulerC } from '../../components/scheduler/scheduler';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { Session, SessionService } from '../../services/session.service';
+import { SessionService } from '../../services/session.service';
 import { toFormDate } from '../../util/dateutils';
 import { FormInput } from '../../components/input-errors/form-input';
 import { Modal, ModalContent, ModalFooter, ModalHeader } from '../../components/modal/modal';
@@ -9,6 +9,7 @@ import { InvalidPipe } from '../../pipes/invalid-pipe';
 import { Alert } from '../../components/alert/alert';
 import { FormValidationService } from '../../services/form-validation.service';
 import { Errors } from '../../models/errors';
+import { CreateSessionCommand, ICreateSessionCommand, UpdateSessionInfoCommand } from '../../api/api';
 
 @Component({
   selector: 'app-scheduler-page',
@@ -41,8 +42,8 @@ export class Scheduler {
       this.sessions.value()?.map(
         (s): Appointment => ({
           id: s.id,
-          title: s.title,
-          description: s.description,
+          title: s.title ?? '',
+          description: s.description ?? '',
           start: new Date(s.start),
           end: new Date(s.end),
           capacity: s.capacity,
@@ -132,16 +133,15 @@ export class Scheduler {
     const value = this.sessions.value();
 
     const session = value?.find((a) => a.id === $event.id);
-    const selected: Session = session ?? {
-      id: $event.id,
-      title: '',
-      description: '',
-      start: $event.start,
-      end: $event.end,
-      capacity: 12,
-      attendeeCount: 0,
-      type: 'Individual',
-      location: '',
+    const selected: ICreateSessionCommand = {
+      ...session,
+      title: session?.title ?? '',
+      description: session?.description ?? '',
+      start: session?.start ?? new Date(),
+      end: session?.end ?? new Date(),
+      capacity: session?.capacity ?? 12,
+      location: session?.location ?? '',
+      type: session?.type === 'Individual' ? 'Individual' : 'Group',
     };
     console.log(selected);
 
@@ -153,7 +153,7 @@ export class Scheduler {
       capacity: selected.capacity ?? 12,
       type: selected.type ?? 'Individual',
       location: selected.location ?? '',
-      id: selected.id,
+      id: 0,
     });
     this.isEditing = true;
     this.showModal = true;

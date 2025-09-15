@@ -21,5 +21,9 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(),
     provideHttpClient(withInterceptors([xsrfInterceptor])),
     provideAppInitializer(async () => await inject(AuthService).init()),
+    {
+      provide: 'API_BASE_URL',
+      useValue: '/',
+    },
   ],
 };

@@ -21,7 +21,10 @@ public class SessionController(IMediator mediator) : ControllerBase
 {
     [HttpGet]
     [Authorize(Constants.Policies.ManageReservations)]
-    public async Task<IActionResult> GetSessions(DateTimeOffset? from, DateTimeOffset? to)
+    public async Task<ActionResult<IEnumerable<GetSessionsResponseDto>>> GetSessions(
+        DateTimeOffset? from,
+        DateTimeOffset? to
+    )
     {
         var sessions = await mediator.SendQueryAsync<
             GetSessionsQuery,
@@ -33,7 +36,7 @@ public class SessionController(IMediator mediator) : ControllerBase
 
     [HttpPost]
     [Authorize(Constants.Policies.ManageReservations)]
-    public async Task<IActionResult> CreateSession([FromBody] CreateSessionCommand command)
+    public async Task<ActionResult<int>> CreateSession([FromBody] CreateSessionCommand command)
     {
         var session = await mediator.SendCommandAsync<CreateSessionCommand, Result<int>>(command);
         if (session.IsFailed)
@@ -68,7 +71,7 @@ public class SessionController(IMediator mediator) : ControllerBase
     }
 
     [HttpPost("{sessionId:int}/reservations")]
-    public async Task<IActionResult> AddReservation(
+    public async Task<ActionResult<int>> AddReservation(
         int sessionId,
         [FromBody] AddReservationCommand command
     )

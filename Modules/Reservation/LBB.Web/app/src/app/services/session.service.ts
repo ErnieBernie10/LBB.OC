@@ -1,20 +1,10 @@
 import { inject, Injectable, Signal } from '@angular/core';
-import { HttpClient, httpResource } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { AuthService } from './auth.service';
+import { Client } from '../api/api';
+import { rxResource } from '@angular/core/rxjs-interop';
 
 export type SessionType = 'Individual' | 'Group';
-
-export interface Session {
-  capacity: number;
-  attendeeCount: number;
-  id: number;
-  title: string;
-  description: string;
-  start: Date;
-  end: Date;
-  type: SessionType;
-  location: string;
-}
 
 export interface CreateSession {
   capacity: number;
@@ -30,6 +20,7 @@ export interface CreateSession {
 export class SessionService {
   private client: HttpClient = inject(HttpClient);
   private authService: AuthService = inject(AuthService);
+  private api = inject(Client);
   private baseUrl = '/reservation/';
 
   public createSession(session: CreateSession) {
@@ -59,26 +50,10 @@ export class SessionService {
   }
 
   public getSessions(currentWeek: Signal<{ start: Date; end: Date }>) {
-    return httpResource<Session[]>(
-      () => `${this.baseUrl}sessions?start=${currentWeek().start.toISOString()}&end=${currentWeek().end.toISOString()}`,
-      {
-        parse: (sessions) => {
-          return (sessions as Session[]).map(
-            (s): Session => ({
-              start: new Date(s.start),
-              end: new Date(s.end),
-              id: s.id,
-              title: s.title,
-              description: s.description,
-              attendeeCount: s.attendeeCount,
-              type: s.type,
-              capacity: s.capacity,
-              location: s.location,
-            })
-          );
-        },
-      }
-    );
+    return rxResource({
+      params: () => currentWeek(),
+      stream: ({ params: { start, end } }) => this.api.sessionsAll(start, end),
+    });
   }
 
   public getSession(id: number) {
