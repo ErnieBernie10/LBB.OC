@@ -1,28 +1,26 @@
 import { Component, computed, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { Appointment, Scheduler as SchedulerC } from '../../components/scheduler/scheduler';
+import { SessionFormFieldsComponent } from '../../components/session-form/session-form-fields';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { SessionService } from '../../services/session.service';
 import { toFormDate } from '../../util/dateutils';
-import { FormInput } from '../../components/input-errors/form-input';
 import { Modal, ModalContent, ModalFooter, ModalHeader } from '../../components/modal/modal';
-import { InvalidPipe } from '../../pipes/invalid-pipe';
 import { Alert } from '../../components/alert/alert';
 import { FormValidationService } from '../../services/form-validation.service';
 import { Errors } from '../../models/errors';
-import { CreateSessionCommand, ICreateSessionCommand, UpdateSessionInfoCommand } from '../../api/api';
 
 @Component({
   selector: 'app-scheduler-page',
   imports: [
     ReactiveFormsModule,
-    FormInput,
     ModalContent,
     Modal,
     ModalHeader,
-    InvalidPipe,
     ModalFooter,
     Alert,
     SchedulerC,
+    SessionFormFieldsComponent,
   ],
   templateUrl: './scheduler.html',
   styleUrl: './scheduler.scss',
@@ -30,6 +28,7 @@ import { CreateSessionCommand, ICreateSessionCommand, UpdateSessionInfoCommand }
 export class Scheduler {
   private sessionService = inject(SessionService);
   private formService = inject(FormValidationService);
+  private router = inject(Router);
   public savingSession = false;
   public isEditing = false;
 
@@ -131,32 +130,8 @@ export class Scheduler {
   }
 
   onAppointmentUpdate($event: { id: number; start: Date; end: Date }) {
-    const value = this.sessions.value();
-
-    const session = value?.find((a) => a.id === $event.id);
-    const selected: ICreateSessionCommand = {
-      ...session,
-      title: session?.title ?? '',
-      description: session?.description ?? '',
-      start: session?.start ?? new Date(),
-      end: session?.end ?? new Date(),
-      capacity: session?.capacity ?? 12,
-      location: session?.location ?? '',
-      type: session?.type === 'Individual' ? 'Individual' : 'Group',
-    };
-
-    this.appointmentForm.setValue({
-      title: selected.title ?? '',
-      description: selected.description ?? '',
-      end: toFormDate(new Date(selected.end)),
-      start: toFormDate(new Date(selected.start)),
-      capacity: selected.capacity ?? 12,
-      type: selected.type ?? 'Individual',
-      location: selected.location ?? '',
-      id: 0,
-    });
-    this.isEditing = true;
-    this.showModal = true;
+    // Navigate to session detail page for editing and reservations overview
+    this.router.navigate(['/sessions', $event.id]);
   }
 
   protected readonly Errors = Errors;

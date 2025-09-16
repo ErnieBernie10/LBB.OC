@@ -1,0 +1,68 @@
+<article>
+  <header>
+    <nav>
+      <ul>
+        <li><a routerLink="/scheduler">Back to scheduler</a></li>
+      </ul>
+    </nav>
+    <h2>Session detail</h2>
+  </header>
+
+  <div>
+    @if (session.isLoading()) {
+      <p aria-busy="true">Loading...</p>
+    } @else {
+      @if (!editMode()) {
+        <section>
+          <h3>{{ session.value()?.title }}</h3>
+          <p>{{ session.value()?.description }}</p>
+          <p>
+            <strong>When:</strong>
+            {{ session.value()?.start | date: 'medium' }} - {{ session.value()?.end | date: 'shortTime' }}
+          </p>
+          <p><strong>Location:</strong> {{ session.value()?.location }}</p>
+          <p>
+            <strong>Type:</strong> {{ session.value()?.type }}
+            <span class="contrast" style="margin-left: 0.5rem">Capacity: {{ session.value()?.capacity }}</span>
+          </p>
+          <p><strong>Reservations:</strong> {{ session.value()?.attendeeCount }}</p>
+          <footer>
+            <button class="secondary" (click)="enableEdit()">Edit</button>
+          </footer>
+        </section>
+      } @else {
+        <form [formGroup]="form" (ngSubmit)="save()">
+          <app-session-form-fields [form]="form"></app-session-form-fields>
+          <div class="grid">
+            <button type="submit" [attr.aria-busy]="saving()">Save</button>
+            <button type="button" class="secondary" (click)="cancelEdit()">Cancel</button>
+          </div>
+        </form>
+      }
+
+      <section>
+        <h3>Reservations</h3>
+        @if (!reservations.value()) {
+          <p>No reservations found.</p>
+        } @else {
+          <ul>
+            @for (r of reservations.value(); track r.reference) {
+              <li>
+                <article>
+                  <header>
+                    <strong>{{ r.firstname }} {{ r.lastname }}</strong>
+                  </header>
+                  <p>
+                    Attendees: {{ r.attendeeCount }}
+                    <span class="secondary" style="margin-left: 0.5rem">{{ r.email }}</span>
+                    <span class="secondary" style="margin-left: 0.5rem">{{ r.phone }}</span>
+                  </p>
+                </article>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+    }
+  </div>
+</article>

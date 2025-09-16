@@ -14,6 +14,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/reservations/reservations').then((m) => m.Reservations),
   },
   {
+    path: 'sessions/:id',
+    loadComponent: () => import('./pages/session-detail/session-detail').then((m) => m.SessionDetailPage),
+  },
+  {
     path: '**',
     redirectTo: 'home',
     pathMatch: 'full',

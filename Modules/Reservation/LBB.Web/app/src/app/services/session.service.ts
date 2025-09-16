@@ -57,6 +57,16 @@ export class SessionService {
   }
 
   public getSession(id: number) {
-    return this.client.get<unknown>(`${this.baseUrl}/api/sessions/${id}`);
+    return rxResource({
+      params: () => id,
+      stream: ({ params: id }) => this.api.sessionsGET(id),
+    });
+  }
+
+  public getSessionReservations(sessionId: number) {
+    return rxResource({
+      params: () => ({ sessionId }),
+      stream: ({ params }) => this.api.reservationsAll(params.sessionId),
+    });
   }
 }

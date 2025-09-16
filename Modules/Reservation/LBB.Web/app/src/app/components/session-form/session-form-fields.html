@@ -1,0 +1,82 @@
+<div [formGroup]="form">
+  <app-input [controlName]="'title'" label="Title" i18n-label="@@scheduler.label.title" [required]="true">
+    <input
+      id="title"
+      type="text"
+      name="title"
+      formControlName="title"
+      [attr.aria-invalid]="form.get('title') | invalid"
+      i18n-placeholder="@@scheduler.placeholder.title"
+      placeholder="Title of the session..."
+    />
+    @if (form.get('title')?.hasError(Errors.NotEmptyError)) {
+      <small i18n>Title is required</small>
+    }
+    @if (form.get('title')?.hasError(Errors.LengthExceededError)) {
+      <small i18n
+        >Title must be less than {{ form.get('title')?.getError(Errors.LengthExceededError).maxLength }} characters</small
+      >
+    }
+  </app-input>
+  <app-input [controlName]="'description'" label="Description" i18n-label="@@scheduler.label.description">
+    <textarea
+      id="description"
+      formControlName="description"
+      [attr.aria-invalid]="form.get('description') | invalid"
+      placeholder="The description of the session..."
+      i18n-placeholder="@@scheduler.placeholder.description"
+    ></textarea>
+  </app-input>
+  <app-input [controlName]="'location'" label="Location" i18n-label="@@scheduler.label.location">
+    <input
+      id="location"
+      type="text"
+      formControlName="location"
+      [attr.aria-invalid]="form.get('location') | invalid"
+      placeholder="The location of the session..."
+      i18n-placeholder="@@scheduler.placeholder.location"
+    />
+  </app-input>
+  <app-input [controlName]="'start'" label="Start" i18n-label="@@scheduler.label.start" [required]="true">
+    <input id="start" type="datetime-local" formControlName="start" [attr.aria-invalid]="form.get('start') | invalid" />
+    @if (form.get('start')?.hasError(Errors.LessThanDateError)) {
+      <small i18n>Start time must be before end time</small>
+    }
+    @if (form.get('start')?.hasError(Errors.NotEmptyError)) {
+      <small class="error" i18n>Start time is required</small>
+    }
+  </app-input>
+  <app-input [controlName]="'end'" label="End" i18n-label="@@scheduler.label.end" [required]="true">
+    <input id="end" type="datetime-local" formControlName="end" [attr.aria-invalid]="form.get('end') | invalid" />
+    @if (form.get('end')?.hasError(Errors.GreaterThanDateError)) {
+      <small i18n>End time must be after start time</small>
+    }
+    @if (form.get('end')?.hasError(Errors.NotEmptyError)) {
+      <small i18n>End time is required</small>
+    }
+  </app-input>
+  <app-input
+    [controlName]="'type'"
+    label="Type"
+    [attr.aria-invalid]="form.get('type') | invalid"
+    i18n-label="@@scheduler.label.type"
+  >
+    <select name="type" id="type" formControlName="type">
+      <option value="Individual">Individueel</option>
+      <option value="Group">Groep</option>
+    </select>
+  </app-input>
+  @if (form.get('type')?.getRawValue() === 'Group') {
+    <app-input [controlName]="'capacity'" [required]="true" label="Capacity" i18n-label="@@scheduler.label.capacity">
+      <input id="capacity" type="number" formControlName="capacity" [attr.aria-invalid]="form.get('capacity') | invalid" />
+      @if (form.get('capacity')?.hasError(Errors.GreaterThanError)) {
+        <small i18n
+          >Capacity must be greater than {{ form.get('capacity')?.getError(Errors.GreaterThanError).greaterThanValue }}</small
+        >
+      }
+      @if (form.get('capacity')?.hasError(Errors.NotEmptyError)) {
+        <small i18n>Capacity is required</small>
+      }
+    </app-input>
+  }
+</div>

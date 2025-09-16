@@ -20,7 +20,6 @@ namespace LBB.OC.Reservation.Controllers;
 public class SessionController(IMediator mediator) : ControllerBase
 {
     [HttpGet]
-    [Authorize(Constants.Policies.ManageReservations)]
     public async Task<ActionResult<IEnumerable<GetSessionsResponseDto>>> GetSessions(
         DateTimeOffset? from,
         DateTimeOffset? to
@@ -32,6 +31,22 @@ public class SessionController(IMediator mediator) : ControllerBase
         >(new GetSessionsQuery() { Start = from, End = to });
 
         return Ok(sessions);
+    }
+
+    [HttpGet("{sessionId:int}")]
+    public async Task<ActionResult<GetSessionResponseDto>> GetSession(int sessionId)
+    {
+        var query = new GetSessionQuery() { Id = sessionId };
+        var session = await mediator.SendQueryAsync<GetSessionQuery, Result<GetSessionResponseDto>>(
+            query
+        );
+        if (session.IsFailed)
+        {
+            if (session.HasError<NotFoundError>())
+                return NotFound(session.Errors);
+            return BadRequest(session.Errors);
+        }
+        return Ok(session.Value);
     }
 
     [HttpPost]
@@ -68,6 +83,21 @@ public class SessionController(IMediator mediator) : ControllerBase
             return BadRequest(session.Errors);
         }
         return Ok();
+    }
+
+    [HttpGet("{sessionId:int}/reservations")]
+    public async Task<
+        ActionResult<IEnumerable<GetReservationsResponseDto>>
+    > GetReservationsBySession(int sessionId)
+    {
+        var query = new GetReservationsBySessionQuery() { SessionId = sessionId };
+        var reservations = await mediator.SendQueryAsync<
+            GetReservationsBySessionQuery,
+            Result<IEnumerable<GetReservationsResponseDto>>
+        >(query);
+        if (reservations.IsFailed)
+            return BadRequest(reservations.Errors);
+        return Ok(reservations.Value);
     }
 
     [HttpPost("{sessionId:int}/reservations")]

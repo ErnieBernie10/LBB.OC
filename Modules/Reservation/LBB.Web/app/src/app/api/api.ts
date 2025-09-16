@@ -256,6 +256,61 @@ export class Client {
     }
 
     /**
+     * @return OK
+     */
+    sessionsGET(sessionId: number): Observable<GetSessionResponseDto> {
+        let url_ = this.baseUrl + "/reservation/sessions/{sessionId}";
+        if (sessionId === undefined || sessionId === null)
+            throw new globalThis.Error("The parameter 'sessionId' must be defined.");
+        url_ = url_.replace("{sessionId}", encodeURIComponent("" + sessionId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            withCredentials: true,
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processSessionsGET(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processSessionsGET(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<GetSessionResponseDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<GetSessionResponseDto>;
+        }));
+    }
+
+    protected processSessionsGET(response: HttpResponseBase): Observable<GetSessionResponseDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = GetSessionResponseDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * @param body (optional) 
      * @return OK
      */
@@ -302,6 +357,68 @@ export class Client {
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    reservationsAll(sessionId: number): Observable<GetReservationsResponseDto[]> {
+        let url_ = this.baseUrl + "/reservation/sessions/{sessionId}/reservations";
+        if (sessionId === undefined || sessionId === null)
+            throw new globalThis.Error("The parameter 'sessionId' must be defined.");
+        url_ = url_.replace("{sessionId}", encodeURIComponent("" + sessionId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            withCredentials: true,
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processReservationsAll(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processReservationsAll(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<GetReservationsResponseDto[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<GetReservationsResponseDto[]>;
+        }));
+    }
+
+    protected processReservationsAll(response: HttpResponseBase): Observable<GetReservationsResponseDto[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(GetReservationsResponseDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -847,6 +964,142 @@ export interface ICreateSessionCommand {
     end: Date;
     location: string | undefined;
     capacity: number | undefined;
+}
+
+export class GetReservationsResponseDto implements IGetReservationsResponseDto {
+    reference!: string | undefined;
+    firstname!: string | undefined;
+    lastname!: string | undefined;
+    attendeeCount!: number;
+    email!: string | undefined;
+    phone!: string | undefined;
+
+    constructor(data?: IGetReservationsResponseDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.reference = _data["reference"];
+            this.firstname = _data["firstname"];
+            this.lastname = _data["lastname"];
+            this.attendeeCount = _data["attendeeCount"];
+            this.email = _data["email"];
+            this.phone = _data["phone"];
+        }
+    }
+
+    static fromJS(data: any): GetReservationsResponseDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetReservationsResponseDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["reference"] = this.reference;
+        data["firstname"] = this.firstname;
+        data["lastname"] = this.lastname;
+        data["attendeeCount"] = this.attendeeCount;
+        data["email"] = this.email;
+        data["phone"] = this.phone;
+        return data;
+    }
+}
+
+export interface IGetReservationsResponseDto {
+    reference: string | undefined;
+    firstname: string | undefined;
+    lastname: string | undefined;
+    attendeeCount: number;
+    email: string | undefined;
+    phone: string | undefined;
+}
+
+export class GetSessionResponseDto implements IGetSessionResponseDto {
+    title!: string | undefined;
+    description!: string | undefined;
+    start!: Date;
+    end!: Date;
+    attendeeCount!: number;
+    location!: string | undefined;
+    capacity!: number;
+    id!: number;
+    type!: SessionType;
+    reservations!: GetReservationsResponseDto[] | undefined;
+
+    constructor(data?: IGetSessionResponseDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.title = _data["title"];
+            this.description = _data["description"];
+            this.start = _data["start"] ? new Date(_data["start"].toString()) : undefined as any;
+            this.end = _data["end"] ? new Date(_data["end"].toString()) : undefined as any;
+            this.attendeeCount = _data["attendeeCount"];
+            this.location = _data["location"];
+            this.capacity = _data["capacity"];
+            this.id = _data["id"];
+            this.type = _data["type"];
+            if (Array.isArray(_data["reservations"])) {
+                this.reservations = [] as any;
+                for (let item of _data["reservations"])
+                    this.reservations!.push(GetReservationsResponseDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): GetSessionResponseDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetSessionResponseDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["title"] = this.title;
+        data["description"] = this.description;
+        data["start"] = this.start ? this.start.toISOString() : undefined as any;
+        data["end"] = this.end ? this.end.toISOString() : undefined as any;
+        data["attendeeCount"] = this.attendeeCount;
+        data["location"] = this.location;
+        data["capacity"] = this.capacity;
+        data["id"] = this.id;
+        data["type"] = this.type;
+        if (Array.isArray(this.reservations)) {
+            data["reservations"] = [];
+            for (let item of this.reservations)
+                data["reservations"].push(item ? item.toJSON() : undefined as any);
+        }
+        return data;
+    }
+}
+
+export interface IGetSessionResponseDto {
+    title: string | undefined;
+    description: string | undefined;
+    start: Date;
+    end: Date;
+    attendeeCount: number;
+    location: string | undefined;
+    capacity: number;
+    id: number;
+    type: SessionType;
+    reservations: GetReservationsResponseDto[] | undefined;
 }
 
 export class GetSessionsResponseDto implements IGetSessionsResponseDto {
