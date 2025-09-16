@@ -52,7 +52,7 @@
     flex-shrink: 0;
 
     .time-header {
-      height: 40px;
+      height: 64px; /* match day header height to align grids */
       position: sticky;
       top: 0;
       z-index: 2;
@@ -109,8 +109,8 @@
 
       .events-container {
         position: relative;
+        /* Remove padding-top so grid lines align with 00:00 baseline; header is above */
         height: 1440px; // 24 hours * 60px per hour
-        padding-top: 40px; // push events below sticky header
         background-color: var(--pico-background-color, #ffffff);
         /* Use fallbacks to ensure lines are visible even if theme variables are missing */
         background-image:

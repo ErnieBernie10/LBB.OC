@@ -101,6 +101,8 @@ export class Scheduler implements OnInit, AfterViewInit, OnDestroy {
       appointment.end.getHours() * 60 +
       appointment.end.getMinutes() -
       (appointment.start.getHours() * 60 + appointment.start.getMinutes());
+    // We position events within the events-container, which should start at y=0 just below day-header via CSS.
+    // No header offset is applied here so that the left time grid and events align pixel-perfectly.
     return {
       top: `${top}px`,
       height: `${duration * (this.pixelsPerHour / 60)}px`,
@@ -176,14 +178,17 @@ export class Scheduler implements OnInit, AfterViewInit, OnDestroy {
     }
 
     // If we didn't click on an event, proceed with creating a new appointment
-    const rect = container.getBoundingClientRect();
-    // Adjust for the sticky header (40px) and padding-top we add to events-container
-    const headerOffset = 40;
-    const y = event.clientY - rect.top + container.scrollTop - headerOffset;
+    // Use the actual events container as reference and dynamically compute header height
+    const eventsContainer = (event.currentTarget as HTMLElement) || container;
+    const rect = eventsContainer.getBoundingClientRect();
+
+    // Compute y relative to the events container (already below the day header), accounting for its vertical scroll
+    const y = event.clientY - rect.top + eventsContainer.scrollTop;
 
     const totalMinutes = Math.max(0, Math.floor((y * 60) / this.pixelsPerHour));
     let hours = Math.floor(totalMinutes / 60);
-    let minutes = Math.round((totalMinutes % 60) / 15) * 15;
+    // Snap down to the previous 15-minute boundary to avoid rounding up
+    let minutes = Math.floor((totalMinutes % 60) / 15) * 15;
 
     if (minutes === 60) {
       minutes = 0;
@@ -194,8 +199,14 @@ export class Scheduler implements OnInit, AfterViewInit, OnDestroy {
     if (hours > 23) hours = 23;
 
     const startDate = setMinutes(setHours(day, hours), minutes);
-    // Default duration 15 minutes
-    const endDate = setMinutes(setHours(day, hours), minutes === 45 ? 0 : minutes + 15);
+    // Default duration 15 minutes, properly roll over hour at :45
+    let endMinutes = minutes + 15;
+    let endHours = hours;
+    if (endMinutes >= 60) {
+      endMinutes = 0;
+      endHours = Math.min(23, endHours + 1);
+    }
+    const endDate = setMinutes(setHours(day, endHours), endMinutes);
     this.appointmentCreate.emit({ start: startDate, end: endDate });
   }
 

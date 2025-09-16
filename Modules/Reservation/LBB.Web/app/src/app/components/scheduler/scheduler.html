@@ -32,7 +32,7 @@
               {{ format(day, 'EEE', { locale: l }) }}
               <small>{{ format(day, 'd', { locale: l }) }}</small>
             </div>
-            <div class="events-container" (click)="onColumnClick($event, day, scrollContainer)">
+            <div class="events-container" #events (click)="onColumnClick($event, day, events)">
               @for (appointment of getAppointmentsForDay(day); track appointment.id) {
                 <div
                   class="event"
