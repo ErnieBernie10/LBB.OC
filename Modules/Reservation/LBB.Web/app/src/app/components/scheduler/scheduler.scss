@@ -1,6 +1,8 @@
 .scheduler {
   margin: 1rem;
   padding: 1rem;
+  /* Prevent the scheduler wrapper from creating its own scrollbar when inner scroll exists */
+  overflow: hidden;
 
   .controls {
     display: flex;
@@ -23,8 +25,9 @@
 
   .calendar-container {
     border-radius: var(--pico-border-radius);
-    overflow: hidden;
-    height: 660px;
+    /* Avoid nested scrollbars: the scroll happens only in .scroll-container */
+    overflow: clip;
+    block-size: 660px;
   }
 
   .scroll-container {
@@ -134,8 +137,7 @@
 
       .event {
         position: absolute;
-        left: 4px;
-        right: 4px;
+        /* left/right set dynamically via ngStyle for overlap columns */
         background: var(--pico-primary);
         color: var(--pico-primary-inverse);
         padding: 0.25rem;
@@ -145,7 +147,14 @@
         white-space: nowrap;
         text-overflow: ellipsis;
         z-index: 1; // keep below sticky header
+        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        transition: transform 0.08s ease, box-shadow 0.08s ease;
       }
+      .event:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+      }
+
     }
   }
 }

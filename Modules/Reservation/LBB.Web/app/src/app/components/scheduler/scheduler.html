@@ -13,6 +13,33 @@
   </header>
 
   <div class="calendar-container">
+    <app-modal [isOpen]="modal.open" (close)="closeModal()">
+      <modal-header>
+        <h4>Select session</h4>
+      </modal-header>
+      <modal-content>
+        <ul style="list-style: none; padding: 0; margin: 0; overflow: auto">
+          @for (opt of modal.options; track opt.id) {
+            <li>
+              <button
+                class="secondary"
+                type="button"
+                style="width: 100%; text-align: left"
+                (click)="pickModalOption(opt)"
+              >
+                <strong>{{ opt.title }}</strong
+                ><br />
+                <small>{{ formatDate(opt.start, 'EEE d MMM HH:mm') }} - {{ formatDate(opt.end, 'HH:mm') }}</small>
+                <span style="float: right">{{ opt.reservations }} / {{ opt.capacity }}</span>
+              </button>
+            </li>
+          }
+        </ul>
+      </modal-content>
+      <modal-footer>
+        <button class="secondary" (click)="closeModal()">Close</button>
+      </modal-footer>
+    </app-modal>
     <div class="scroll-container" #scrollContainer>
       <div class="time-column">
         <div class="time-header"></div>
@@ -33,16 +60,19 @@
               <small>{{ format(day, 'd', { locale: l }) }}</small>
             </div>
             <div class="events-container" #events (click)="onColumnClick($event, day, events)">
-              @for (appointment of getAppointmentsForDay(day); track appointment.id) {
-                <div
-                  class="event"
-                  [attr.data-appointment-id]="appointment.id"
-                  [ngStyle]="getAppointmentStyle(appointment)"
-                >
-                  {{ appointment.title }} ({{ formatDate(appointment.start, 'HH:mm') }} -
-                  {{ formatDate(appointment.end, 'HH:mm', { locale: l }) }}) <br />
-                  {{ appointment.reservations }} / {{ appointment.capacity }}
-                </div>
+              <!-- Modal for overlapping sessions selection using PicoCSS dialog placed at root level -->
+              @for (appointment of getAppointmentsForDay(day); track appointment.id; let i = $index) {
+                @if (i < 2) {
+                  <div
+                    class="event"
+                    [attr.data-appointment-id]="appointment.id"
+                    [ngStyle]="getAppointmentStyle(appointment)"
+                  >
+                    {{ appointment.title }} ({{ formatDate(appointment.start, 'HH:mm') }} -
+                    {{ formatDate(appointment.end, 'HH:mm', { locale: l }) }}) <br />
+                    {{ appointment.reservations }} / {{ appointment.capacity }}
+                  </div>
+                }
               }
             </div>
           </div>

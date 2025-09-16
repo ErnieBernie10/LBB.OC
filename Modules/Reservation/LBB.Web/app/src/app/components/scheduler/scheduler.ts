@@ -16,6 +16,7 @@ import { addDays, addWeeks, format, formatDate, setHours, setMinutes, startOfWee
 import { nlBE, enUS } from 'date-fns/locale';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { withDelayedLoading } from '../../operators/withDelayedLoading';
+import { Modal, ModalContent, ModalFooter, ModalHeader } from '../modal/modal';
 
 export interface Appointment {
   reservations: number;
@@ -30,13 +31,16 @@ export interface Appointment {
 @Component({
   selector: 'app-scheduler',
   templateUrl: './scheduler.html',
-  imports: [CommonModule],
+  imports: [CommonModule, Modal, ModalHeader, ModalContent, ModalFooter],
   standalone: true,
   styleUrls: ['./scheduler.scss'],
 })
 export class Scheduler implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('scrollContainer') scrollContainer!: ElementRef;
   @Input() appointments: Appointment[] = [];
+
+  // Computed layout for overlapping appointments (per day)
+  private layoutCache = new Map<string, Map<number, { col: number; cols: number }>>(); // dayKey -> id -> layout
 
   private loadingSubject = new BehaviorSubject<boolean>(false);
   private destroy$ = new Subject<void>();
@@ -49,6 +53,9 @@ export class Scheduler implements OnInit, AfterViewInit, OnDestroy {
   }
 
   showLoading$: Observable<boolean> = withDelayedLoading(this.loadingSubject);
+
+  // Simple modal state for selecting among overlapping sessions
+  modal: { open: boolean; day: Date | null; options: Appointment[] } = { open: false, day: null, options: [] };
 
   @Output() appointmentCreate = new EventEmitter<{ start: Date; end: Date }>();
   @Output() appointmentUpdate = new EventEmitter<{ id: number; start: Date; end: Date }>();
@@ -94,6 +101,8 @@ export class Scheduler implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getAppointmentStyle(appointment: Appointment): { [key: string]: string } {
+    const dayKey = format(appointment.start, 'yyyy-MM-dd');
+    const layoutForDay = this.layoutCache.get(dayKey)?.get(appointment.id);
     const startHour = appointment.start.getHours();
     const startMinute = appointment.start.getMinutes();
     const top = (startHour * 60 + startMinute) * (this.pixelsPerHour / 60);
@@ -103,14 +112,64 @@ export class Scheduler implements OnInit, AfterViewInit, OnDestroy {
       (appointment.start.getHours() * 60 + appointment.start.getMinutes());
     // We position events within the events-container, which should start at y=0 just below day-header via CSS.
     // No header offset is applied here so that the left time grid and events align pixel-perfectly.
+    const gap = 2; // px gap between overlapping columns
+    let left = 4; // default left padding
+    let right = 4; // default right padding
+    if (layoutForDay) {
+      const totalCols = Math.max(1, layoutForDay.cols);
+      const colIndex = layoutForDay.col;
+      const columnWidth = (100 - 2) / totalCols; // percentage minus a tiny safety
+      const leftPercent = colIndex * columnWidth;
+      // Use percentage widths so it scales with container
+      return {
+        top: `${top}px`,
+        height: `${duration * (this.pixelsPerHour / 60)}px`,
+        left: `calc(${leftPercent}% + ${gap}px)`,
+        width: `calc(${columnWidth}% - ${gap * 2}px)`,
+      };
+    }
     return {
       top: `${top}px`,
       height: `${duration * (this.pixelsPerHour / 60)}px`,
+      left: `${left}px`,
+      right: `${right}px`,
     };
   }
 
   getAppointmentsForDay(day: Date): Appointment[] {
-    return this.appointments.filter((apt) => format(apt.start, 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd'));
+    // Also compute overlap layout cache for this day when accessed
+    const dayKey = format(day, 'yyyy-MM-dd');
+    const dayAppointments = this.appointments
+      .filter((apt) => format(apt.start, 'yyyy-MM-dd') === dayKey)
+      .sort((a, b) => a.start.getTime() - b.start.getTime());
+
+    // Build overlap groups using sweep-line and assign columns
+    const layoutMap = new Map<number, { col: number; cols: number }>();
+    const active: { id: number; end: number; col: number }[] = [];
+
+    for (const apt of dayAppointments) {
+      const start = apt.start.getTime();
+      const end = apt.end.getTime();
+      // release finished
+      for (let i = active.length - 1; i >= 0; i--) {
+        if (active[i].end <= start) active.splice(i, 1);
+      }
+      // find available column
+      const usedCols = new Set(active.map((a) => a.col));
+      let col = 0;
+      while (usedCols.has(col)) col++;
+      active.push({ id: apt.id, end, col });
+      // total cols in current cluster is max of active col+1
+      let cols = Math.max(...active.map((a) => a.col + 1));
+      // cap visible columns to 2 in the UI; store real cols for logic using min
+      const visibleCols = Math.min(2, cols);
+      // update cols for all active items in this cluster
+      for (const a of active) layoutMap.set(a.id, { col: Math.min(a.col, visibleCols - 1), cols: visibleCols });
+    }
+
+    this.layoutCache.set(dayKey, layoutMap);
+
+    return dayAppointments;
   }
 
   isWorkHour(time: string): boolean {
@@ -140,6 +199,13 @@ export class Scheduler implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onColumnClick(event: MouseEvent, day: Date, container: HTMLElement) {
+    // Use the actual events container as reference first
+    const eventsContainer = (event.currentTarget as HTMLElement) || container;
+    const rectContainer = eventsContainer.getBoundingClientRect();
+    const y = event.clientY - rectContainer.top + eventsContainer.scrollTop;
+    const totalMinutes = Math.max(0, Math.floor((y * 60) / this.pixelsPerHour));
+    const clickHour = Math.floor(totalMinutes / 60);
+    const clickMinute = Math.floor((totalMinutes % 60) / 15) * 15;
     // First, check if we clicked directly on an event element
     const eventElement = (event.target as HTMLElement).closest('.event') as HTMLElement | null;
     if (eventElement) {
@@ -147,7 +213,46 @@ export class Scheduler implements OnInit, AfterViewInit, OnDestroy {
       const idAttr = eventElement.getAttribute('data-appointment-id');
       if (idAttr) {
         const id = Number(idAttr);
-        const existingAppointment = this.getAppointmentsForDay(day).find((a) => a.id === id);
+        const dayAppointments = this.getAppointmentsForDay(day);
+        // Determine hour window from click location
+        const hourStart = clickHour * 60;
+        const hourEnd = (clickHour + 1) * 60;
+        // Candidates: any appointment intersecting the hour window
+        const candidates = dayAppointments.filter((a) => {
+          const start = a.start.getHours() * 60 + a.start.getMinutes();
+          const end = a.end.getHours() * 60 + a.end.getMinutes();
+          return start < hourEnd && end > hourStart; // intersects the hour window
+        });
+        // Build overlap graph among candidates; edge if time ranges intersect
+        const overlaps = (a: Appointment, b: Appointment) => {
+          const as = a.start.getHours() * 60 + a.start.getMinutes();
+          const ae = a.end.getHours() * 60 + a.end.getMinutes();
+          const bs = b.start.getHours() * 60 + b.start.getMinutes();
+          const be = b.end.getHours() * 60 + b.end.getMinutes();
+          return as < be && ae > bs;
+        };
+        // Find connected component that contains the clicked appointment id
+        const byId = new Map<number, Appointment>(candidates.map((c) => [c.id, c]));
+        const startNode = byId.get(id);
+        if (startNode) {
+          const visited = new Set<number>();
+          const stack = [startNode];
+          while (stack.length) {
+            const cur = stack.pop()!;
+            if (visited.has(cur.id)) continue;
+            visited.add(cur.id);
+            for (const next of candidates) {
+              if (!visited.has(next.id) && overlaps(cur, next)) stack.push(next);
+            }
+          }
+          const component = candidates.filter((c) => visited.has(c.id));
+          if (component.length > 2) {
+            // Show all overlapping blocks within the hour for this group
+            this.modal = { open: true, day, options: component.sort((a, b) => a.start.getTime() - b.start.getTime()) };
+            return;
+          }
+        }
+        const existingAppointment = dayAppointments.find((a) => a.id === id);
         if (existingAppointment) {
           this.appointmentUpdate.emit({
             id: existingAppointment.id,
@@ -178,17 +283,8 @@ export class Scheduler implements OnInit, AfterViewInit, OnDestroy {
     }
 
     // If we didn't click on an event, proceed with creating a new appointment
-    // Use the actual events container as reference and dynamically compute header height
-    const eventsContainer = (event.currentTarget as HTMLElement) || container;
-    const rect = eventsContainer.getBoundingClientRect();
-
-    // Compute y relative to the events container (already below the day header), accounting for its vertical scroll
-    const y = event.clientY - rect.top + eventsContainer.scrollTop;
-
-    const totalMinutes = Math.max(0, Math.floor((y * 60) / this.pixelsPerHour));
-    let hours = Math.floor(totalMinutes / 60);
-    // Snap down to the previous 15-minute boundary to avoid rounding up
-    let minutes = Math.floor((totalMinutes % 60) / 15) * 15;
+    let hours = clickHour;
+    let minutes = clickMinute;
 
     if (minutes === 60) {
       minutes = 0;
@@ -208,6 +304,16 @@ export class Scheduler implements OnInit, AfterViewInit, OnDestroy {
     }
     const endDate = setMinutes(setHours(day, endHours), endMinutes);
     this.appointmentCreate.emit({ start: startDate, end: endDate });
+  }
+
+  pickModalOption(opt: Appointment) {
+    this.modal.open = false;
+    this.appointmentUpdate.emit({ id: opt.id, start: opt.start, end: opt.end });
+  }
+
+  closeModal(ev?: Event) {
+    if (ev) ev.stopPropagation();
+    this.modal.open = false;
   }
 
   ngOnDestroy() {
