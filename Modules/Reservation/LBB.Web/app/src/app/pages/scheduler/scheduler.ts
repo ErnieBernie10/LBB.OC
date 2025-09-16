@@ -87,6 +87,7 @@ export class Scheduler {
   }
 
   onAppointmentCreate($event: { start: Date; end: Date }) {
+    this.isEditing = false;
     this.appointmentForm.get('start')?.setValue(toFormDate($event.start));
     this.appointmentForm.get('end')?.setValue(toFormDate($event.end));
     this.showModal = true;
@@ -143,7 +144,6 @@ export class Scheduler {
       location: session?.location ?? '',
       type: session?.type === 'Individual' ? 'Individual' : 'Group',
     };
-    console.log(selected);
 
     this.appointmentForm.setValue({
       title: selected.title ?? '',

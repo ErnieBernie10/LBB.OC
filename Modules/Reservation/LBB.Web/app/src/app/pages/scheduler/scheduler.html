@@ -2,10 +2,10 @@
   <app-modal [isOpen]="showModal" (close)="onClose()">
     <modal-header>
       @if (isEditing) {
-        <strong i18n>Edit session</strong>
+        <strong i18n="editSession">Edit session</strong>
       }
       @if (!isEditing) {
-        <strong i18n>Create session</strong>
+        <strong i18n="createSession">Create session</strong>
       }
     </modal-header>
     <modal-content>
