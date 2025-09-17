@@ -5,30 +5,39 @@ import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { SessionFormFieldsComponent } from '../../components/session-form/session-form-fields';
 import { SessionService } from '../../services/session.service';
 import { toFormDate } from '../../util/dateutils';
+import { AddReservationCommand, IAddReservationCommand } from '../../api/api';
+import { Modal, ModalContent, ModalFooter, ModalHeader } from '../../components/modal/modal';
+import { ReservationForm } from '../../components/reservation-form/reservation-form';
 import { FormValidationService } from '../../services/form-validation.service';
 
 @Component({
   selector: 'app-session-detail-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, SessionFormFieldsComponent, RouterLink],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    SessionFormFieldsComponent,
+    RouterLink,
+    Modal,
+    ModalHeader,
+    ModalContent,
+    ReservationForm,
+    ModalFooter,
+  ],
   templateUrl: './session-detail.html',
   styleUrls: ['./session-detail.scss'],
 })
 export class SessionDetailPage {
   private route = inject(ActivatedRoute);
   private sessionService = inject(SessionService);
-  private formService = inject(FormValidationService);
-
-  // Preserve week context from query string for back navigation
-  public backQuery: { start?: string | null; end?: string | null } = {
-    start: this.route.snapshot.queryParamMap.get('start'),
-    end: this.route.snapshot.queryParamMap.get('end'),
-  };
 
   session = this.sessionService.getSession(Number(this.route.snapshot.paramMap.get('id')!));
   reservations = this.sessionService.getSessionReservations(Number(this.route.snapshot.paramMap.get('id')!));
   saving = signal<boolean>(false);
+  savingReservation = signal<boolean>(false);
   editMode = signal<boolean>(false);
+  reservation = signal<IAddReservationCommand | null>(null);
+  formService = inject(FormValidationService);
 
   form = new FormBuilder().nonNullable.group({
     title: [''],
@@ -39,6 +48,13 @@ export class SessionDetailPage {
     type: ['Individual'],
     location: [''],
     id: [undefined as number | undefined],
+  });
+  reservationForm = new FormBuilder().nonNullable.group({
+    firstname: [''],
+    lastname: [''],
+    email: [''],
+    phoneNumber: [''],
+    attendeeCount: [1],
   });
 
   enableEdit() {
@@ -75,6 +91,13 @@ export class SessionDetailPage {
     }
   }
 
+  addReservation() {
+    this.reservation.set({
+      ...this.reservationForm.getRawValue(),
+      sessionId: this.session?.value()?.id ?? -1,
+    });
+  }
+
   save() {
     if (!this.form.dirty) return;
     const value = this.form.getRawValue();
@@ -90,5 +113,30 @@ export class SessionDetailPage {
         this.saving.set(false);
       }),
     });
+  }
+
+  saveReservation() {
+    if (!this.reservationForm.dirty) return;
+
+    const value = this.reservationForm.getRawValue();
+    this.savingReservation.set(true);
+    this.sessionService
+      .addReservation(
+        this.session.value()!.id,
+        new AddReservationCommand({
+          ...value,
+          sessionId: this.session.value()!.id,
+        })
+      )
+      .subscribe({
+        complete: () => {
+          this.savingReservation.set(false);
+          this.reservationForm.reset();
+          this.reservations.reload();
+        },
+        error: this.formService.setServerErrors(this.reservationForm, () => {
+          this.savingReservation.set(false);
+        }),
+      });
   }
 }

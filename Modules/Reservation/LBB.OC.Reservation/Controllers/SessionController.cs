@@ -109,7 +109,14 @@ public class SessionController(IMediator mediator) : ControllerBase
         command.SessionId = sessionId;
         var session = await mediator.SendCommandAsync<AddReservationCommand, Result<int>>(command);
         if (session.IsFailed)
+        {
+            if (session.HasError<DomainValidationError>() || session.HasError<ValidationError>())
+                return BadRequest(session.MapValidationErrorsToProblemDetails());
+            if (session.HasError<NotFoundError>())
+                return NotFound(session.Errors);
+
             return BadRequest(session.Errors);
+        }
         return Ok(session.Value);
     }
 }

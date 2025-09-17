@@ -1,0 +1,22 @@
+<div [formGroup]="form">
+  <app-input label="Firstname" i18n-label="@@reservation.label.firstname" [controlName]="'firstname'">
+    <input type="text" name="firstname" formControlName="firstname" [attr.aria-invalid]="firstname | invalid" />
+  </app-input>
+  <app-input label="Lastname" i18n-label="@@reservation.label.lastname" [controlName]="'lastname'">
+    <input type="text" name="lastname" formControlName="lastname" [attr.aria-invalid]="lastname | invalid" />
+  </app-input>
+  <app-input label="Email" i18n-label="@@reservation.label.email" [controlName]="'email'" [required]="true">
+    <input type="email" name="email" formControlName="email" [attr.aria-invalid]="email | invalid" />
+  </app-input>
+  <app-input label="Phone" i18n-label="@@reservation.label.phoneNumber" [controlName]="'phoneNumber'">
+    <input type="tel" name="phoneNumber" formControlName="phoneNumber" [attr.aria-invalid]="phoneNumber | invalid" />
+  </app-input>
+  <app-input label="Attendees" i18n-label="@@reservation.label.attendeeCount" [controlName]="'attendeeCount'">
+    <input
+      type="number"
+      name="attendeeCount"
+      formControlName="attendeeCount"
+      [attr.aria-invalid]="attendeeCount | invalid"
+    />
+  </app-input>
+</div>

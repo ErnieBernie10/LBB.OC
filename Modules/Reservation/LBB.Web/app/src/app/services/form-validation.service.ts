@@ -1,9 +1,9 @@
 import { inject, Injectable } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { HttpErrorResponse } from '@angular/common/http';
 import { normalizeFieldPath } from '../util/formutils';
 import { AlertService } from './alert.service';
 import { environment } from '../../environments/environment';
+import { ApiException } from '../api/api';
 
 @Injectable({
   providedIn: 'root',
@@ -11,12 +11,13 @@ import { environment } from '../../environments/environment';
 export class FormValidationService {
   private alertService = inject(AlertService);
   public setServerErrors(formGroup: FormGroup, then?: () => void) {
-    return (response: HttpErrorResponse) => {
+    return (response: ApiException) => {
+      const res = JSON.parse(response.response);
       if (response.status === 400) {
         formGroup.markAllAsTouched();
 
         // Prefer detailed errors if available; fallback to simple errors dictionary
-        const detailed = response.error?.errorsDetailed as
+        const detailed = res?.errorsDetailed as
           | Record<string, Array<{ message: string; errorCode: string; metadata?: any }>>
           | undefined;
 

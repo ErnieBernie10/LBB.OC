@@ -1,7 +1,7 @@
 import { inject, Injectable, Signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from './auth.service';
-import { Client } from '../api/api';
+import { AddReservationCommand, Client, IAddReservationCommand } from '../api/api';
 import { rxResource } from '@angular/core/rxjs-interop';
 
 export type SessionType = 'Individual' | 'Group';
@@ -68,5 +68,9 @@ export class SessionService {
       params: () => ({ sessionId }),
       stream: ({ params }) => this.api.reservationsAll(params.sessionId),
     });
+  }
+
+  public addReservation(sessionId: number, command: AddReservationCommand) {
+    return this.api.reservations(sessionId, command);
   }
 }

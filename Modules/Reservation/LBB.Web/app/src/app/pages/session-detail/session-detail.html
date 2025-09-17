@@ -1,10 +1,25 @@
+@if (reservation() != null) {
+  <form [formGroup]="reservationForm" (ngSubmit)="saveReservation()">
+    <app-modal [isOpen]="true" (close)="reservation.set(null)">
+      <modal-header>
+        <h4>Add reservation</h4>
+      </modal-header>
+      <modal-content>
+        <app-reservation-form [form]="reservationForm"></app-reservation-form>
+      </modal-content>
+      <modal-footer>
+        <button [attr.aria-busy]="savingReservation" type="submit" i18n>Confirm</button>
+      </modal-footer>
+    </app-modal>
+  </form>
+}
 <article>
   <header>
     <div class="header-container">
       <div>
         <nav>
           <ul>
-            <li><a [routerLink]="['/scheduler']" [queryParams]="backQuery">Back to scheduler</a></li>
+            <li><a routerLink="/scheduler">Back to scheduler</a></li>
           </ul>
         </nav>
         <h2>{{ session.value()?.title }}</h2>
@@ -17,7 +32,7 @@
           <button class="secondary" (click)="cancelEdit()" [disabled]="saving()">Cancel</button>
         }
         <button class="danger">Delete</button>
-        <button class="primary">Add reservation</button>
+        <button class="primary" (click)="addReservation()">Add reservation</button>
       </div>
     </div>
   </header>
