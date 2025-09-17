@@ -38,6 +38,7 @@ export interface Appointment {
 export class Scheduler implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('scrollContainer') scrollContainer!: ElementRef;
   @Input() appointments: Appointment[] = [];
+  @Input() weekStart?: Date;
 
   // Computed layout for overlapping appointments (per day)
   private layoutCache = new Map<string, Map<number, { col: number; cols: number }>>(); // dayKey -> id -> layout
@@ -66,6 +67,9 @@ export class Scheduler implements OnInit, AfterViewInit, OnDestroy {
   timeSlots: string[] = [];
 
   ngOnInit() {
+    if (this.weekStart instanceof Date && !isNaN(this.weekStart.getTime())) {
+      this.currentWeek = this.weekStart;
+    }
     this.generateTimeSlots();
     this.updateWeekDays();
   }

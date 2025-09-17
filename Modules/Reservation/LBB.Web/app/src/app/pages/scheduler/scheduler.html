@@ -23,6 +23,7 @@
 <app-scheduler
   [loading]="sessions.isLoading()"
   [appointments]="appointments() ?? []"
+  [weekStart]="currentWeek().start"
   (appointmentCreate)="onAppointmentCreate($event)"
   (appointmentUpdate)="onAppointmentUpdate($event)"
   (loadAppointments)="loadAppointments($event)"

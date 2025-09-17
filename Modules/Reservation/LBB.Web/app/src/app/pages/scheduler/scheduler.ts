@@ -1,5 +1,5 @@
-import { Component, computed, inject, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Appointment, Scheduler as SchedulerC } from '../../components/scheduler/scheduler';
 import { SessionFormFieldsComponent } from '../../components/session-form/session-form-fields';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
@@ -25,15 +25,40 @@ import { Errors } from '../../models/errors';
   templateUrl: './scheduler.html',
   styleUrl: './scheduler.scss',
 })
-export class Scheduler {
+export class Scheduler implements OnInit {
   private sessionService = inject(SessionService);
   private formService = inject(FormValidationService);
   private router = inject(Router);
+  private activatedRoute = inject(ActivatedRoute);
   public savingSession = false;
   public isEditing = false;
 
   public showModal = false;
   public currentWeek = signal({ start: new Date(), end: new Date() });
+
+  ngOnInit(): void {
+    const qp = this.activatedRoute.snapshot.queryParamMap;
+    const startParam = qp.get('start');
+    const endParam = qp.get('end');
+
+    if (startParam && endParam) {
+      const start = new Date(startParam);
+      const end = new Date(endParam);
+      if (!isNaN(start.getTime()) && !isNaN(end.getTime())) {
+        this.currentWeek.set({ start, end });
+      }
+    } else {
+      // Ensure the current week is reflected in the URL on initial load
+      this.router.navigate([], {
+        relativeTo: this.activatedRoute,
+        queryParams: {
+          start: this.currentWeek().start.toISOString(),
+          end: this.currentWeek().end.toISOString(),
+        },
+        queryParamsHandling: 'merge',
+      });
+    }
+  }
 
   public sessions = this.sessionService.getSessions(this.currentWeek);
   public appointments = computed(() => {
@@ -62,28 +87,6 @@ export class Scheduler {
     location: [''],
     id: [undefined as number | undefined],
   });
-
-  public get title() {
-    return this.appointmentForm.get('title');
-  }
-  public get description() {
-    return this.appointmentForm.get('description');
-  }
-  public get location() {
-    return this.appointmentForm.get('location');
-  }
-  public get start() {
-    return this.appointmentForm.get('start');
-  }
-  public get end() {
-    return this.appointmentForm.get('end');
-  }
-  public get type() {
-    return this.appointmentForm.get('type');
-  }
-  public get capacity() {
-    return this.appointmentForm.get('capacity');
-  }
 
   onAppointmentCreate($event: { start: Date; end: Date }) {
     this.isEditing = false;
@@ -127,11 +130,26 @@ export class Scheduler {
 
   loadAppointments($event: { start: Date; end: Date }) {
     this.currentWeek.set($event);
+    // Keep the query string in sync with the current week selection
+    this.router.navigate([], {
+      relativeTo: this.activatedRoute,
+      queryParams: {
+        start: this.currentWeek().start.toISOString(),
+        end: this.currentWeek().end.toISOString(),
+      },
+      queryParamsHandling: 'merge',
+    });
   }
 
   onAppointmentUpdate($event: { id: number; start: Date; end: Date }) {
     // Navigate to session detail page for editing and reservations overview
-    this.router.navigate(['/sessions', $event.id]);
+    this.router.navigate(['/sessions', $event.id], {
+      queryParams: {
+        start: this.currentWeek().start.toISOString(),
+        end: this.currentWeek().end.toISOString(),
+      },
+      queryParamsHandling: 'merge',
+    });
   }
 
   protected readonly Errors = Errors;

@@ -20,5 +20,7 @@ public class SessionInfoUpdatedEventHandler(LbbDbContext context)
         session.Description = command.Session.Description;
         session.Capacity = command.Session.Capacity.Max;
         session.Location = command.Session.Location;
+        session.Start = command.Session.Timeslot.Start;
+        session.End = command.Session.Timeslot.End;
     }
 }

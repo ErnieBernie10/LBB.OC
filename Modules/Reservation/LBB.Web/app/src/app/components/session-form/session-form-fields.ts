@@ -13,4 +13,26 @@ import { Errors } from '../../models/errors';
 export class SessionFormFieldsComponent {
   @Input({ required: true }) form!: FormGroup;
   protected readonly Errors = Errors;
+
+  public get title() {
+    return this.form.get('title');
+  }
+  public get description() {
+    return this.form.get('description');
+  }
+  public get location() {
+    return this.form.get('location');
+  }
+  public get start() {
+    return this.form.get('start');
+  }
+  public get end() {
+    return this.form.get('end');
+  }
+  public get type() {
+    return this.form.get('type');
+  }
+  public get capacity() {
+    return this.form.get('capacity');
+  }
 }

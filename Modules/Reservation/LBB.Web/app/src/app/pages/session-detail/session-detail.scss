@@ -1,0 +1,19 @@
+
+header {
+  position: sticky;
+  top: 0;
+  .header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+
+    .button-container button {
+      margin-left: 8px;
+    }
+  }
+}
+
+.content-container {
+  display: flex;
+  justify-content: space-between;
+}

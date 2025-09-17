@@ -1,11 +1,25 @@
 <article>
   <header>
-    <nav>
-      <ul>
-        <li><a routerLink="/scheduler">Back to scheduler</a></li>
-      </ul>
-    </nav>
-    <h2>Session detail</h2>
+    <div class="header-container">
+      <div>
+        <nav>
+          <ul>
+            <li><a [routerLink]="['/scheduler']" [queryParams]="backQuery">Back to scheduler</a></li>
+          </ul>
+        </nav>
+        <h2>{{ session.value()?.title }}</h2>
+      </div>
+      <div class="button-container">
+        @if (!editMode()) {
+          <button class="secondary" (click)="enableEdit()">Edit</button>
+        } @else {
+          <button class="primary" (click)="save()" [attr.aria-busy]="saving()" [disabled]="saving()">Save</button>
+          <button class="secondary" (click)="cancelEdit()" [disabled]="saving()">Cancel</button>
+        }
+        <button class="danger">Delete</button>
+        <button class="primary">Add reservation</button>
+      </div>
+    </div>
   </header>
 
   <div>
@@ -14,7 +28,6 @@
     } @else {
       @if (!editMode()) {
         <section>
-          <h3>{{ session.value()?.title }}</h3>
           <p>{{ session.value()?.description }}</p>
           <p>
             <strong>When:</strong>
@@ -26,17 +39,10 @@
             <span class="contrast" style="margin-left: 0.5rem">Capacity: {{ session.value()?.capacity }}</span>
           </p>
           <p><strong>Reservations:</strong> {{ session.value()?.attendeeCount }}</p>
-          <footer>
-            <button class="secondary" (click)="enableEdit()">Edit</button>
-          </footer>
         </section>
       } @else {
         <form [formGroup]="form" (ngSubmit)="save()">
           <app-session-form-fields [form]="form"></app-session-form-fields>
-          <div class="grid">
-            <button type="submit" [attr.aria-busy]="saving()">Save</button>
-            <button type="button" class="secondary" (click)="cancelEdit()">Cancel</button>
-          </div>
         </form>
       }
 

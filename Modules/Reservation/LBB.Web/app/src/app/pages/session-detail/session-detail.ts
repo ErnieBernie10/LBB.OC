@@ -5,16 +5,25 @@ import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { SessionFormFieldsComponent } from '../../components/session-form/session-form-fields';
 import { SessionService } from '../../services/session.service';
 import { toFormDate } from '../../util/dateutils';
+import { FormValidationService } from '../../services/form-validation.service';
 
 @Component({
   selector: 'app-session-detail-page',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, SessionFormFieldsComponent, RouterLink],
   templateUrl: './session-detail.html',
+  styleUrls: ['./session-detail.scss'],
 })
 export class SessionDetailPage {
   private route = inject(ActivatedRoute);
   private sessionService = inject(SessionService);
+  private formService = inject(FormValidationService);
+
+  // Preserve week context from query string for back navigation
+  public backQuery: { start?: string | null; end?: string | null } = {
+    start: this.route.snapshot.queryParamMap.get('start'),
+    end: this.route.snapshot.queryParamMap.get('end'),
+  };
 
   session = this.sessionService.getSession(Number(this.route.snapshot.paramMap.get('id')!));
   reservations = this.sessionService.getSessionReservations(Number(this.route.snapshot.paramMap.get('id')!));
@@ -33,6 +42,19 @@ export class SessionDetailPage {
   });
 
   enableEdit() {
+    const s = this.session.value();
+    if (s) {
+      this.form.patchValue({
+        title: s.title ?? '',
+        description: s.description ?? '',
+        end: toFormDate(new Date(s.end)),
+        start: toFormDate(new Date(s.start)),
+        capacity: s.capacity ?? 12,
+        type: s.type ?? 'Individual',
+        location: s.location ?? '',
+        id: s.id,
+      });
+    }
     this.editMode.set(true);
   }
 
@@ -62,8 +84,11 @@ export class SessionDetailPage {
       complete: () => {
         this.saving.set(false);
         this.editMode.set(false);
+        this.session.reload();
       },
-      error: () => this.saving.set(false),
+      error: this.formService.setServerErrors(this.form, () => {
+        this.saving.set(false);
+      }),
     });
   }
 }

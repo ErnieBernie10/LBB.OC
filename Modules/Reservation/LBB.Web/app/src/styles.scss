@@ -5,7 +5,27 @@
 :root {
   --danger: rgba(255, 0, 0, 0.4);
   --success: rgb(22, 163, 74); /* #16A34A */
-  --success-inverse: rgb(255, 255, 255); /* white for text/icons on success bg */
+
+  button.danger {
+    background-color: var(--danger);
+    border-color: var(--danger);
+    &:focus,
+    &:focus-visible {
+      box-shadow: 0 0 0 0.15rem rgba(255, 0, 0, 0.25);
+      outline: none;
+    }
+  }
+}
+
+.form-group {
+  width: 100%;
+  display: flex;
+  gap: 1rem;
+  align-items: stretch;
+  > * {
+    flex: 1 1 0;
+    min-width: 0; // allow shrinking to avoid overflow
+  }
 }
 * {
   font-family: Ubuntu /* Replace with your custom font */, sans-serif !important;
