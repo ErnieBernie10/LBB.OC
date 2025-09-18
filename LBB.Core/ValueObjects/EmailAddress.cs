@@ -30,7 +30,7 @@ public sealed class EmailAddress : ValueObject<EmailAddress, string>
         if (errors.Count > 0)
             return Result.Fail(errors);
 
-        return Result.Ok();
+        return Result.Ok(new EmailAddress(value));
     }
 
     private EmailAddress(string value)

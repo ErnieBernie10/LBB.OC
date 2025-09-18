@@ -1,6 +1,4 @@
 import { inject, Injectable, Signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { AuthService } from './auth.service';
 import { AddReservationCommand, Client, CreateSessionCommand, UpdateSessionInfoCommand } from '../api/api';
 import { rxResource } from '@angular/core/rxjs-interop';
 
@@ -18,10 +16,7 @@ export interface CreateSession {
   providedIn: 'root',
 })
 export class SessionService {
-  private client: HttpClient = inject(HttpClient);
-  private authService: AuthService = inject(AuthService);
   private api = inject(Client);
-  private baseUrl = '/reservation/';
 
   public createSession(session: CreateSessionCommand) {
     return this.api.sessionsPOST(session);

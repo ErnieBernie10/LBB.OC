@@ -11,23 +11,28 @@ public class Reservation : Entity
     public ReservationReference Reference { get; private set; }
     public PersonName? Name { get; private set; }
     public int AttendeeCount { get; private set; }
-    public EmailAddress? Email { get; private set; }
+    public EmailAddress Email { get; private set; }
     public PhoneNumber? Phone { get; private set; }
 
     internal Reservation(
         string reference,
-        string firstname,
-        string lastname,
+        string? firstname,
+        string? lastname,
         int attendeeCount,
         string email,
-        string phoneNumber
+        string? phoneNumber
     )
     {
         Reference = ReservationReference.Parse(reference, nameof(reference)).Value;
-        Name = PersonName.Create(firstname, lastname, nameof(firstname), nameof(lastname)).Value;
+        Name =
+            string.IsNullOrEmpty(firstname) || string.IsNullOrEmpty(lastname)
+                ? null
+                : PersonName.Create(firstname, lastname, nameof(firstname), nameof(lastname)).Value;
         AttendeeCount = attendeeCount;
         Email = EmailAddress.Create(email, nameof(email)).Value;
-        Phone = PhoneNumber.Create(phoneNumber, nameof(phoneNumber)).Value;
+        Phone = string.IsNullOrEmpty(phoneNumber)
+            ? null
+            : PhoneNumber.Create(phoneNumber, nameof(phoneNumber)).Value;
     }
 
     private Reservation(
@@ -72,7 +77,12 @@ public class Reservation : Entity
 
         var emailResult = EmailAddress.Create(command.Email, nameof(command.Email));
 
-        var mergeResult = Result.Merge(nameResult ?? Result.Ok(), emailResult, phoneResult ?? Result.Ok(), attendeeCountResult);
+        var mergeResult = Result.Merge(
+            nameResult ?? Result.Ok(),
+            emailResult,
+            phoneResult ?? Result.Ok(),
+            attendeeCountResult
+        );
         if (mergeResult.IsFailed)
         {
             return mergeResult;
