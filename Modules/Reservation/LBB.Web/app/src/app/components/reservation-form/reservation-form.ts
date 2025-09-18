@@ -1,7 +1,8 @@
 import { Component, Input } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { FormInput } from '../input-errors/form-input';
+import { FormInput } from '../form-input/form-input';
 import { InvalidPipe } from '../../pipes/invalid-pipe';
+import { Errors } from '../../models/errors';
 
 @Component({
   selector: 'app-reservation-form',
@@ -27,4 +28,6 @@ export class ReservationForm {
   get attendeeCount() {
     return this.form.get('attendeeCount');
   }
+
+  protected readonly Errors = Errors;
 }

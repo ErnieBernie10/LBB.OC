@@ -1,7 +1,7 @@
 import { inject, Injectable, Signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from './auth.service';
-import { AddReservationCommand, Client, IAddReservationCommand } from '../api/api';
+import { AddReservationCommand, Client, CreateSessionCommand, UpdateSessionInfoCommand } from '../api/api';
 import { rxResource } from '@angular/core/rxjs-interop';
 
 export type SessionType = 'Individual' | 'Group';
@@ -23,30 +23,11 @@ export class SessionService {
   private api = inject(Client);
   private baseUrl = '/reservation/';
 
-  public createSession(session: CreateSession) {
-    return this.client.post(`${this.baseUrl}sessions`, session, {
-      withCredentials: true,
-      headers: {
-        RequestVerificationToken: this.authService.getXsrfToken(),
-      },
-    });
+  public createSession(session: CreateSessionCommand) {
+    return this.api.sessionsPOST(session);
   }
-  public updateSessionInfo(
-    id: number,
-    session: {
-      title: string;
-      description: string;
-      capacity: number;
-      start: string;
-      end: string;
-    }
-  ) {
-    return this.client.patch(this.baseUrl + `sessions/${id}`, session, {
-      withCredentials: true,
-      headers: {
-        RequestVerificationToken: this.authService.getXsrfToken(),
-      },
-    });
+  public updateSessionInfo(id: number, session: UpdateSessionInfoCommand) {
+    return this.api.sessionsPATCH(id, session);
   }
 
   public getSessions(currentWeek: Signal<{ start: Date; end: Date }>) {

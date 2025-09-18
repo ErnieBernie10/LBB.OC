@@ -8,4 +8,5 @@ export const Errors = {
   LessThanDateError: 'LessThanDateError',
   NotDefaultError: 'NotDefaultError',
   NotFoundError: 'NotFoundError',
+  InvalidEmailAddressError: 'InvalidEmailAddressError',
 } as const;

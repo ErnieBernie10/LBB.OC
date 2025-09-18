@@ -29,14 +29,13 @@ public sealed class PersonName : ValueObject<PersonName, string>
     {
         var errors = new List<IError>();
 
-        if (string.IsNullOrWhiteSpace(firstname))
+        if (string.IsNullOrWhiteSpace(firstname) || string.IsNullOrWhiteSpace(lastname))
             errors.Add(new NotEmptyError(firstnamePropertyName));
-        else if (firstname.Length > MaxFirstnameLength)
+
+        if (firstname.Length > MaxFirstnameLength)
             errors.Add(new LengthExceededError(firstnamePropertyName, MaxFirstnameLength));
 
-        if (string.IsNullOrWhiteSpace(lastname))
-            errors.Add(new NotEmptyError(lastnamePropertyName));
-        else if (lastname.Length > MaxLastnameLength)
+        if (lastname.Length > MaxLastnameLength)
             errors.Add(new LengthExceededError(lastnamePropertyName, MaxLastnameLength));
 
         return errors.Count > 0 ? Result.Fail(errors) : Result.Ok();

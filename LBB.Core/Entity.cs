@@ -1,3 +1,4 @@
+using FluentResults;
 using LBB.Core.Mediator;
 
 namespace LBB.Core;

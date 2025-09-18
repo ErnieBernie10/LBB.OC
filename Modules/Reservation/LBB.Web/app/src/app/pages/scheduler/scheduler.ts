@@ -9,6 +9,7 @@ import { Modal, ModalContent, ModalFooter, ModalHeader } from '../../components/
 import { Alert } from '../../components/alert/alert';
 import { FormValidationService } from '../../services/form-validation.service';
 import { Errors } from '../../models/errors';
+import { CreateSessionCommand, UpdateSessionInfoCommand } from '../../api/api';
 
 @Component({
   selector: 'app-scheduler-page',
@@ -109,13 +110,27 @@ export class Scheduler implements OnInit {
     this.savingSession = true;
     const value = this.appointmentForm.getRawValue();
     if (value.id) {
-      this.sessionService.updateSessionInfo(value.id, value).subscribe(this.finalize);
+      this.sessionService
+        .updateSessionInfo(
+          value.id,
+          new UpdateSessionInfoCommand({
+            ...value,
+            sessionId: value.id,
+            start: new Date(value.start),
+            end: new Date(value.end),
+          })
+        )
+        .subscribe(this.finalize);
     } else {
       this.sessionService
-        .createSession({
-          ...value,
-          type: value.type === 'Individual' ? 'Individual' : 'Group',
-        })
+        .createSession(
+          new CreateSessionCommand({
+            ...value,
+            type: value.type === 'Individual' ? 'Individual' : 'Group',
+            start: new Date(value.start),
+            end: new Date(value.end),
+          })
+        )
         .subscribe(this.finalize);
     }
   }

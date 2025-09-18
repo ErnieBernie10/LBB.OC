@@ -5,7 +5,7 @@ import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { SessionFormFieldsComponent } from '../../components/session-form/session-form-fields';
 import { SessionService } from '../../services/session.service';
 import { toFormDate } from '../../util/dateutils';
-import { AddReservationCommand, IAddReservationCommand } from '../../api/api';
+import { AddReservationCommand, IAddReservationCommand, UpdateSessionInfoCommand } from '../../api/api';
 import { Modal, ModalContent, ModalFooter, ModalHeader } from '../../components/modal/modal';
 import { ReservationForm } from '../../components/reservation-form/reservation-form';
 import { FormValidationService } from '../../services/form-validation.service';
@@ -103,16 +103,26 @@ export class SessionDetailPage {
     const value = this.form.getRawValue();
     if (!value.id) return;
     this.saving.set(true);
-    this.sessionService.updateSessionInfo(value.id, value).subscribe({
-      complete: () => {
-        this.saving.set(false);
-        this.editMode.set(false);
-        this.session.reload();
-      },
-      error: this.formService.setServerErrors(this.form, () => {
-        this.saving.set(false);
-      }),
-    });
+    this.sessionService
+      .updateSessionInfo(
+        value.id,
+        new UpdateSessionInfoCommand({
+          ...value,
+          sessionId: this.session.value()!.id,
+          start: new Date(value.start),
+          end: new Date(value.end),
+        })
+      )
+      .subscribe({
+        complete: () => {
+          this.saving.set(false);
+          this.editMode.set(false);
+          this.session.reload();
+        },
+        error: this.formService.setServerErrors(this.form, () => {
+          this.saving.set(false);
+        }),
+      });
   }
 
   saveReservation() {

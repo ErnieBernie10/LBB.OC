@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { FormInput } from '../../components/input-errors/form-input';
+import { FormInput } from '../form-input/form-input';
 import { InvalidPipe } from '../../pipes/invalid-pipe';
 import { Errors } from '../../models/errors';
 

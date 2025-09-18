@@ -1,15 +1,34 @@
 <div [formGroup]="form">
   <app-input label="Firstname" i18n-label="@@reservation.label.firstname" [controlName]="'firstname'">
     <input type="text" name="firstname" formControlName="firstname" [attr.aria-invalid]="firstname | invalid" />
+    @if (firstname?.hasError(Errors.LengthExceededError)) {
+      <small i18n
+        >Firstname must be less than {{ firstname?.getError(Errors.LengthExceededError).maxLength }} characters</small
+      >
+    }
   </app-input>
   <app-input label="Lastname" i18n-label="@@reservation.label.lastname" [controlName]="'lastname'">
     <input type="text" name="lastname" formControlName="lastname" [attr.aria-invalid]="lastname | invalid" />
+    @if (lastname?.hasError(Errors.LengthExceededError)) {
+      <small i18n
+        >Lastname must be less than {{ lastname?.getError(Errors.LengthExceededError).maxLength }} characters</small
+      >
+    }
   </app-input>
   <app-input label="Email" i18n-label="@@reservation.label.email" [controlName]="'email'" [required]="true">
     <input type="email" name="email" formControlName="email" [attr.aria-invalid]="email | invalid" />
   </app-input>
   <app-input label="Phone" i18n-label="@@reservation.label.phoneNumber" [controlName]="'phoneNumber'">
     <input type="tel" name="phoneNumber" formControlName="phoneNumber" [attr.aria-invalid]="phoneNumber | invalid" />
+    @if (phoneNumber?.hasError(Errors.InvalidPhoneNumberError)) {
+      <small i18n>Phone number is not valid</small>
+    }
+    @if (phoneNumber?.hasError(Errors.LengthExceededError)) {
+      <small i18n
+        >Phone number must be less than
+        {{ phoneNumber?.getError(Errors.LengthExceededError).maxLength }} characters</small
+      >
+    }
   </app-input>
   <app-input label="Attendees" i18n-label="@@reservation.label.attendeeCount" [controlName]="'attendeeCount'">
     <input
@@ -18,5 +37,11 @@
       formControlName="attendeeCount"
       [attr.aria-invalid]="attendeeCount | invalid"
     />
+    @if (attendeeCount?.hasError(Errors.GreaterThanError)) {
+      <small i18n
+        >Attendee count must be greater than
+        {{ attendeeCount?.getError(Errors.GreaterThanError).greaterThanValue }}</small
+      >
+    }
   </app-input>
 </div>

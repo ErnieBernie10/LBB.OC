@@ -9,10 +9,10 @@ namespace LBB.Reservation.Domain.Aggregates.Session;
 public class Reservation : Entity
 {
     public ReservationReference Reference { get; private set; }
-    public PersonName Name { get; private set; }
+    public PersonName? Name { get; private set; }
     public int AttendeeCount { get; private set; }
-    public EmailAddress Email { get; private set; }
-    public PhoneNumber Phone { get; private set; }
+    public EmailAddress? Email { get; private set; }
+    public PhoneNumber? Phone { get; private set; }
 
     internal Reservation(
         string reference,
@@ -32,10 +32,10 @@ public class Reservation : Entity
 
     private Reservation(
         ReservationReference reference,
-        PersonName name,
+        PersonName? name,
         int attendeeCount,
         EmailAddress email,
-        PhoneNumber phone
+        PhoneNumber? phone
     )
     {
         Reference = reference;
@@ -47,28 +47,43 @@ public class Reservation : Entity
 
     public static Result<Reservation> Create(IAddReservationCommand command)
     {
-        var c = ValidateMemberCount(command.AttendeeCount ?? 1, nameof(command.AttendeeCount));
-        var name = PersonName.Create(
-            command.Firstname,
-            command.Lastname,
-            nameof(command.Firstname),
-            nameof(command.Lastname)
-        );
-        var emailAddress = EmailAddress.Create(command.Email, nameof(command.Email));
-        var phoneNumber = PhoneNumber.Create(command.PhoneNumber, nameof(command.PhoneNumber));
+        var attendeeCount = command.AttendeeCount ?? 1;
+        var attendeeCountResult = ValidateMemberCount(attendeeCount, nameof(command.AttendeeCount));
 
-        var result = Result.Merge(name, emailAddress, phoneNumber, c);
-        if (result.IsFailed)
+        Result<PersonName>? nameResult = null;
+        var hasNameProvided =
+            !string.IsNullOrWhiteSpace(command.Firstname)
+            || !string.IsNullOrWhiteSpace(command.Lastname);
+        if (hasNameProvided)
         {
-            return result;
+            nameResult = PersonName.Create(
+                command.Firstname ?? string.Empty,
+                command.Lastname ?? string.Empty,
+                nameof(command.Firstname),
+                nameof(command.Lastname)
+            );
+        }
+
+        Result<PhoneNumber>? phoneResult = null;
+        if (!string.IsNullOrWhiteSpace(command.PhoneNumber))
+        {
+            phoneResult = PhoneNumber.Create(command.PhoneNumber!, nameof(command.PhoneNumber));
+        }
+
+        var emailResult = EmailAddress.Create(command.Email, nameof(command.Email));
+
+        var mergeResult = Result.Merge(nameResult ?? Result.Ok(), emailResult, phoneResult ?? Result.Ok(), attendeeCountResult);
+        if (mergeResult.IsFailed)
+        {
+            return mergeResult;
         }
 
         return new Reservation(
             ReservationReference.New,
-            name.Value,
-            c.ValueOrDefault,
-            emailAddress.Value,
-            phoneNumber.Value
+            nameResult?.ValueOrDefault,
+            attendeeCountResult.ValueOrDefault,
+            emailResult.Value,
+            phoneResult?.Value
         );
     }
 
