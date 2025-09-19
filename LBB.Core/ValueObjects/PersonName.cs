@@ -14,10 +14,23 @@ public sealed class PersonName : ValueObject<PersonName, string>
 
     public override string Value => $"{Firstname} {Lastname}";
 
-    private PersonName(string firstname, string lastname)
+    internal PersonName(string firstname, string lastname)
     {
         Firstname = firstname;
         Lastname = lastname;
+    }
+
+    public static Result<PersonName>? MaybeCreate(
+        string? firstname,
+        string? lastname,
+        string firstnamePropertyName,
+        string lastnamePropertyName
+    )
+    {
+        if (string.IsNullOrWhiteSpace(firstname) || string.IsNullOrWhiteSpace(lastname))
+            return null;
+
+        return Create(firstname, lastname, firstnamePropertyName, lastnamePropertyName);
     }
 
     public static Result<PersonName> Create(

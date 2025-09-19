@@ -15,7 +15,7 @@ public sealed class PhoneNumber : ValueObject<PhoneNumber, string>
     // - Digits, spaces, dashes, and parentheses
     private static readonly Regex PhoneRegex = new(@"^\+?[\d\s()\-]{6,20}$", RegexOptions.Compiled);
 
-    private PhoneNumber(string value)
+    internal PhoneNumber(string value)
     {
         Value = value;
     }

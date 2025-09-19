@@ -9,4 +9,8 @@ export const Errors = {
   NotDefaultError: 'NotDefaultError',
   NotFoundError: 'NotFoundError',
   InvalidEmailAddressError: 'InvalidEmailAddressError',
+  NotEmptyValidator: 'NotEmptyValidator',
+  MaximumLengthValidator: 'MaximumLengthValidator',
+  LessThanOrEqualValidator: 'LessThanOrEqualValidator',
+  GreaterThanOrEqualValidator: 'GreaterThanOrEqualValidator',
 } as const;

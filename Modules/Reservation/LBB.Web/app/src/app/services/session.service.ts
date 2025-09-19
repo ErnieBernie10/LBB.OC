@@ -2,16 +2,6 @@ import { inject, Injectable, Signal } from '@angular/core';
 import { AddReservationCommand, Client, CreateSessionCommand, UpdateSessionInfoCommand } from '../api/api';
 import { rxResource } from '@angular/core/rxjs-interop';
 
-export type SessionType = 'Individual' | 'Group';
-
-export interface CreateSession {
-  capacity: number;
-  title: string;
-  description: string;
-  start: string;
-  end: string;
-  type: SessionType;
-}
 @Injectable({
   providedIn: 'root',
 })

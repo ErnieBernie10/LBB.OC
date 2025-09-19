@@ -12,7 +12,7 @@ public class Capacity : ValueObject<Capacity, (int Max, int Current)>
 
     public bool IsFull => Current >= Max;
 
-    private Capacity(int max, int current)
+    internal Capacity(int max, int current)
     {
         Max = max;
         Current = current;

@@ -33,7 +33,7 @@ public sealed class EmailAddress : ValueObject<EmailAddress, string>
         return Result.Ok(new EmailAddress(value));
     }
 
-    private EmailAddress(string value)
+    internal EmailAddress(string value)
     {
         Value = value;
     }

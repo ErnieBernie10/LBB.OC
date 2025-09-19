@@ -13,7 +13,7 @@ public class ReservationReference : ValueObject<ReservationReference, string>
     public const short TokenSize = 8;
     private const string _chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
-    private ReservationReference(string value)
+    internal ReservationReference(string value)
     {
         Value = value;
     }

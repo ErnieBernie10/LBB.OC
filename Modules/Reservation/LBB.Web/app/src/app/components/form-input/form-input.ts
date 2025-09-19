@@ -5,14 +5,25 @@ import { Errors } from '../../models/errors';
 type ErrorFactory = (label: string, value: any) => string;
 
 const ORDERED_ERROR_KEYS = [
+  Errors.NotEmptyValidator,
   Errors.NotEmptyError,
   Errors.InvalidEmailAddressError,
   Errors.InvalidPhoneNumberError,
   Errors.LengthExceededError,
+  Errors.MaximumLengthValidator,
+  Errors.LessThanOrEqualValidator,
+  Errors.GreaterThanOrEqualValidator,
   Errors.GreaterThanError,
 ] as const;
 
 const DEFAULT_MESSAGES: Record<string, ErrorFactory> = {
+  NotEmptyValidator: (label) => $localize`:@@validation.required:${label} is required`,
+  MaximumLengthValidator: (label, v) =>
+    $localize`:@@validation.maxLength:${label} must be less than ${v?.maxLength} characters`,
+  LessThanOrEqualValidator: (label, v) =>
+    $localize`:@@validation.greaterThan:${label} must be greater than ${v?.greaterThanValue}`,
+  GreaterThanOrEqualValidator: (label, v) =>
+    $localize`:@@validation.greaterThan:${label} must be greater than ${v?.comparisonValue}`,
   NotEmptyError: (label) => $localize`:@@validation.required:${label} is required`,
   InvalidEmailAddressError: (label) => $localize`:@@validation.emailInvalid:${label} is not valid`,
   InvalidPhoneNumberError: (label) => $localize`:@@validation.phoneInvalid:${label} is not valid`,
@@ -97,11 +108,6 @@ export class FormInput {
     const builtin = DEFAULT_MESSAGES[key];
     if (builtin) {
       return builtin(label, value);
-    }
-
-    // 3) Server-provided message fallback (if present)
-    if (value && typeof value.message === 'string' && value.message.trim().length > 0) {
-      return value.message;
     }
 
     // 4) Final generic fallback

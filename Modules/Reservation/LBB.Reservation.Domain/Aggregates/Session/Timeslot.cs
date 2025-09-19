@@ -11,7 +11,7 @@ public class Timeslot : ValueObject<Timeslot, (DateTime Start, DateTime End)>
     public DateTime End { get; }
     public TimeSpan Duration => End - Start;
 
-    private Timeslot(DateTime start, DateTime end)
+    internal Timeslot(DateTime start, DateTime end)
     {
         Start = start;
         End = end;

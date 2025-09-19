@@ -13,65 +13,38 @@ namespace LBB.Reservation.Domain.Aggregates.Session;
 
 public sealed class Session : AggregateRoot
 {
-    public const int MaxTitleLength = 200;
-    public const int MaxDescriptionLength = 2000;
-
-    public List<Reservation> _reservations;
-    public IReservationPolicy _reservationPolicy;
+    private List<Reservation> _reservations;
+    private readonly IReservationPolicy _reservationPolicy;
+    public Timeslot Timeslot { get; private set; }
+    public string Title { get; private set; }
+    public string Description { get; private set; }
+    public string Location { get; private set; }
+    public Enums.SessionType SessionType { get; private set; }
     public Capacity Capacity { get; private set; }
 
-    internal Session(
-        int id,
-        int sessionType,
-        DateTime start,
-        DateTime end,
-        string title,
-        string description,
-        string location,
-        int capacity,
-        List<Reservation> reservations
-    )
-        : this(
-            (Enums.SessionType)sessionType,
-            Timeslot.Create(start, end, nameof(start), nameof(end)).Value,
-            title,
-            description,
-            Location.Create(location, nameof(location)).Value,
-            Capacity.Create(capacity, nameof(capacity)).Value,
-            reservations
-        )
-    {
-        Id = id;
-    }
-
-    private Session(
+    public Session(
         Enums.SessionType sessionType,
         Timeslot timeslot,
         string title,
         string description,
-        Location location,
+        string location,
         Capacity capacity,
-        IReadOnlyList<Reservation> reservations
+        List<Reservation> reservations
     )
     {
         Timeslot = timeslot;
         Title = title;
         Description = description;
         Location = location;
-        Reservations = reservations;
         SessionType = sessionType;
         Capacity = capacity;
+        _reservations = reservations;
         _reservationPolicy =
             SessionType == Enums.SessionType.Group
                 ? new GroupSessionReservationPolicy()
                 : new IndividualSessionReservationPolicy();
+        AddDomainEvent(new SessionCreatedEvent(this));
     }
-
-    public Timeslot Timeslot { get; private set; }
-    public string Title { get; private set; }
-    public string Description { get; private set; }
-    public Location Location { get; private set; }
-    public Enums.SessionType SessionType { get; private set; }
 
     public IReadOnlyList<Reservation> Reservations
     {
@@ -79,124 +52,19 @@ public sealed class Session : AggregateRoot
         set => _reservations = value.ToList();
     }
 
-    public static Result<Session> CreateIndividual(ICreateIndividualSessionCommand command)
-    {
-        var info = ValidateInfo(
-            command.Title,
-            command.Description,
-            nameof(command.Title),
-            nameof(command.Description)
-        );
-        var t = Timeslot.Create(
-            command.Start,
-            command.End,
-            nameof(command.Start),
-            nameof(command.End)
-        );
-        var l = Location.Create(command.Location, nameof(command.Location));
-        var c = Capacity.Create(1, 1.ToString());
-        var result = Result.Merge(t, l, c, info);
-        if (result.IsFailed)
-            return result;
-
-        var session = new Session(
-            Enums.SessionType.Individual,
-            t.Value,
-            command.Title,
-            command.Description,
-            l.Value,
-            c.Value,
-            new List<Reservation>()
-        );
-        session.AddDomainEvent(new SessionCreatedEvent(session));
-        return session;
-    }
-
-    private static ResultBase ValidateInfo(
+    public Result UpdateInfo(
         string title,
         string description,
-        string titlePropertyName,
-        string descriptionPropertyName
+        string location,
+        Timeslot timeslot,
+        Capacity capacity
     )
     {
-        var errors = new List<IError>();
-        if (string.IsNullOrEmpty(title))
-            errors.Add(new NotEmptyError(titlePropertyName));
-        if (title.Length > MaxTitleLength)
-            errors.Add(new LengthExceededError(titlePropertyName, MaxTitleLength));
-        if (description.Length > MaxDescriptionLength)
-            errors.Add(new LengthExceededError(descriptionPropertyName, MaxDescriptionLength));
-
-        if (errors.Count > 0)
-            return Result.Fail(errors);
-
-        return Result.Ok();
-    }
-
-    public static Result<Session> CreateGroup(ICreateGroupSessionCommand command)
-    {
-        var info = ValidateInfo(
-            command.Title,
-            command.Description,
-            nameof(command.Title),
-            nameof(command.Description)
-        );
-        var t = Timeslot.Create(
-            command.Start,
-            command.End,
-            nameof(command.Start),
-            nameof(command.End)
-        );
-        var l = Location.Create(command.Location, nameof(command.Location));
-        var c = Capacity.Create(command.Capacity, nameof(command.Capacity));
-        var result = Result.Merge(t, l, c, info);
-        if (result.IsFailed)
-            return result;
-
-        var session = new Session(
-            Enums.SessionType.Group,
-            t.Value,
-            command.Title,
-            command.Description,
-            l.Value,
-            c.Value,
-            new List<Reservation>()
-        );
-        session.AddDomainEvent(new SessionCreatedEvent(session));
-        return session;
-    }
-
-    public Result UpdateInfo(IUpdateSessionInfoCommand command)
-    {
-        var infoResult = ValidateInfo(
-            command.Title,
-            command.Description,
-            nameof(command.Title),
-            nameof(command.Description)
-        );
-        var c = Capacity.Create(
-            command.Capacity,
-            Reservations.Count,
-            nameof(command.Capacity),
-            nameof(Reservations)
-        );
-        var l = Location.Create(command.Location, nameof(command.Location));
-        var ts = Timeslot.Create(
-            command.Start,
-            command.End,
-            nameof(command.Start),
-            nameof(command.End)
-        );
-
-        var result = Result.Merge(c, l, infoResult, ts);
-        if (result.IsFailed)
-            return result;
-
-        Timeslot = ts.ValueOrDefault;
-        Capacity = c.ValueOrDefault;
-        Location = l.ValueOrDefault;
-        Title = command.Title;
-        Description = command.Description;
+        Location = location;
+        Timeslot = timeslot;
+        Title = title;
+        Description = description;
+        Capacity = capacity;
 
         AddDomainEvent(new SessionInfoUpdatedEvent(this));
 

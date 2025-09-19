@@ -1,4 +1,6 @@
 ﻿using LBB.Core.Contracts;
+using LBB.Core.ValueObjects;
+using LBB.Reservation.Domain;
 using LBB.Reservation.Domain.Aggregates.Session;
 using LBB.Reservation.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
@@ -15,25 +17,30 @@ public class SessionStore(LbbDbContext context) : IAggregateStore<Session, int>
         if (efSession == null)
             return null;
 
-        return new Session(
-            efSession.Id,
-            efSession.Type,
-            efSession.Start,
-            efSession.End,
+        var timeslot = new Timeslot(efSession.Start, efSession.End);
+        var capacity = new Capacity(efSession.Capacity, efSession.Reservations.Count);
+        var reservations = efSession.Reservations.Select(r =>
+        {
+            var reference = new ReservationReference(r.Reference);
+            var email = new EmailAddress(r.Email);
+            var phoneNumber = new PhoneNumber(r.Phone);
+            return new Domain.Aggregates.Session.Reservation(
+                reference: reference,
+                name: new PersonName(r.Firstname, r.Lastname),
+                attendeeCount: r.AttendeeCount,
+                email: email,
+                phone: phoneNumber
+            );
+        });
+        var session = new Session(
+            (Enums.SessionType)efSession.Type,
+            timeslot,
             efSession.Title,
             efSession.Description,
             efSession.Location,
-            efSession.Capacity,
-            efSession
-                .Reservations.Select(r => new Domain.Aggregates.Session.Reservation(
-                    r.Reference,
-                    r.Firstname,
-                    r.Lastname,
-                    r.AttendeeCount,
-                    r.Email,
-                    r.Phone
-                ))
-                .ToList()
+            capacity,
+            reservations.ToList()
         );
+        return session;
     }
 }
