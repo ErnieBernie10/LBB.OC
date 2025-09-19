@@ -7,8 +7,6 @@ namespace LBB.Core.ValueObjects;
 
 public sealed class PhoneNumber : ValueObject<PhoneNumber, string>
 {
-    public const int MaxLength = 20;
-
     // This regex allows for common phone number formats including:
     // - Optional + prefix
     // - Optional country code
@@ -26,9 +24,6 @@ public sealed class PhoneNumber : ValueObject<PhoneNumber, string>
         var errors = new List<IError>();
         if (string.IsNullOrWhiteSpace(val))
             errors.Add(new NotEmptyError(valuePropertyName));
-
-        if (value.Length > MaxLength)
-            errors.Add(new LengthExceededError(valuePropertyName, MaxLength));
 
         if (!PhoneRegex.IsMatch(value))
             errors.Add(new InvalidPhoneNumberError(valuePropertyName));

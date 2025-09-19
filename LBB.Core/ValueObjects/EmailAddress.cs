@@ -7,8 +7,6 @@ namespace LBB.Core.ValueObjects;
 
 public sealed class EmailAddress : ValueObject<EmailAddress, string>
 {
-    public const int MaxLength = 200;
-
     public override string Value { get; }
     private static readonly Regex EmailRegex = new(
         @"^[^@\s]+@[^@\s]+\.[^@\s]+$",
@@ -20,9 +18,6 @@ public sealed class EmailAddress : ValueObject<EmailAddress, string>
         var errors = new List<IError>();
         if (string.IsNullOrWhiteSpace(value))
             errors.Add(new NotEmptyError(valuePropertyName));
-
-        if (value.Length > MaxLength)
-            errors.Add(new LengthExceededError(valuePropertyName, MaxLength));
 
         if (!EmailRegex.IsMatch(value))
             errors.Add(new InvalidEmailAddressError(valuePropertyName));
