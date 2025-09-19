@@ -1,4 +1,5 @@
 using LBB.Core;
+using LBB.Core.Contracts;
 using LBB.OC.Reservation.Migrations;
 using LBB.Reservation.Application;
 using LBB.Reservation.Infrastructure;
@@ -9,7 +10,9 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using OrchardCore.BackgroundTasks;
 using OrchardCore.Data.Migration;
+using OrchardCore.Email;
 using OrchardCore.Environment.Shell;
 using StartupBase = OrchardCore.Modules.StartupBase;
 
@@ -47,6 +50,9 @@ public class Startup : StartupBase
         services.AddHttpContextAccessor();
 
         services.AddSingleton<ISpaProvider, SpaProvider>();
+        var notificationQueue = new BackgroundNotificationHandler();
+        services.AddSingleton<IBackgroundTask>(notificationQueue);
+        services.AddSingleton<IBackgroundNotificationQueue>(notificationQueue);
     }
 
     public override void Configure(

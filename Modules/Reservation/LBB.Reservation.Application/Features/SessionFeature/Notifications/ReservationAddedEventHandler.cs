@@ -5,8 +5,10 @@ using LBB.Reservation.Infrastructure.Context;
 
 namespace LBB.Reservation.Application.Features.SessionFeature.Notifications;
 
-public class ReservationAddedEventHandler(LbbDbContext context)
-    : INotificationHandler<ReservationAddedEvent>
+public class ReservationAddedEventHandler(
+    LbbDbContext context,
+    IBackgroundNotificationQueue notificationQueue
+) : INotificationHandler<ReservationAddedEvent>
 {
     public async Task HandleAsync(
         ReservationAddedEvent command,
@@ -17,14 +19,16 @@ public class ReservationAddedEventHandler(LbbDbContext context)
             new Infrastructure.DataModels.Reservation()
             {
                 Email = command.Reservation.Email.Value,
-                Firstname = command.Reservation.Name?.Firstname ?? null,
-                Lastname = command.Reservation.Name?.Lastname ?? null,
-                Phone = command.Reservation.Phone?.Value ?? null,
+                Firstname = command.Reservation.Name?.Firstname!,
+                Lastname = command.Reservation.Name?.Lastname!,
+                Phone = command.Reservation.Phone?.Value!,
                 SessionId = command.Session.Id,
                 Reference = command.Reservation.Reference,
                 AttendeeCount = command.Reservation.AttendeeCount,
             },
             cancellationToken
         );
+
+        notificationQueue.Enqueue(new ReservationPersistedEvent(command.Reservation));
     }
 }

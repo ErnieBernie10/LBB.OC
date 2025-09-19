@@ -33,6 +33,7 @@ public class SessionStore(LbbDbContext context) : IAggregateStore<Session, int>
             );
         });
         var session = new Session(
+            efSession.Id,
             (Enums.SessionType)efSession.Type,
             timeslot,
             efSession.Title,
@@ -41,6 +42,7 @@ public class SessionStore(LbbDbContext context) : IAggregateStore<Session, int>
             capacity,
             reservations.ToList()
         );
+
         return session;
     }
 }

@@ -62,6 +62,9 @@ public class AddReservationCommandHandler(
                 return Result.Fail(new NotFoundError("Session not found"));
         }
 
+        if (session is null)
+            return validationResult;
+
         var addReservationResult = session!.AddReservation(command);
         var result = Result.Merge(validationResult, addReservationResult);
         if (result.IsFailed)

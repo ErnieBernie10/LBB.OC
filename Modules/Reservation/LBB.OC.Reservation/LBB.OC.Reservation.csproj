@@ -1,59 +1,52 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
-
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
         <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
     </PropertyGroup>
-
     <ItemGroup>
-        <FrameworkReference Include="Microsoft.AspNetCore.App"/>
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
     </ItemGroup>
-
     <ItemGroup>
-        <PackageReference Include="OrchardCore.Module.Targets" Version="2.2.0"/>
-        <PackageReference Include="OrchardCore.ContentManagement" Version="2.2.0"/>
-        <PackageReference Include="OrchardCore.ContentTypes.Abstractions" Version="2.2.0"/>
-        <PackageReference Include="OrchardCore.DisplayManagement" Version="2.2.0"/>
+        <PackageReference Include="OrchardCore.Module.Targets" Version="2.2.0" />
+        <PackageReference Include="OrchardCore.ContentManagement" Version="2.2.0" />
+        <PackageReference Include="OrchardCore.ContentTypes.Abstractions" Version="2.2.0" />
+        <PackageReference Include="OrchardCore.DisplayManagement" Version="2.2.0" />
+        <PackageReference Include="OrchardCore.Notifications" Version="2.2.0" />
+        <PackageReference Include="OrchardCore.Notifications.Abstractions" Version="2.2.0" />
+        <PackageReference Include="OrchardCore.Notifications.Core" Version="2.2.0" />
         <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="8.1.4" />
         <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="8.1.4" />
         <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="8.1.4" />
     </ItemGroup>
-
     <ItemGroup>
-      <ProjectReference Include="..\LBB.Reservation.Application\LBB.Reservation.Application.csproj" />
-      <ProjectReference Include="..\LBB.Reservation.Domain\LBB.Reservation.Domain.csproj" />
-      <ProjectReference Include="..\LBB.Reservation.Infrastructure\LBB.Reservation.Infrastructure.csproj" />
+        <ProjectReference Include="..\LBB.Reservation.Application\LBB.Reservation.Application.csproj" />
+        <ProjectReference Include="..\LBB.Reservation.Domain\LBB.Reservation.Domain.csproj" />
+        <ProjectReference Include="..\LBB.Reservation.Infrastructure\LBB.Reservation.Infrastructure.csproj" />
     </ItemGroup>
-
     <ItemGroup>
-      <Content Include="Views\Shared\Session\_CreateSession.cshtml" />
-      <Content Include="Views\_ViewImports.cshtml" />
-      <Content Include="Views\_ViewStart.cshtml" />
+        <Content Include="Views\Shared\Session\_CreateSession.cshtml" />
+        <Content Include="Views\_ViewImports.cshtml" />
+        <Content Include="Views\_ViewStart.cshtml" />
     </ItemGroup>
-
     <ItemGroup>
-      <RazorGenerate Remove="Views\Home\Partials\_ExampleDialogBody.cshtml" />
-      <RazorGenerate Remove="Views\Home\Partials\_ExampleDialogFooter.cshtml" />
-      <RazorGenerate Remove="Views\Shared\Components\Modal\Default.cshtml" />
+        <RazorGenerate Remove="Views\Home\Partials\_ExampleDialogBody.cshtml" />
+        <RazorGenerate Remove="Views\Home\Partials\_ExampleDialogFooter.cshtml" />
+        <RazorGenerate Remove="Views\Shared\Components\Modal\Default.cshtml" />
     </ItemGroup>
-
     <ItemGroup>
         <PackageReference Include="OrchardCore.ResourceManagement" Version="2.2.0" />
         <PackageReference Include="OrchardCore.Resources" Version="2.2.0" />
     </ItemGroup>
-
     <ItemGroup>
-      <Folder Include="wwwroot\" />
+        <Folder Include="wwwroot\" />
     </ItemGroup>
-
     <ItemGroup>
-      <Compile Update="Localization\ValidationResources.Designer.cs">
-        <DesignTime>True</DesignTime>
-        <AutoGen>True</AutoGen>
-        <DependentUpon>ValidationResources.resx</DependentUpon>
-      </Compile>
+        <Compile Update="Localization\ValidationResources.Designer.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>ValidationResources.resx</DependentUpon>
+        </Compile>
     </ItemGroup>
-
 </Project>

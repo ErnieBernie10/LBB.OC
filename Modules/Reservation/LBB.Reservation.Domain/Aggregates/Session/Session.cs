@@ -22,6 +22,21 @@ public sealed class Session : AggregateRoot
     public Enums.SessionType SessionType { get; private set; }
     public Capacity Capacity { get; private set; }
 
+    internal Session(
+        int id,
+        Enums.SessionType sessionType,
+        Timeslot timeslot,
+        string title,
+        string description,
+        string location,
+        Capacity capacity,
+        List<Reservation> reservations
+    )
+        : this(sessionType, timeslot, title, description, location, capacity, reservations)
+    {
+        Id = id;
+    }
+
     public Session(
         Enums.SessionType sessionType,
         Timeslot timeslot,
