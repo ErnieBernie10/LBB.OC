@@ -1,4 +1,5 @@
 using LBB.Core.Contracts;
+using LBB.Core.Enums;
 using LBB.Core.Mediator;
 using LBB.Reservation.Domain.Aggregates.Session.Events;
 using LBB.Reservation.Infrastructure.Context;
@@ -29,6 +30,8 @@ public class ReservationAddedEventHandler(
             cancellationToken
         );
 
-        notificationQueue.Enqueue(new ReservationPersistedEvent(command.Reservation));
+        notificationQueue.Enqueue(
+            new ReservationPersistedEvent(command.Reservation, PersistenceState.Added)
+        );
     }
 }

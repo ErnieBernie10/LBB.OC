@@ -55,7 +55,6 @@ public class UpdateSessionInfoCommandHandler(
         if (session == null)
             return Result.Fail(new NotFoundError("Session not found"));
 
-        var capacity = Capacity.Create(command.Capacity, nameof(command.Capacity));
         var timeslot = Timeslot.Create(
             command.Start,
             command.End,
@@ -63,16 +62,16 @@ public class UpdateSessionInfoCommandHandler(
             nameof(command.End)
         );
 
-        var result = Result.Merge(capacity, timeslot, validationResult);
+        var result = Result.Merge(timeslot, validationResult);
         if (result.IsFailed)
-            return result;
+            return result.ToResult();
 
         var updateResult = session.UpdateInfo(
             command.Title,
             command.Description,
             command.Location,
             timeslot.Value,
-            capacity.Value
+            command.Capacity
         );
         if (updateResult.IsFailed)
             return updateResult;

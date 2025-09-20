@@ -72,14 +72,18 @@ public sealed class Session : AggregateRoot
         string description,
         string location,
         Timeslot timeslot,
-        Capacity capacity
+        int newCapacity
     )
     {
         Location = location;
         Timeslot = timeslot;
         Title = title;
         Description = description;
-        Capacity = capacity;
+
+        var result = Capacity.SetMax(newCapacity, nameof(newCapacity));
+
+        if (result.IsFailed)
+            return result.ToResult();
 
         AddDomainEvent(new SessionInfoUpdatedEvent(this));
 
@@ -116,5 +120,11 @@ public sealed class Session : AggregateRoot
         foreach (var r in Reservations)
         foreach (var e in r.DomainEvents)
             yield return e;
+    }
+
+    public Result Delete()
+    {
+        AddDomainEvent(new SessionDeletedEvent(this));
+        return Result.Ok();
     }
 }
