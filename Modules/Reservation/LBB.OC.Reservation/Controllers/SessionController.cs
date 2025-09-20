@@ -120,6 +120,24 @@ public class SessionController(IMediator mediator) : ControllerBase
         return Ok(session.Value);
     }
 
+    [HttpDelete("{sessionId:int}/reservations/{reservationId:int}")]
+    [Authorize(Constants.Policies.ManageReservations)]
+    public async Task<ActionResult<int>> RemoveReservation(int sessionId, int reservationId)
+    {
+        var command = new CancelReservationCommand();
+
+        var result = await mediator.SendCommandAsync<CancelReservationCommand, Result>(command);
+        if (result.IsFailed)
+        {
+            if (result.HasError<DomainValidationError>() || result.HasError<ValidationError>())
+                return BadRequest(result.MapValidationErrorsToProblemDetails());
+            if (result.HasError<NotFoundError>())
+                return NotFound(result.Errors);
+            return BadRequest(result.Errors);
+        }
+        return Ok();
+    }
+
     [HttpDelete("{sessionId:int}")]
     [Authorize(Constants.Policies.ManageReservations)]
     public async Task<ActionResult<int>> RemoveSession(int sessionId)

@@ -25,6 +25,7 @@ public class SessionStore(LbbDbContext context) : IAggregateStore<Session, int>
             var email = new EmailAddress(r.Email);
             var phoneNumber = new PhoneNumber(r.Phone);
             return new Domain.Aggregates.Session.Reservation(
+                id: r.Id,
                 reference: reference,
                 name: new PersonName(r.Firstname, r.Lastname),
                 attendeeCount: r.AttendeeCount,

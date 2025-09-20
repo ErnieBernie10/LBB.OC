@@ -8,6 +8,7 @@ namespace LBB.Reservation.Domain.Aggregates.Session;
 
 public class Reservation : Entity
 {
+    public int Id { get; private set; }
     public ReservationReference Reference { get; private set; }
     public PersonName? Name { get; private set; }
     public int AttendeeCount { get; private set; }
@@ -15,6 +16,7 @@ public class Reservation : Entity
     public PhoneNumber? Phone { get; private set; }
 
     public Reservation(
+        int id,
         ReservationReference reference,
         PersonName? name,
         int attendeeCount,
@@ -22,6 +24,7 @@ public class Reservation : Entity
         PhoneNumber? phone
     )
     {
+        Id = id;
         Reference = reference;
         Name = name;
         AttendeeCount = attendeeCount;
@@ -68,6 +71,7 @@ public class Reservation : Entity
         }
 
         return new Reservation(
+            0,
             ReservationReference.New,
             nameResult?.ValueOrDefault,
             attendeeCountResult.ValueOrDefault,

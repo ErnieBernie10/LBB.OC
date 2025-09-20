@@ -127,4 +127,18 @@ public sealed class Session : AggregateRoot
         AddDomainEvent(new SessionDeletedEvent(this));
         return Result.Ok();
     }
+
+    public Result CancelReservation(int commandReservationId)
+    {
+        var reservation = Reservations.FirstOrDefault(r => r.Id == commandReservationId);
+
+        if (reservation == null)
+            return Result.Fail(new NotFoundError("Reservation not found"));
+
+        _reservations.Remove(reservation);
+
+        AddDomainEvent(new ReservationRemovedEvent(this, reservation));
+
+        return Result.Ok();
+    }
 }

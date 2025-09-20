@@ -15,16 +15,28 @@ public class ReservationPersistedEventHandler(IEmailService service)
         CancellationToken cancellationToken = default
     )
     {
-        if (command.State == PersistenceState.Added)
+        switch (command.State)
         {
-            await service.SendAsync(
-                new MailMessage()
-                {
-                    To = command.Reservation.Email,
-                    Body = "Reservation created",
-                    Subject = "Reservation created",
-                }
-            );
+            case PersistenceState.Added:
+                await service.SendAsync(
+                    new MailMessage()
+                    {
+                        To = command.Reservation.Email,
+                        Body = "Reservation created",
+                        Subject = "Reservation created",
+                    }
+                );
+                break;
+            case PersistenceState.Deleted:
+                await service.SendAsync(
+                    new MailMessage()
+                    {
+                        To = command.Reservation.Email,
+                        Subject = "Reservation cancelled",
+                        Body = "Reservation cancelled",
+                    }
+                );
+                break;
         }
     }
 }
