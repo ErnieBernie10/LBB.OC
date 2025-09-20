@@ -14,6 +14,9 @@ export class SessionService {
   public updateSessionInfo(id: number, session: UpdateSessionInfoCommand) {
     return this.api.sessionsPATCH(id, session);
   }
+  public deleteSession(id: number) {
+    return this.api.sessionsDELETE(id);
+  }
 
   public getSessions(currentWeek: Signal<{ start: Date; end: Date }>) {
     return rxResource({
@@ -37,6 +40,6 @@ export class SessionService {
   }
 
   public addReservation(sessionId: number, command: AddReservationCommand) {
-    return this.api.reservations(sessionId, command);
+    return this.api.reservationsPOST(sessionId, command);
   }
 }

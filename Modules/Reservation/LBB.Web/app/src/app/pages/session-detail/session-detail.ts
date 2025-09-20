@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { SessionFormFieldsComponent } from '../../components/session-form/session-form-fields';
 import { SessionService } from '../../services/session.service';
@@ -29,6 +29,7 @@ import { FormValidationService } from '../../services/form-validation.service';
 })
 export class SessionDetailPage {
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private sessionService = inject(SessionService);
 
   session = this.sessionService.getSession(Number(this.route.snapshot.paramMap.get('id')!));
@@ -37,6 +38,8 @@ export class SessionDetailPage {
   savingReservation = signal<boolean>(false);
   editMode = signal<boolean>(false);
   reservation = signal<IAddReservationCommand | null>(null);
+  confirmDelete = signal<boolean>(false);
+  deleting = signal<boolean>(false);
   formService = inject(FormValidationService);
 
   form = new FormBuilder().nonNullable.group({
@@ -148,5 +151,30 @@ export class SessionDetailPage {
           this.savingReservation.set(false);
         }),
       });
+  }
+
+  openDeleteConfirm() {
+    this.confirmDelete.set(true);
+  }
+
+  cancelDelete() {
+    this.confirmDelete.set(false);
+  }
+
+  performDelete() {
+    const id = this.session.value()?.id;
+    if (!id) return;
+    this.deleting.set(true);
+    this.sessionService.deleteSession(id).subscribe({
+      complete: () => {
+        this.deleting.set(false);
+        this.confirmDelete.set(false);
+        this.router.navigateByUrl('/scheduler');
+      },
+      error: () => {
+        this.deleting.set(false);
+        this.confirmDelete.set(false);
+      },
+    });
   }
 }
