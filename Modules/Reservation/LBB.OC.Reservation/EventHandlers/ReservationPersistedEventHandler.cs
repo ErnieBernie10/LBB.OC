@@ -1,4 +1,5 @@
-﻿using LBB.Core.Mediator;
+﻿using LBB.Core.Enums;
+using LBB.Core.Mediator;
 using LBB.Reservation.Domain.Aggregates.Session.Events;
 using OrchardCore.Email;
 using OrchardCore.Notifications;
@@ -14,13 +15,16 @@ public class ReservationPersistedEventHandler(IEmailService service)
         CancellationToken cancellationToken = default
     )
     {
-        await service.SendAsync(
-            new MailMessage()
-            {
-                To = command.Reservation.Email,
-                Body = "Reservation created",
-                Subject = "Reservation created",
-            }
-        );
+        if (command.State == PersistenceState.Added)
+        {
+            await service.SendAsync(
+                new MailMessage()
+                {
+                    To = command.Reservation.Email,
+                    Body = "Reservation created",
+                    Subject = "Reservation created",
+                }
+            );
+        }
     }
 }
