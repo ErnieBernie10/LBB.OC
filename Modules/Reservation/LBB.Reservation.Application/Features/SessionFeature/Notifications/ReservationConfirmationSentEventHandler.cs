@@ -16,6 +16,6 @@ public class ReservationConfirmationSentEventHandler(LbbDbContext context)
         if (reservation == null)
             return;
 
-        reservation.ConfirmationSent = true;
+        reservation.ConfirmationSentOn = DateTime.UtcNow;
     }
 }
