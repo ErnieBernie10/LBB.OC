@@ -1,15 +1,16 @@
 using Dapper;
-using OrchardCore.Data;
-using OrchardCore.Data.Migration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OrchardCore.Data;
+using OrchardCore.Data;
+using OrchardCore.Data.Migration;
 using OrchardCore.Data.Migration;
 using OrchardCore.Environment.Shell.Scope;
 using YesSql;
 using YesSql.Sql;
 
 namespace LBB.OC.Reservation.Migrations;
+
 public class ReservationMigrations : DataMigration
 {
     private readonly IDbConnectionAccessor _connectionAccessor;
@@ -31,7 +32,8 @@ public class ReservationMigrations : DataMigration
         await command.ExecuteNonQueryAsync();
 
         // Create Sessions table
-        command.CommandText = @"
+        command.CommandText =
+            @"
 CREATE TABLE IF NOT EXISTS Sessions (
     Id INTEGER PRIMARY KEY AUTOINCREMENT,
     Type INTEGER NOT NULL DEFAULT 0,
@@ -41,12 +43,19 @@ CREATE TABLE IF NOT EXISTS Sessions (
     Start DATETIME NOT NULL,
     End DATETIME NOT NULL,
     Location TEXT NOT NULL DEFAULT '',
-    UserId TEXT NOT NULL
+    UserId TEXT NOT NULL,
+    CreatedOn DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UpdatedOn DATETIME,
+    CancelledOn DATETIME,
+    CancelledReason TEXT,
+    CancelledBy TEXT,
+    PublishedOn DATETIME
 );";
         await command.ExecuteNonQueryAsync();
 
         // Create Reservations table with foreign key
-        command.CommandText = @"
+        command.CommandText =
+            @"
 CREATE TABLE IF NOT EXISTS Reservations (
     Id INTEGER PRIMARY KEY AUTOINCREMENT,
     Firstname TEXT NOT NULL DEFAULT '',
@@ -56,6 +65,10 @@ CREATE TABLE IF NOT EXISTS Reservations (
     AttendeeCount INTEGER NOT NULL DEFAULT 1,
     SessionId INTEGER NOT NULL,
     Reference TEXT NOT NULL UNIQUE,
+    ConfirmationSentOn DATETIME,
+    CancelledOn DATETIME,
+    CreatedOn DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UpdatedOn DATETIME,
     FOREIGN KEY (SessionId) REFERENCES Sessions(Id) ON DELETE CASCADE
 );";
         await command.ExecuteNonQueryAsync();

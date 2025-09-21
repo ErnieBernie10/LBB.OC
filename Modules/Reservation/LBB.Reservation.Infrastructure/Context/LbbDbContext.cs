@@ -8,119 +8,50 @@ namespace LBB.Reservation.Infrastructure.Context;
 public partial class LbbDbContext : DbContext
 {
     public LbbDbContext(DbContextOptions<LbbDbContext> options)
-        : base(options)
-    {
-    }
-
-    public virtual DbSet<AuditAuditTrailEventIndex> AuditAuditTrailEventIndices { get; set; }
-
-    public virtual DbSet<AuditDocument> AuditDocuments { get; set; }
-
-    public virtual DbSet<DeploymentPlanIndex> DeploymentPlanIndices { get; set; }
-
-    public virtual DbSet<Document> Documents { get; set; }
-
-    public virtual DbSet<NotificationDocument> NotificationDocuments { get; set; }
-
-    public virtual DbSet<NotificationNotificationIndex> NotificationNotificationIndices { get; set; }
+        : base(options) { }
 
     public virtual DbSet<DataModels.Reservation> Reservations { get; set; }
 
     public virtual DbSet<Session> Sessions { get; set; }
 
-    public virtual DbSet<UserByClaimIndex> UserByClaimIndices { get; set; }
-
-    public virtual DbSet<UserByLoginInfoIndex> UserByLoginInfoIndices { get; set; }
-
-    public virtual DbSet<UserByRoleNameIndex> UserByRoleNameIndices { get; set; }
-
-    public virtual DbSet<UserByRoleNameIndexDocument> UserByRoleNameIndexDocuments { get; set; }
-
-    public virtual DbSet<UserIndex> UserIndices { get; set; }
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<AuditAuditTrailEventIndex>(entity =>
-        {
-            entity.Property(e => e.Category).UseCollation("NOCASE");
-            entity.Property(e => e.CorrelationId).UseCollation("NOCASE");
-            entity.Property(e => e.EventId).UseCollation("NOCASE");
-            entity.Property(e => e.Name).UseCollation("NOCASE");
-            entity.Property(e => e.NormalizedUserName).UseCollation("NOCASE");
-            entity.Property(e => e.UserId).UseCollation("NOCASE");
-        });
-
-        modelBuilder.Entity<AuditDocument>(entity =>
-        {
-            entity.Property(e => e.Id).ValueGeneratedNever();
-            entity.Property(e => e.Content).UseCollation("NOCASE");
-            entity.Property(e => e.Type).UseCollation("NOCASE");
-        });
-
-        modelBuilder.Entity<DeploymentPlanIndex>(entity =>
-        {
-            entity.Property(e => e.Name).UseCollation("NOCASE");
-        });
-
-        modelBuilder.Entity<Document>(entity =>
-        {
-            entity.Property(e => e.Id).ValueGeneratedNever();
-            entity.Property(e => e.Content).UseCollation("NOCASE");
-            entity.Property(e => e.Type).UseCollation("NOCASE");
-        });
-
-        modelBuilder.Entity<NotificationDocument>(entity =>
-        {
-            entity.Property(e => e.Id).ValueGeneratedNever();
-            entity.Property(e => e.Content).UseCollation("NOCASE");
-            entity.Property(e => e.Type).UseCollation("NOCASE");
-        });
-
-        modelBuilder.Entity<NotificationNotificationIndex>(entity =>
-        {
-            entity.Property(e => e.Content).UseCollation("NOCASE");
-            entity.Property(e => e.NotificationId).UseCollation("NOCASE");
-            entity.Property(e => e.UserId).UseCollation("NOCASE");
-        });
-
         modelBuilder.Entity<DataModels.Reservation>(entity =>
         {
+            entity.HasIndex(e => e.Reference, "IX_Reservations_Reference").IsUnique();
+
             entity.Property(e => e.AttendeeCount).HasDefaultValue(1);
+            entity.Property(e => e.CancelledOn).HasColumnType("DATETIME");
+            entity.Property(e => e.ConfirmationSentOn).HasColumnType("DATETIME");
+            entity
+                .Property(e => e.CreatedOn)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("DATETIME");
             entity.Property(e => e.Firstname).HasDefaultValue("");
             entity.Property(e => e.Lastname).HasDefaultValue("");
             entity.Property(e => e.Phone).HasDefaultValue("");
+            entity.Property(e => e.UpdatedOn).HasColumnType("DATETIME");
+
+            entity
+                .HasOne(d => d.Session)
+                .WithMany(p => p.Reservations)
+                .HasForeignKey(d => d.SessionId);
         });
 
         modelBuilder.Entity<Session>(entity =>
         {
+            entity.Property(e => e.CancelledOn).HasColumnType("DATETIME");
             entity.Property(e => e.Capacity).HasDefaultValue(1);
+            entity
+                .Property(e => e.CreatedOn)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("DATETIME");
             entity.Property(e => e.Description).HasDefaultValue("");
+            entity.Property(e => e.End).HasColumnType("DATETIME");
             entity.Property(e => e.Location).HasDefaultValue("");
-        });
-
-        modelBuilder.Entity<UserByClaimIndex>(entity =>
-        {
-            entity.Property(e => e.ClaimType).UseCollation("NOCASE");
-            entity.Property(e => e.ClaimValue).UseCollation("NOCASE");
-        });
-
-        modelBuilder.Entity<UserByLoginInfoIndex>(entity =>
-        {
-            entity.Property(e => e.LoginProvider).UseCollation("NOCASE");
-            entity.Property(e => e.ProviderKey).UseCollation("NOCASE");
-        });
-
-        modelBuilder.Entity<UserByRoleNameIndex>(entity =>
-        {
-            entity.Property(e => e.RoleName).UseCollation("NOCASE");
-        });
-
-        modelBuilder.Entity<UserIndex>(entity =>
-        {
-            entity.Property(e => e.IsEnabled).HasDefaultValue(true);
-            entity.Property(e => e.NormalizedEmail).UseCollation("NOCASE");
-            entity.Property(e => e.NormalizedUserName).UseCollation("NOCASE");
-            entity.Property(e => e.UserId).UseCollation("NOCASE");
+            entity.Property(e => e.PublishedOn).HasColumnType("DATETIME");
+            entity.Property(e => e.Start).HasColumnType("DATETIME");
+            entity.Property(e => e.UpdatedOn).HasColumnType("DATETIME");
         });
 
         OnModelCreatingPartial(modelBuilder);

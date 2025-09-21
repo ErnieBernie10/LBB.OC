@@ -1,15 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 
 namespace LBB.Reservation.Infrastructure.DataModels;
 
-[Index("Reference", IsUnique = true)]
 public partial class Reservation
 {
-    [Key]
     public int Id { get; set; }
 
     public string Firstname { get; set; } = null!;
@@ -26,9 +21,13 @@ public partial class Reservation
 
     public string Reference { get; set; } = null!;
 
-    [ForeignKey("SessionId")]
-    [InverseProperty("Reservations")]
-    public virtual Session Session { get; set; } = null!;
+    public DateTime? ConfirmationSentOn { get; set; }
 
-    public bool ConfirmationSent { get; set; }
+    public DateTime? CancelledOn { get; set; }
+
+    public DateTime CreatedOn { get; set; }
+
+    public DateTime? UpdatedOn { get; set; }
+
+    public virtual Session Session { get; set; } = null!;
 }
