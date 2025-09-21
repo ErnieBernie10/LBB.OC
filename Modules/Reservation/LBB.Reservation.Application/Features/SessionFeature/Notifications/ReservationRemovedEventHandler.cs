@@ -6,10 +6,8 @@ using LBB.Reservation.Infrastructure.Context;
 
 namespace LBB.Reservation.Application.Features.SessionFeature.Notifications;
 
-public class ReservationRemovedEventHandler(
-    LbbDbContext context,
-    IBackgroundNotificationQueue notificationQueue
-) : INotificationHandler<ReservationRemovedEvent>
+public class ReservationRemovedEventHandler(LbbDbContext context)
+    : IInProcessNotificationHandler<ReservationRemovedEvent>
 {
     public async Task HandleAsync(
         ReservationRemovedEvent command,
@@ -22,8 +20,5 @@ public class ReservationRemovedEventHandler(
             return;
 
         context.Reservations.Remove(reservation);
-        notificationQueue.Enqueue(
-            new ReservationPersistedEvent(command.Reservation, PersistenceState.Deleted)
-        );
     }
 }

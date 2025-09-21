@@ -4,23 +4,11 @@ using OrchardCore.BackgroundTasks;
 
 namespace LBB.OC.Reservation;
 
-public class BackgroundNotificationHandler : IBackgroundNotificationQueue, IBackgroundTask
+public class OutboxHandler : IBackgroundTask
 {
     private readonly Queue<INotification> _notifications = [];
     private const int MaxRetryAttempts = 3;
     private static readonly TimeSpan BaseDelay = TimeSpan.FromMilliseconds(250);
-
-    public void Enqueue<TNotification>(TNotification command)
-        where TNotification : INotification
-    {
-        _notifications.Enqueue(command);
-    }
-
-    public ValueTask<INotification?> DequeueAsync(CancellationToken cancellationToken)
-    {
-        var n = _notifications.Dequeue();
-        return new ValueTask<INotification?>(n);
-    }
 
     public async Task DoWorkAsync(
         IServiceProvider serviceProvider,

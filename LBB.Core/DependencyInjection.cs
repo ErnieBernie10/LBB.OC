@@ -19,7 +19,8 @@ public static class ServiceCollectionExtensions
         {
             RegisterHandlers(services, assembly, typeof(ICommandHandler<,>));
             RegisterHandlers(services, assembly, typeof(IQueryHandler<,>));
-            RegisterHandlers(services, assembly, typeof(INotificationHandler<>));
+            RegisterHandlers(services, assembly, typeof(IInProcessNotificationHandler<>));
+            RegisterHandlers(services, assembly, typeof(IOutOfProcessNotificationHandler<>));
         }
 
         return services;

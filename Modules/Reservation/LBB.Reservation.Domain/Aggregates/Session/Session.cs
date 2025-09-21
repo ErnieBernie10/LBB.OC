@@ -32,8 +32,18 @@ public sealed class Session : AggregateRoot
         Capacity capacity,
         List<Reservation> reservations
     )
-        : this(sessionType, timeslot, title, description, location, capacity, reservations)
     {
+        Timeslot = timeslot;
+        Title = title;
+        Description = description;
+        Location = location;
+        SessionType = sessionType;
+        Capacity = capacity;
+        _reservations = reservations;
+        _reservationPolicy =
+            SessionType == Enums.SessionType.Group
+                ? new GroupSessionReservationPolicy()
+                : new IndividualSessionReservationPolicy();
         Id = id;
     }
 

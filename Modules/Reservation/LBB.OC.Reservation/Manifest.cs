@@ -9,7 +9,13 @@ using OrchardCore.Modules.Manifest;
     Category = "Content Management",
     Dependencies = new[]
     {
-        "OrchardCore.Resources", "OrchardCore.Email", "OrchardCore.Tenants", "OrchardCore.Email.Smtp",
-        "OrchardCore.Notifications", "OrchardCore.Notifications.Email", "OrchardCore.BackgroundTasks"
+        "OrchardCore.Resources",
+        "OrchardCore.Email",
+        "OrchardCore.Tenants",
+        "OrchardCore.Email.Smtp",
+        "OrchardCore.Notifications",
+        "OrchardCore.Notifications.Email",
+        "OrchardCore.BackgroundTasks",
+        "LBB.OC.Outbox",
     }
 )]

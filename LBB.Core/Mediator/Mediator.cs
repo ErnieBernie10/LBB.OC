@@ -1,4 +1,5 @@
 using System.Reflection;
+using LBB.Core.Contracts;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LBB.Core.Mediator;
@@ -64,18 +65,37 @@ public class Mediator(IServiceProvider provider) : IMediator
         if (notification is null)
             throw new ArgumentNullException(nameof(notification));
 
-        var handlers = provider.GetServices<INotificationHandler<TNotification>>().ToArray();
-        if (handlers.Length == 0)
+        var inProcessHandlers = provider
+            .GetServices<IInProcessNotificationHandler<TNotification>>()
+            .ToArray();
+
+        var outOfProcessHandlers = provider
+            .GetServices<IOutOfProcessNotificationHandler<TNotification>>()
+            .ToArray();
+
+        if (inProcessHandlers.Length == 0)
         {
             throw new InvalidOperationException(
                 $"No handler registered for {typeof(TNotification).Name}"
             );
         }
 
-        var tasks = new Task[handlers.Length];
-        for (var i = 0; i < handlers.Length; i++)
+        if (outOfProcessHandlers.Length > 0)
         {
-            tasks[i] = handlers[i].HandleAsync(notification, cancellationToken);
+            var outboxService = provider.GetRequiredService<IOutboxService>();
+            await outboxService.PublishAsync(
+                "",
+                "",
+                typeof(TNotification).Name,
+                notification,
+                cancellationToken
+            );
+        }
+
+        var tasks = new Task[inProcessHandlers.Length];
+        for (var i = 0; i < inProcessHandlers.Length; i++)
+        {
+            tasks[i] = inProcessHandlers[i].HandleAsync(notification, cancellationToken);
         }
 
         await Task.WhenAll(tasks).ConfigureAwait(false);

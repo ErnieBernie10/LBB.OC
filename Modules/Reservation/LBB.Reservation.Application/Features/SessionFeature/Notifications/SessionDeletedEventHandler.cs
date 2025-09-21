@@ -6,10 +6,8 @@ using LBB.Reservation.Infrastructure.Context;
 
 namespace LBB.Reservation.Application.Features.SessionFeature.Notifications;
 
-public class SessionDeletedEventHandler(
-    LbbDbContext context,
-    IBackgroundNotificationQueue notificationQueue
-) : INotificationHandler<SessionDeletedEvent>
+public class SessionDeletedEventHandler(LbbDbContext context)
+    : IInProcessNotificationHandler<SessionDeletedEvent>
 {
     public Task HandleAsync(
         SessionDeletedEvent command,
@@ -22,10 +20,6 @@ public class SessionDeletedEventHandler(
         var sessions = context.Sessions.Where(s => s.Id == command.Session.Id);
 
         context.Sessions.RemoveRange(sessions);
-
-        notificationQueue.Enqueue(
-            new SessionPersistedEvent(command.Session, PersistenceState.Deleted)
-        );
 
         return Task.CompletedTask;
     }

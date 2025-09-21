@@ -1,5 +1,6 @@
 using LBB.Core;
 using LBB.Core.Contracts;
+using LBB.OC.Outbox;
 using LBB.OC.Reservation.Migrations;
 using LBB.Reservation.Application;
 using LBB.Reservation.Infrastructure;
@@ -50,9 +51,7 @@ public class Startup : StartupBase
         services.AddHttpContextAccessor();
 
         services.AddSingleton<ISpaProvider, SpaProvider>();
-        var notificationQueue = new BackgroundNotificationHandler();
-        services.AddSingleton<IBackgroundTask>(notificationQueue);
-        services.AddSingleton<IBackgroundNotificationQueue>(notificationQueue);
+        services.AddScoped<IOutboxService, EfOutboxService<LbbDbContext>>();
     }
 
     public override void Configure(

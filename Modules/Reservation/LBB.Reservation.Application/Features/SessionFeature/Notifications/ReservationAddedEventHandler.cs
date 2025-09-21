@@ -1,15 +1,14 @@
 using LBB.Core.Contracts;
 using LBB.Core.Enums;
 using LBB.Core.Mediator;
+using LBB.Reservation.Domain.Aggregates.Session;
 using LBB.Reservation.Domain.Aggregates.Session.Events;
 using LBB.Reservation.Infrastructure.Context;
 
 namespace LBB.Reservation.Application.Features.SessionFeature.Notifications;
 
-public class ReservationAddedEventHandler(
-    LbbDbContext context,
-    IBackgroundNotificationQueue notificationQueue
-) : INotificationHandler<ReservationAddedEvent>
+public class InProcessReservationAddedEventHandler(LbbDbContext context, IOutboxService service)
+    : IInProcessNotificationHandler<ReservationAddedEvent>
 {
     public async Task HandleAsync(
         ReservationAddedEvent command,
@@ -29,9 +28,18 @@ public class ReservationAddedEventHandler(
             },
             cancellationToken
         );
+    }
+}
 
-        notificationQueue.Enqueue(
-            new ReservationPersistedEvent(command.Reservation, PersistenceState.Added)
-        );
+public class OutOfProcessReservationAddedEventHandler
+    : IOutOfProcessNotificationHandler<ReservationAddedEvent>
+{
+    public Task HandleAsync(
+        ReservationAddedEvent command,
+        CancellationToken cancellationToken = default
+    )
+    {
+        Console.WriteLine("Executed");
+        return Task.CompletedTask;
     }
 }
