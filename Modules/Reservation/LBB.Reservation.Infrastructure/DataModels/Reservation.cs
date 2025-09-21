@@ -29,4 +29,6 @@ public partial class Reservation
     [ForeignKey("SessionId")]
     [InverseProperty("Reservations")]
     public virtual Session Session { get; set; } = null!;
+
+    public bool ConfirmationSent { get; set; }
 }

@@ -4,6 +4,8 @@ using LBB.Core;
 using LBB.Core.Errors;
 using LBB.Core.ValueObjects;
 using LBB.Reservation.Domain.Aggregates.Session.Commands;
+using LBB.Reservation.Domain.Aggregates.Session.Dto;
+using LBB.Reservation.Domain.Aggregates.Session.Events;
 
 namespace LBB.Reservation.Domain.Aggregates.Session;
 
@@ -15,6 +17,7 @@ public class Reservation : Entity
     public int AttendeeCount { get; private set; }
     public EmailAddress Email { get; private set; }
     public PhoneNumber? Phone { get; private set; }
+    public bool ConfirmationSent { get; private set; }
 
     public Reservation(
         int id,
@@ -87,5 +90,11 @@ public class Reservation : Entity
             return Result.Fail(new GreaterThanError(guestCountPropertyName, 1));
 
         return Result.Ok(guestCount);
+    }
+
+    public void Confirm()
+    {
+        ConfirmationSent = true;
+        AddDomainEvent(new ReservationConfirmationSentEvent(new ReservationDto(this)));
     }
 }

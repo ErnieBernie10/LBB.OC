@@ -27,7 +27,7 @@ public class SessionDto
         Start = session.Timeslot.Start;
         End = session.Timeslot.End;
         Type = session.SessionType;
-        Reservations = session.Reservations.Select(r => new ReservationDto(session.Id, r)).ToList();
+        Reservations = session.Reservations.Select(r => new ReservationDto(r)).ToList();
     }
 
     public Session ToEntity()

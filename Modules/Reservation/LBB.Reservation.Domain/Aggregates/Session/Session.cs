@@ -119,10 +119,7 @@ public sealed class Session : AggregateRoot
         _reservations.Add(reservation.Value);
 
         AddDomainEvent(
-            new ReservationAddedEvent(
-                new SessionDto(this),
-                new ReservationDto(Id, reservation.Value)
-            )
+            new ReservationAddedEvent(new SessionDto(this), new ReservationDto(reservation.Value))
         );
 
         return Result.Ok();
@@ -156,5 +153,18 @@ public sealed class Session : AggregateRoot
         AddDomainEvent(new ReservationRemovedEvent(this, reservation));
 
         return Result.Ok();
+    }
+
+    public bool ConfirmReservation(int reservationId)
+    {
+        var reservation = _reservations.Find(r => r.Id == reservationId);
+        if (reservation == null)
+            return false;
+
+        if (reservation.ConfirmationSent)
+            return false;
+
+        reservation.Confirm();
+        return true;
     }
 }

@@ -8,7 +8,7 @@ public class ReservationDto
     public ReservationDto() { }
 
     [SetsRequiredMembers]
-    public ReservationDto(int sessionId, Reservation reservation)
+    public ReservationDto(Reservation reservation)
     {
         Reference = reservation.Reference;
         Firstname = reservation.Name?.Firstname;
@@ -16,7 +16,6 @@ public class ReservationDto
         AttendeeCount = reservation.AttendeeCount;
         Phone = reservation.Phone?.Value;
         Email = reservation.Email.Value;
-        SessionId = sessionId;
         Id = reservation.Id;
     }
 
@@ -26,7 +25,6 @@ public class ReservationDto
     public int AttendeeCount { get; set; }
     public required string Email { get; set; }
     public string? Phone { get; set; }
-    public required int SessionId { get; set; }
     public required int Id { get; set; }
 
     public Reservation ToEntity()
