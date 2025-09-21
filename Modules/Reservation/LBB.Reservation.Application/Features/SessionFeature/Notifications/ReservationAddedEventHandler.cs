@@ -7,7 +7,7 @@ using LBB.Reservation.Infrastructure.Context;
 
 namespace LBB.Reservation.Application.Features.SessionFeature.Notifications;
 
-public class InProcessReservationAddedEventHandler(LbbDbContext context, IOutboxService service)
+public class InProcessReservationAddedEventHandler(LbbDbContext context)
     : IInProcessNotificationHandler<ReservationAddedEvent>
 {
     public async Task HandleAsync(
@@ -28,18 +28,5 @@ public class InProcessReservationAddedEventHandler(LbbDbContext context, IOutbox
             },
             cancellationToken
         );
-    }
-}
-
-public class OutOfProcessReservationAddedEventHandler
-    : IOutOfProcessNotificationHandler<ReservationAddedEvent>
-{
-    public Task HandleAsync(
-        ReservationAddedEvent command,
-        CancellationToken cancellationToken = default
-    )
-    {
-        Console.WriteLine("Executed");
-        return Task.CompletedTask;
     }
 }
