@@ -25,4 +25,7 @@
     <ItemGroup>
         <ProjectReference Include="..\..\..\LBB.Core\LBB.Core.csproj" />
     </ItemGroup>
+    <ItemGroup>
+        <RazorGenerate Remove="Views\Home\Index.cshtml" />
+    </ItemGroup>
 </Project>
