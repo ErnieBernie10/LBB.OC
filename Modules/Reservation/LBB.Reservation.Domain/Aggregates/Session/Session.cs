@@ -5,6 +5,7 @@ using LBB.Core.Errors;
 using LBB.Core.Mediator;
 using LBB.Core.ValueObjects;
 using LBB.Reservation.Domain.Aggregates.Session.Commands;
+using LBB.Reservation.Domain.Aggregates.Session.Dto;
 using LBB.Reservation.Domain.Aggregates.Session.Events;
 using LBB.Reservation.Domain.Aggregates.Session.Policies;
 using LBB.Reservation.Domain.Contracts.Policy;
@@ -117,7 +118,12 @@ public sealed class Session : AggregateRoot
         Capacity = result.Value;
         _reservations.Add(reservation.Value);
 
-        AddDomainEvent(new ReservationAddedEvent(this, reservation.Value));
+        AddDomainEvent(
+            new ReservationAddedEvent(
+                new SessionDto(this),
+                new ReservationDto(Id, reservation.Value)
+            )
+        );
 
         return Result.Ok();
     }

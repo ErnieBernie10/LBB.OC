@@ -1,3 +1,4 @@
+using System.Runtime.Serialization;
 using FluentResults;
 using LBB.Core;
 using LBB.Core.Errors;

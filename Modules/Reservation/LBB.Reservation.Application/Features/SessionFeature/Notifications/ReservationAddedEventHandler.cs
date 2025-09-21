@@ -18,10 +18,10 @@ public class InProcessReservationAddedEventHandler(LbbDbContext context, IOutbox
         await context.Reservations.AddAsync(
             new Infrastructure.DataModels.Reservation()
             {
-                Email = command.Reservation.Email.Value,
-                Firstname = command.Reservation.Name?.Firstname!,
-                Lastname = command.Reservation.Name?.Lastname!,
-                Phone = command.Reservation.Phone?.Value!,
+                Email = command.Reservation.Email,
+                Firstname = command.Reservation.Firstname ?? "",
+                Lastname = command.Reservation.Lastname ?? "",
+                Phone = command.Reservation.Phone ?? "",
                 SessionId = command.Session.Id,
                 Reference = command.Reservation.Reference,
                 AttendeeCount = command.Reservation.AttendeeCount,

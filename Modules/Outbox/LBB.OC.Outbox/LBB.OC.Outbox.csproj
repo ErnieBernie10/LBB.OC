@@ -16,6 +16,7 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.20" />
+        <PackageReference Include="OrchardCore.BackgroundTasks" Version="2.2.0" />
         <PackageReference Include="OrchardCore.Data" Version="2.2.0" />
         <PackageReference Include="OrchardCore.Data.Abstractions" Version="2.2.0" />
         <PackageReference Include="OrchardCore.Data.YesSql.Abstractions" Version="2.2.0" />

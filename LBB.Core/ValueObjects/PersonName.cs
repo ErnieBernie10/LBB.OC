@@ -20,19 +20,6 @@ public sealed class PersonName : ValueObject<PersonName, string>
         Lastname = lastname;
     }
 
-    public static Result<PersonName>? MaybeCreate(
-        string? firstname,
-        string? lastname,
-        string firstnamePropertyName,
-        string lastnamePropertyName
-    )
-    {
-        if (string.IsNullOrWhiteSpace(firstname) || string.IsNullOrWhiteSpace(lastname))
-            return null;
-
-        return Create(firstname, lastname, firstnamePropertyName, lastnamePropertyName);
-    }
-
     public static Result<PersonName> Create(
         string firstname,
         string lastname,

@@ -86,7 +86,7 @@ public class Mediator(IServiceProvider provider) : IMediator
             await outboxService.PublishAsync(
                 "",
                 "",
-                typeof(TNotification).Name,
+                typeof(TNotification).Name!,
                 notification,
                 cancellationToken
             );
