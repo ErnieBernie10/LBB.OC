@@ -95,6 +95,6 @@ public class Reservation : Entity
     public void Confirm()
     {
         ConfirmationSent = true;
-        AddDomainEvent(new ReservationConfirmationSentEvent(new ReservationDto(this)));
+        AddDomainEvent(new ReservationConfirmedEvent(new ReservationDto(this)));
     }
 }

@@ -3,4 +3,4 @@ using LBB.Reservation.Domain.Aggregates.Session.Dto;
 
 namespace LBB.Reservation.Domain.Aggregates.Session.Events;
 
-public record ReservationConfirmationSentEvent(ReservationDto Reservation) : INotification;
+public record ReservationConfirmedEvent(ReservationDto Reservation) : INotification;
