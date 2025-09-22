@@ -7,23 +7,23 @@ namespace LBB.Reservation.Infrastructure.Features.SessionFeature.NotificationHan
 public class ReservationAddedEventHandler(LbbDbContext context)
     : INotificationHandler<ReservationAddedEvent>
 {
-    public Task HandleAsync(
+    public async Task HandleAsync(
         ReservationAddedEvent command,
         CancellationToken cancellationToken = default
     )
     {
-        context.Reservations.Add(
-            new Infrastructure.DataModels.Reservation()
-            {
-                Email = command.Reservation.Email,
-                Firstname = command.Reservation.Firstname ?? "",
-                Lastname = command.Reservation.Lastname ?? "",
-                Phone = command.Reservation.Phone ?? "",
-                SessionId = command.Session.Id,
-                Reference = command.Reservation.Reference,
-                AttendeeCount = command.Reservation.AttendeeCount,
-            }
-        );
-        return Task.CompletedTask;
+        var res = new Infrastructure.DataModels.Reservation()
+        {
+            Email = command.Reservation.Email,
+            Firstname = command.Reservation.Firstname ?? "",
+            Lastname = command.Reservation.Lastname ?? "",
+            Phone = command.Reservation.Phone ?? "",
+            SessionId = command.Session.Id,
+            Reference = command.Reservation.Reference,
+            AttendeeCount = command.Reservation.AttendeeCount,
+        };
+        context.Reservations.Add(res);
+        await context.SaveChangesAsync(cancellationToken);
+        command.Reservation.Id = res.Id;
     }
 }

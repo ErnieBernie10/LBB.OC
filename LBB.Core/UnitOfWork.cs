@@ -27,13 +27,17 @@ public class UnitOfWork : IUnitOfWork
         _aggregateRoots.Clear();
     }
 
-    public Task RollbackAsync(CancellationToken cancellationToken = default)
+    public async Task RollbackAsync(CancellationToken cancellationToken = default)
     {
         foreach (var aggregateRoot in _aggregateRoots)
             aggregateRoot.ClearDomainEvents();
-        _handler.RollbackAsync(cancellationToken);
+        await _handler.RollbackAsync(cancellationToken);
         _aggregateRoots.Clear();
-        return Task.CompletedTask;
+    }
+
+    public async Task BeginAsync(CancellationToken cancellationToken = default)
+    {
+        await _handler.BeginAsync(cancellationToken);
     }
 
     public void RegisterChange(AggregateRoot aggregate)

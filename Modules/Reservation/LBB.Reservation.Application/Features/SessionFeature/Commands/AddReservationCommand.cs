@@ -70,6 +70,8 @@ public class AddReservationCommandHandler(
         if (result.IsFailed)
             return result;
 
+        await unitOfWork.BeginAsync(cancellationToken);
+
         unitOfWork.RegisterChange(session);
 
         await unitOfWork.CommitAsync(cancellationToken);

@@ -4,4 +4,5 @@ public interface IUnitOfWorkHandler
 {
     Task CommitAsync(CancellationToken cancellationToken = default);
     Task RollbackAsync(CancellationToken cancellationToken = default);
+    Task BeginAsync(CancellationToken cancellationToken = default);
 }

@@ -1,17 +1,29 @@
-﻿using LBB.Core;
+﻿using System.Data;
+using LBB.Core;
 using LBB.Reservation.Infrastructure.Context;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace LBB.Reservation.Infrastructure;
 
 public class UnitOfWorkHandler(LbbDbContext context) : IUnitOfWorkHandler
 {
-    public Task CommitAsync(CancellationToken cancellationToken = default)
+    IDbContextTransaction? transaction;
+
+    public async Task CommitAsync(CancellationToken cancellationToken = default)
     {
-        return context.SaveChangesAsync(cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
+        if (transaction != null)
+            await transaction.CommitAsync(cancellationToken);
     }
 
-    public Task RollbackAsync(CancellationToken cancellationToken = default)
+    public async Task RollbackAsync(CancellationToken cancellationToken = default)
     {
-        return Task.CompletedTask;
+        if (transaction != null)
+            await transaction.RollbackAsync(cancellationToken);
+    }
+
+    public async Task BeginAsync(CancellationToken cancellationToken = default)
+    {
+        transaction = await context.Database.BeginTransactionAsync(cancellationToken);
     }
 }
