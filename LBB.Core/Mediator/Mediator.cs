@@ -69,26 +69,10 @@ public class Mediator(IServiceProvider provider) : IMediator
             .GetServices<INotificationHandler<TNotification>>()
             .ToArray();
 
-        var outOfProcessHandlers = provider
-            .GetServices<IOutboxNotificationHandler<TNotification>>()
-            .ToArray();
-
         if (inProcessHandlers.Length == 0)
         {
             throw new InvalidOperationException(
                 $"No handler registered for {typeof(TNotification).Name}"
-            );
-        }
-
-        if (outOfProcessHandlers.Length > 0)
-        {
-            var outboxService = provider.GetRequiredService<IOutboxService>();
-            await outboxService.PublishAsync(
-                "",
-                "",
-                typeof(TNotification).Name!,
-                notification,
-                cancellationToken
             );
         }
 

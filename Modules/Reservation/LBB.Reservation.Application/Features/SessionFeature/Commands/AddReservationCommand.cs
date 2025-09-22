@@ -6,23 +6,26 @@ using LBB.Core.Contracts;
 using LBB.Core.Errors;
 using LBB.Core.Mediator;
 using LBB.Core.ValueObjects;
+using LBB.Reservation.Application.Features.SessionFeature.Events;
 using LBB.Reservation.Domain.Aggregates.Session;
 using LBB.Reservation.Domain.Aggregates.Session.Commands;
 using LBB.Reservation.Infrastructure;
+using LBB.Reservation.Infrastructure.Context;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 
 namespace LBB.Reservation.Application.Features.SessionFeature.Commands;
 
 public class AddReservationCommand : IAddReservationCommand, ICommand<Result<int>>
 {
-    public required string Firstname { get; set; }
+    public string? Firstname { get; set; }
 
-    public required string Lastname { get; set; }
+    public string? Lastname { get; set; }
     public int? AttendeeCount { get; set; }
 
     public required string Email { get; set; } = "";
 
-    public required string PhoneNumber { get; set; } = "";
+    public string? PhoneNumber { get; set; }
     public int SessionId { get; set; }
 }
 
@@ -30,7 +33,10 @@ public class AddReservationCommandValidator : AbstractValidator<AddReservationCo
 {
     public AddReservationCommandValidator()
     {
-        RuleFor(x => x.Email).NotEmpty().MaximumLength(DbConstraints.Reservation.MaxEmailLength);
+        RuleFor(x => x.Email)
+            .EmailAddress()
+            .NotEmpty()
+            .MaximumLength(DbConstraints.Reservation.MaxEmailLength);
         RuleFor(x => x.PhoneNumber).MaximumLength(DbConstraints.Reservation.MaxPhoneNumberLength);
         RuleFor(x => x.Firstname).MaximumLength(DbConstraints.Reservation.MaxFirstnameLength);
         RuleFor(x => x.Lastname).MaximumLength(DbConstraints.Reservation.MaxLastnameLength);
@@ -39,9 +45,9 @@ public class AddReservationCommandValidator : AbstractValidator<AddReservationCo
 }
 
 public class AddReservationCommandHandler(
-    IUnitOfWork unitOfWork,
-    IAggregateStore<Session, int> store,
-    IValidator<AddReservationCommand> validator
+    IValidator<AddReservationCommand> validator,
+    LbbDbContext context,
+    IOutboxService outboxService
 ) : ICommandHandler<AddReservationCommand, Result<int>>
 {
     public async Task<Result<int>> HandleAsync(
@@ -54,27 +60,51 @@ public class AddReservationCommandHandler(
             ? Result.Ok()
             : Result.Fail(new ValidationError(validation));
 
-        Session? session = null;
-        if (!validationResult.IsFailed)
-        {
-            session = await store.GetByIdAsync(command.SessionId);
-            if (session == null)
-                return Result.Fail(new NotFoundError("Session not found"));
-        }
+        var result = Result.Merge(validationResult);
 
-        if (session is null)
-            return validationResult;
-
-        var addReservationResult = session!.AddReservation(command);
-        var result = Result.Merge(validationResult, addReservationResult);
         if (result.IsFailed)
             return result;
 
-        await unitOfWork.BeginAsync(cancellationToken);
+        var session = await context
+            .Sessions.Include(s => s.Reservations)
+            .FirstOrDefaultAsync(
+                s => s.Id == command.SessionId,
+                cancellationToken: cancellationToken
+            );
 
-        unitOfWork.RegisterChange(session);
+        if (session == null)
+            return Result.Fail(new NotFoundError("Session not found"));
 
-        await unitOfWork.CommitAsync(cancellationToken);
+        // TODO: Refactor the error to not use the domain anymore
+        if (session.AttendeeCount + (command.AttendeeCount ?? 1) > session.Capacity)
+            return Result.Fail(new Capacity.CapacityExceededError("AttendeeCount"));
+
+        var reservation = new Infrastructure.DataModels.Reservation()
+        {
+            Email = command.Email,
+            Firstname = command.Firstname ?? "",
+            Lastname = command.Lastname ?? "",
+            Phone = command.PhoneNumber ?? "",
+            SessionId = session.Id,
+            Reference = ReservationReference.New,
+            AttendeeCount = command.AttendeeCount ?? 1,
+        };
+
+        var tran = await context.Database.BeginTransactionAsync(cancellationToken);
+
+        context.Reservations.Add(reservation);
+        await context.SaveChangesAsync(cancellationToken);
+
+        await outboxService.PublishAsync(
+            nameof(Reservation),
+            reservation.Id.ToString(),
+            nameof(ReservationAdded),
+            new ReservationAdded(reservation.Id),
+            cancellationToken
+        );
+        await context.SaveChangesAsync(cancellationToken);
+
+        await tran.CommitAsync(cancellationToken);
 
         return Result.Ok(session.Id);
     }
