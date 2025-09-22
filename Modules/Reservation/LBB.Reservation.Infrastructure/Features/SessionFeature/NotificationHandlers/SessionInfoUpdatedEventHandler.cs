@@ -2,10 +2,10 @@
 using LBB.Reservation.Domain.Aggregates.Session.Events;
 using LBB.Reservation.Infrastructure.Context;
 
-namespace LBB.Reservation.Application.Features.SessionFeature.Notifications;
+namespace LBB.Reservation.Infrastructure.Features.SessionFeature.NotificationHandlers;
 
 public class SessionInfoUpdatedEventHandler(LbbDbContext context)
-    : IInProcessNotificationHandler<SessionInfoUpdatedEvent>
+    : INotificationHandler<SessionInfoUpdatedEvent>
 {
     public async Task HandleAsync(
         SessionInfoUpdatedEvent command,

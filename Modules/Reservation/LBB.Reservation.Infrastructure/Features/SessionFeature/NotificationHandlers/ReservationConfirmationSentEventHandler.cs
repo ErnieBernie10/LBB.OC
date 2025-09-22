@@ -2,13 +2,13 @@
 using LBB.Reservation.Domain.Aggregates.Session.Events;
 using LBB.Reservation.Infrastructure.Context;
 
-namespace LBB.Reservation.Application.Features.SessionFeature.Notifications;
+namespace LBB.Reservation.Infrastructure.Features.SessionFeature.NotificationHandlers;
 
-public class ReservationConfirmedEventHandler(LbbDbContext context)
-    : IInProcessNotificationHandler<ReservationConfirmedEvent>
+public class ReservationConfirmationSentEventHandler(LbbDbContext context)
+    : INotificationHandler<ReservationConfirmationSentEvent>
 {
     public async Task HandleAsync(
-        ReservationConfirmedEvent command,
+        ReservationConfirmationSentEvent command,
         CancellationToken cancellationToken = default
     )
     {

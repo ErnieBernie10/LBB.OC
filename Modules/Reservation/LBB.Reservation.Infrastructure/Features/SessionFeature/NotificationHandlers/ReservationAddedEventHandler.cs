@@ -1,14 +1,11 @@
-using LBB.Core.Contracts;
-using LBB.Core.Enums;
 using LBB.Core.Mediator;
-using LBB.Reservation.Domain.Aggregates.Session;
 using LBB.Reservation.Domain.Aggregates.Session.Events;
 using LBB.Reservation.Infrastructure.Context;
 
-namespace LBB.Reservation.Application.Features.SessionFeature.Notifications;
+namespace LBB.Reservation.Infrastructure.Features.SessionFeature.NotificationHandlers;
 
-public class InProcessReservationAddedEventHandler(LbbDbContext context)
-    : IInProcessNotificationHandler<ReservationAddedEvent>
+public class ReservationAddedEventHandler(LbbDbContext context)
+    : INotificationHandler<ReservationAddedEvent>
 {
     public async Task HandleAsync(
         ReservationAddedEvent command,

@@ -1,19 +1,13 @@
 ﻿using FluentResults;
-using LBB.Core.Contracts;
 using LBB.Core.Mediator;
-using LBB.Reservation.Application.Features.SessionFeature.Commands;
-using LBB.Reservation.Domain.Aggregates.Session;
 using LBB.Reservation.Domain.Aggregates.Session.Events;
-using Microsoft.Extensions.Logging;
 using OrchardCore.Email;
+using ReservationConfirmationSentEvent = LBB.Reservation.Application.Features.SessionFeature.Commands.ReservationConfirmationSentEvent;
 
-namespace LBB.OC.Reservation.EventHandlers;
+namespace LBB.OC.Reservation.Features.SessionFeature.NotificationHandlers;
 
-public class OutOfProcessReservationAddedEventHandler(
-    IEmailService emailService,
-    ILogger<OutOfProcessReservationAddedEventHandler> logger,
-    IMediator mediator
-) : IOutOfProcessNotificationHandler<ReservationAddedEvent>
+public class SendReservationConfirmationEventHandler(IEmailService emailService, IMediator mediator)
+    : IOutboxNotificationHandler<ReservationAddedEvent>
 {
     public async Task HandleAsync(
         ReservationAddedEvent command,

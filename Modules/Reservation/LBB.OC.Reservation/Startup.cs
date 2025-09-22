@@ -15,6 +15,7 @@ using OrchardCore.BackgroundTasks;
 using OrchardCore.Data.Migration;
 using OrchardCore.Email;
 using OrchardCore.Environment.Shell;
+using DependencyInjection = LBB.Reservation.Infrastructure.DependencyInjection;
 using StartupBase = OrchardCore.Modules.StartupBase;
 
 namespace LBB.OC.Reservation;
@@ -33,7 +34,11 @@ public class Startup : StartupBase
         services.AddDataMigration<ReservationMigrations>();
 
         services
-            .AddCore(typeof(Startup).Assembly, typeof(ApplicationAssembly).Assembly)
+            .AddCore(
+                typeof(Startup).Assembly,
+                typeof(ApplicationAssembly).Assembly,
+                typeof(DependencyInjection).Assembly
+            )
             .AddApplication()
             .AddInfrastructure();
 

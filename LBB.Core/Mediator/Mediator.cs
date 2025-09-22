@@ -66,11 +66,11 @@ public class Mediator(IServiceProvider provider) : IMediator
             throw new ArgumentNullException(nameof(notification));
 
         var inProcessHandlers = provider
-            .GetServices<IInProcessNotificationHandler<TNotification>>()
+            .GetServices<INotificationHandler<TNotification>>()
             .ToArray();
 
         var outOfProcessHandlers = provider
-            .GetServices<IOutOfProcessNotificationHandler<TNotification>>()
+            .GetServices<IOutboxNotificationHandler<TNotification>>()
             .ToArray();
 
         if (inProcessHandlers.Length == 0)

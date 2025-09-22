@@ -10,7 +10,7 @@ namespace LBB.Reservation.Application.Features.SessionFeature.Commands;
 
 public record ReservationConfirmationSentEvent(int SessionId, int ReservationId) : ICommand<Result>;
 
-public class ReservationConfirmationSentCommand(
+public class ReservationConfirmationSentCommandHandler(
     IAggregateStore<Session, int> store,
     IUnitOfWork unitOfWork
 ) : ICommandHandler<ReservationConfirmationSentEvent, Result>

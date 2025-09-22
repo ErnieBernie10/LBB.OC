@@ -41,8 +41,9 @@ public class OutboxMessageRelay : IBackgroundTask
                 if (domainEvent == null)
                     continue;
 
-                var handlerInterfaceType =
-                    typeof(IOutOfProcessNotificationHandler<>).MakeGenericType(eventType);
+                var handlerInterfaceType = typeof(IOutboxNotificationHandler<>).MakeGenericType(
+                    eventType
+                );
                 var handlers = serviceProvider.GetServices(handlerInterfaceType).ToArray();
 
                 foreach (var handler in handlers)

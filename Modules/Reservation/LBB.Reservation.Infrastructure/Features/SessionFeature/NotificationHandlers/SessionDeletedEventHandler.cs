@@ -1,13 +1,11 @@
-﻿using LBB.Core.Contracts;
-using LBB.Core.Enums;
-using LBB.Core.Mediator;
+﻿using LBB.Core.Mediator;
 using LBB.Reservation.Domain.Aggregates.Session.Events;
 using LBB.Reservation.Infrastructure.Context;
 
-namespace LBB.Reservation.Application.Features.SessionFeature.Notifications;
+namespace LBB.Reservation.Infrastructure.Features.SessionFeature.NotificationHandlers;
 
 public class SessionDeletedEventHandler(LbbDbContext context)
-    : IInProcessNotificationHandler<SessionDeletedEvent>
+    : INotificationHandler<SessionDeletedEvent>
 {
     public Task HandleAsync(
         SessionDeletedEvent command,

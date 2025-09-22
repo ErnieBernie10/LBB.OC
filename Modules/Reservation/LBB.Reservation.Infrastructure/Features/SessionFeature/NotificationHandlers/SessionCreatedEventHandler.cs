@@ -3,10 +3,10 @@ using LBB.Reservation.Domain.Aggregates.Session.Events;
 using LBB.Reservation.Infrastructure.Context;
 using LBB.Reservation.Infrastructure.DataModels;
 
-namespace LBB.Reservation.Application.Features.SessionFeature.Notifications;
+namespace LBB.Reservation.Infrastructure.Features.SessionFeature.NotificationHandlers;
 
 public class SessionCreatedEventHandler(LbbDbContext dbContext)
-    : IInProcessNotificationHandler<SessionCreatedEvent>
+    : INotificationHandler<SessionCreatedEvent>
 {
     public async Task HandleAsync(
         SessionCreatedEvent command,
