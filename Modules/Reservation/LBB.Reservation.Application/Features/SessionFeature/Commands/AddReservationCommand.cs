@@ -6,6 +6,7 @@ using LBB.Core.Contracts;
 using LBB.Core.Errors;
 using LBB.Core.Mediator;
 using LBB.Core.ValueObjects;
+using LBB.Reservation.Application.Features.SessionFeature.Errors;
 using LBB.Reservation.Application.Features.SessionFeature.Events;
 using LBB.Reservation.Domain.Aggregates.Session;
 using LBB.Reservation.Domain.Aggregates.Session.Commands;
@@ -27,6 +28,20 @@ public class AddReservationCommand : IAddReservationCommand, ICommand<Result<int
 
     public string? PhoneNumber { get; set; }
     public int SessionId { get; set; }
+
+    public Infrastructure.DataModels.Reservation ToDataModel()
+    {
+        return new Infrastructure.DataModels.Reservation()
+        {
+            Email = Email,
+            Firstname = Firstname ?? "",
+            Lastname = Lastname ?? "",
+            Phone = PhoneNumber ?? "",
+            SessionId = SessionId,
+            Reference = ReservationReference.New,
+            AttendeeCount = AttendeeCount ?? 1,
+        };
+    }
 }
 
 public class AddReservationCommandValidator : AbstractValidator<AddReservationCommand>
@@ -56,11 +71,9 @@ public class AddReservationCommandHandler(
     )
     {
         var validation = validator.Validate(command);
-        var validationResult = validation.IsValid
+        var result = validation.IsValid
             ? Result.Ok()
             : Result.Fail(new ValidationError(validation));
-
-        var result = Result.Merge(validationResult);
 
         if (result.IsFailed)
             return result;
@@ -75,20 +88,18 @@ public class AddReservationCommandHandler(
         if (session == null)
             return Result.Fail(new NotFoundError("Session not found"));
 
-        // TODO: Refactor the error to not use the domain anymore
+        // TODO: Check if there is capacity according to reservation policy. For indivual sessions, below is not correct.
         if (session.AttendeeCount + (command.AttendeeCount ?? 1) > session.Capacity)
-            return Result.Fail(new Capacity.CapacityExceededError("AttendeeCount"));
+            return Result.Fail(new CapacityExceededError(nameof(command.AttendeeCount)));
 
-        var reservation = new Infrastructure.DataModels.Reservation()
-        {
-            Email = command.Email,
-            Firstname = command.Firstname ?? "",
-            Lastname = command.Lastname ?? "",
-            Phone = command.PhoneNumber ?? "",
-            SessionId = session.Id,
-            Reference = ReservationReference.New,
-            AttendeeCount = command.AttendeeCount ?? 1,
-        };
+        await Persist(command, cancellationToken);
+
+        return Result.Ok(session.Id);
+    }
+
+    private async Task Persist(AddReservationCommand command, CancellationToken cancellationToken)
+    {
+        var reservation = command.ToDataModel();
 
         var tran = await context.Database.BeginTransactionAsync(cancellationToken);
 
@@ -98,14 +109,11 @@ public class AddReservationCommandHandler(
         await outboxService.PublishAsync(
             nameof(Reservation),
             reservation.Id.ToString(),
-            nameof(ReservationAdded),
             new ReservationAdded(reservation.Id),
             cancellationToken
         );
         await context.SaveChangesAsync(cancellationToken);
 
         await tran.CommitAsync(cancellationToken);
-
-        return Result.Ok(session.Id);
     }
 }

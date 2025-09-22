@@ -2,7 +2,9 @@
 using LBB.Core.Contracts;
 using LBB.Core.Errors;
 using LBB.Core.Mediator;
+using LBB.Reservation.Application.Features.SessionFeature.Events;
 using LBB.Reservation.Domain.Aggregates.Session;
+using LBB.Reservation.Infrastructure.Context;
 
 namespace LBB.Reservation.Application.Features.SessionFeature.Commands;
 
@@ -12,27 +14,36 @@ public class CancelReservationCommand : ICommand<Result>
     public int SessionId { get; set; }
 }
 
-public class ReservationCancelledCommandHandler(
-    IAggregateStore<Session, int> store,
-    IUnitOfWork unitOfWork
-) : ICommandHandler<CancelReservationCommand, Result>
+public class ReservationCancelledCommandHandler(LbbDbContext context, IOutboxService outboxService)
+    : ICommandHandler<CancelReservationCommand, Result>
 {
     public async Task<Result> HandleAsync(
         CancelReservationCommand command,
         CancellationToken cancellationToken = default
     )
     {
-        var session = await store.GetByIdAsync(command.SessionId);
-        if (session == null)
-            return Result.Fail(new NotFoundError("Session not found"));
+        var reservation = await context.Reservations.FindAsync(command.ReservationId);
+        if (reservation == null)
+            return Result.Fail(new NotFoundError("Reservation not found"));
 
-        var result = session.CancelReservation(command.ReservationId);
-        if (result.IsFailed)
-            return result;
+        if (reservation.SessionId != command.SessionId)
+            return Result.Fail(new NotFoundError("Reservation not found"));
 
-        unitOfWork.RegisterChange(session);
-        await unitOfWork.CommitAsync(cancellationToken);
+        if (reservation.CancelledOn.HasValue)
+            return Result.Fail(new NotFoundError("Reservation already cancelled"));
 
-        return result;
+        reservation.CancelledOn = DateTime.UtcNow;
+        reservation.UpdatedOn = DateTime.UtcNow;
+
+        await outboxService.PublishAsync(
+            nameof(Reservation),
+            reservation.Id.ToString(),
+            new ReservationCancelled(reservation.Id),
+            cancellationToken
+        );
+
+        await context.SaveChangesAsync(cancellationToken);
+
+        return Result.Ok();
     }
 }

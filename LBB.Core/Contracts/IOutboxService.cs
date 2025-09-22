@@ -1,12 +1,23 @@
-﻿namespace LBB.Core.Contracts;
+﻿using LBB.Core.Mediator;
+
+namespace LBB.Core.Contracts;
 
 public interface IOutboxService
 {
-    Task PublishAsync(
+    Task PublishAsync<T>(
         string aggregateType,
         string aggregateId,
         string type,
-        object payload,
+        T payload,
         CancellationToken cancellationToken = default
-    );
+    )
+        where T : INotification;
+
+    Task PublishAsync<T>(
+        string aggregateType,
+        string aggregateId,
+        T payload,
+        CancellationToken cancellationToken = default
+    )
+        where T : INotification;
 }
