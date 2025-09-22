@@ -17,6 +17,7 @@ public class ReservationDto
         Phone = reservation.Phone?.Value;
         Email = reservation.Email.Value;
         Id = reservation.Id;
+        ConfirmationSent = reservation.ConfirmationSent;
     }
 
     public required string Reference { get; set; }
@@ -26,6 +27,7 @@ public class ReservationDto
     public required string Email { get; set; }
     public string? Phone { get; set; }
     public required int Id { get; set; }
+    public bool ConfirmationSent { get; set; }
 
     public Reservation ToEntity()
     {
@@ -35,7 +37,8 @@ public class ReservationDto
             Firstname == null || Lastname == null ? null : new PersonName(Firstname, Lastname),
             AttendeeCount,
             new EmailAddress(Email),
-            Phone == null ? null : new PhoneNumber(Phone)
+            Phone == null ? null : new PhoneNumber(Phone),
+            ConfirmationSent
         );
     }
 }

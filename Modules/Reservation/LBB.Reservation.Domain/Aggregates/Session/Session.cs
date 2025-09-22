@@ -167,4 +167,9 @@ public sealed class Session : AggregateRoot
         reservation.Confirm();
         return true;
     }
+
+    public Reservation? FindReservation(int commandReservationId)
+    {
+        return Reservations.FirstOrDefault(r => r.Id == commandReservationId);
+    }
 }

@@ -25,7 +25,8 @@ public class Reservation : Entity
         PersonName? name,
         int attendeeCount,
         EmailAddress email,
-        PhoneNumber? phone
+        PhoneNumber? phone,
+        bool confirmationSent
     )
     {
         Id = id;
@@ -34,6 +35,7 @@ public class Reservation : Entity
         AttendeeCount = attendeeCount;
         Email = email;
         Phone = phone;
+        ConfirmationSent = confirmationSent;
     }
 
     public static Result<Reservation> Create(IAddReservationCommand command)
@@ -80,7 +82,8 @@ public class Reservation : Entity
             nameResult?.ValueOrDefault,
             attendeeCountResult.ValueOrDefault,
             emailResult.Value,
-            phoneResult?.Value
+            phoneResult?.Value,
+            false
         );
     }
 

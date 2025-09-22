@@ -5,18 +5,21 @@ using LBB.Core.Mediator;
 using LBB.Reservation.Domain.Aggregates.Session;
 using LBB.Reservation.Domain.Aggregates.Session.Events;
 using LBB.Reservation.Infrastructure.Context;
+using OrchardCore.Email;
 
 namespace LBB.Reservation.Application.Features.SessionFeature.Commands;
 
-public record ReservationConfirmationSentEvent(int SessionId, int ReservationId) : ICommand<Result>;
+public record SendReservationConfirmationCommand(int SessionId, int ReservationId)
+    : ICommand<Result>;
 
-public class ReservationConfirmationSentCommandHandler(
+public class SendReservationConfirmationCommandHandler(
     IAggregateStore<Session, int> store,
-    IUnitOfWork unitOfWork
-) : ICommandHandler<ReservationConfirmationSentEvent, Result>
+    IUnitOfWork unitOfWork,
+    IEmailService emailService
+) : ICommandHandler<SendReservationConfirmationCommand, Result>
 {
     public async Task<Result> HandleAsync(
-        ReservationConfirmationSentEvent command,
+        SendReservationConfirmationCommand command,
         CancellationToken cancellationToken = default
     )
     {
@@ -29,6 +32,20 @@ public class ReservationConfirmationSentCommandHandler(
             // TODO: Add proper error
             return Result.Fail("Reservation already confirmed");
         }
+
+        var reservation = session.FindReservation(command.ReservationId);
+        if (reservation == null)
+            return Result.Fail(new NotFoundError("Reservation not found"));
+
+        await emailService.SendAsync(
+            new MailMessage()
+            {
+                To = reservation.Email,
+                Subject = "Reservation created",
+                Body = "Reservation created",
+            }
+        );
+
         unitOfWork.RegisterChange(session);
         await unitOfWork.CommitAsync(cancellationToken);
         return Result.Ok();

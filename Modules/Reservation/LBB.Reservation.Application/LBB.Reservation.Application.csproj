@@ -22,6 +22,7 @@
             Include="Microsoft.Extensions.Localization.Abstractions"
             Version="8.0.19"
         />
+        <PackageReference Include="OrchardCore.Email.Abstractions" Version="2.2.0" />
     </ItemGroup>
     <ItemGroup>
         <EmbeddedResource Update="Resources\SessionResources.resx">

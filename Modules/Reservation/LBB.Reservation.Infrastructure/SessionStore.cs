@@ -30,7 +30,8 @@ public class SessionStore(LbbDbContext context) : IAggregateStore<Session, int>
                 name: new PersonName(r.Firstname, r.Lastname),
                 attendeeCount: r.AttendeeCount,
                 email: email,
-                phone: phoneNumber
+                phone: phoneNumber,
+                confirmationSent: r.ConfirmationSentOn != null
             );
         });
         var session = new Session(
