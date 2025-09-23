@@ -65,6 +65,24 @@ public class SessionController(IMediator mediator) : ControllerBase
         return Ok(session.Value);
     }
 
+    [HttpPatch("{id:int}/cancel")]
+    [Authorize(Constants.Policies.ManageReservations)]
+    public async Task<ActionResult<int>> CancelSession([FromRoute] int id)
+    {
+        var command = new CancelSessionCommand() { SessionId = id };
+
+        var result = await mediator.SendCommandAsync<CancelSessionCommand, Result>(command);
+        if (result.IsFailed)
+        {
+            if (result.HasError<DomainValidationError>() || result.HasError<ValidationError>())
+                return BadRequest(result.MapValidationErrorsToProblemDetails());
+            if (result.HasError<NotFoundError>())
+                return NotFound(result.Errors);
+            return BadRequest(result.Errors);
+        }
+        return Ok();
+    }
+
     [HttpPatch("{id:int}")]
     [Authorize(Constants.Policies.ManageReservations)]
     public async Task<IActionResult> UpdateSessionInfo(
