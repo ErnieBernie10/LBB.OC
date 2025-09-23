@@ -20,4 +20,6 @@ public partial class Outbox
     public DateTime CreatedAt { get; set; }
 
     public DateTime? ProcessedAt { get; set; }
+
+    public int? RetryCount { get; set; }
 }

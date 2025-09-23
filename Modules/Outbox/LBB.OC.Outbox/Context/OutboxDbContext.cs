@@ -26,6 +26,7 @@ public partial class OutboxDbContext : DbContext
                 .Property(e => e.ProcessedAt)
                 .HasDefaultValueSql("NULL")
                 .HasColumnType("DATETIME");
+            entity.Property(e => e.RetryCount).HasDefaultValue(0);
         });
 
         OnModelCreatingPartial(modelBuilder);
