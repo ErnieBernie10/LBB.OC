@@ -8,12 +8,14 @@ using LBB.Core.Mediator;
 using LBB.Core.ValueObjects;
 using LBB.Reservation.Application.Features.SessionFeature.Errors;
 using LBB.Reservation.Application.Features.SessionFeature.Events;
+using LBB.Reservation.Domain;
 using LBB.Reservation.Domain.Aggregates.Session;
 using LBB.Reservation.Domain.Aggregates.Session.Commands;
 using LBB.Reservation.Infrastructure;
 using LBB.Reservation.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
+using Session = LBB.Reservation.Infrastructure.DataModels.Session;
 
 namespace LBB.Reservation.Application.Features.SessionFeature.Commands;
 
@@ -88,13 +90,28 @@ public class AddReservationCommandHandler(
         if (session == null)
             return Result.Fail(new NotFoundError("Session not found"));
 
-        // TODO: Check if there is capacity according to reservation policy. For indivual sessions, below is not correct.
-        if (session.AttendeeCount + (command.AttendeeCount ?? 1) > session.Capacity)
-            return Result.Fail(new CapacityExceededError(nameof(command.AttendeeCount)));
+        var canReserve = CanReserve(session, command);
+        if (canReserve.IsFailed)
+            return canReserve;
 
         await Persist(command, cancellationToken);
 
         return Result.Ok(session.Id);
+    }
+
+    private Result CanReserve(Session session, AddReservationCommand command)
+    {
+        switch ((Enums.SessionType)session.Type)
+        {
+            case Enums.SessionType.Individual when session.Reservations.Any():
+                return Result.Fail(new CapacityExceededError(nameof(command.AttendeeCount)));
+            case Enums.SessionType.Group
+                when session.Reservations.Sum(r => r.AttendeeCount) + (command.AttendeeCount ?? 1)
+                    > session.Capacity:
+                return Result.Fail(new CapacityExceededError(nameof(command.AttendeeCount)));
+            default:
+                return Result.Ok();
+        }
     }
 
     private async Task Persist(AddReservationCommand command, CancellationToken cancellationToken)
