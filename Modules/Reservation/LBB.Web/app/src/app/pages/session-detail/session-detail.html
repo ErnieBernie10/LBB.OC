@@ -37,29 +37,6 @@
     </div>
   </header>
 
-  @if (confirmDelete()) {
-    <app-modal [isOpen]="true" (close)="cancelDelete()">
-      <modal-header>
-        <h4>Delete session</h4>
-      </modal-header>
-      <modal-content>
-        <p>Are you sure you want to delete this session? This action cannot be undone.</p>
-      </modal-content>
-      <modal-footer>
-        <button class="secondary" type="button" (click)="cancelDelete()" [disabled]="deleting()">Cancel</button>
-        <button
-          class="danger"
-          type="button"
-          (click)="performDelete()"
-          [attr.aria-busy]="deleting()"
-          [disabled]="deleting()"
-        >
-          Confirm
-        </button>
-      </modal-footer>
-    </app-modal>
-  }
-
   <div>
     @if (session.isLoading()) {
       <p aria-busy="true">Loading...</p>

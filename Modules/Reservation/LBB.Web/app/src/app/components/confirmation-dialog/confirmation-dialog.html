@@ -1,0 +1,12 @@
+<app-modal [isOpen]="true">
+  <modal-header>
+    <h2>{{ title }}</h2>
+  </modal-header>
+  <modal-content>
+    <p>{{ message }}</p>
+  </modal-content>
+  <modal-footer>
+    <button (click)="confirm.emit()">{{ confirmButtonText }}</button>
+    <button (click)="cancel.emit()">{{ cancelButtonText }}</button>
+  </modal-footer>
+</app-modal>

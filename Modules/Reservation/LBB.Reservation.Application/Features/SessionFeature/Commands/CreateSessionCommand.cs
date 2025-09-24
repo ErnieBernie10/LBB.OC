@@ -30,6 +30,7 @@ public sealed class CreateSessionCommand : ICommand<Result<int>>
     {
         return new Session()
         {
+            UserId = "",
             Type = (int)Type,
             Title = Title,
             Description = Description,
@@ -49,8 +50,8 @@ public class CreateSessionCommandValidator : AbstractValidator<CreateSessionComm
         RuleFor(x => x.Description).MaximumLength(DbConstraints.Session.MaxDescriptionLength);
         RuleFor(x => x.Location).MaximumLength(DbConstraints.Session.MaxLocationLength);
         RuleFor(x => x.Capacity).GreaterThanOrEqualTo(1);
-        RuleFor(x => x.Start).GreaterThan(x => x.End);
-        RuleFor(x => x.End).LessThan(x => x.Start);
+        RuleFor(x => x.Start).LessThan(x => x.End);
+        RuleFor(x => x.End).GreaterThan(x => x.Start);
         RuleFor(x => x.Type).IsInEnum();
     }
 }

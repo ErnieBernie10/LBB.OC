@@ -9,6 +9,8 @@ import { AddReservationCommand, IAddReservationCommand, UpdateSessionInfoCommand
 import { Modal, ModalContent, ModalFooter, ModalHeader } from '../../components/modal/modal';
 import { ReservationForm } from '../../components/reservation-form/reservation-form';
 import { FormValidationService } from '../../services/form-validation.service';
+import { ConfirmationDialog } from '../../components/confirmation-dialog/confirmation-dialog';
+import { DialogService } from '../../services/confirmation-dialog.service';
 
 @Component({
   selector: 'app-session-detail-page',
@@ -31,6 +33,7 @@ export class SessionDetailPage {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private sessionService = inject(SessionService);
+  private confirmationDialogService = inject(DialogService);
 
   session = this.sessionService.getSession(Number(this.route.snapshot.paramMap.get('id')!));
   reservations = this.sessionService.getSessionReservations(Number(this.route.snapshot.paramMap.get('id')!));
@@ -38,7 +41,6 @@ export class SessionDetailPage {
   savingReservation = signal<boolean>(false);
   editMode = signal<boolean>(false);
   reservation = signal<IAddReservationCommand | null>(null);
-  confirmDelete = signal<boolean>(false);
   deleting = signal<boolean>(false);
   formService = inject(FormValidationService);
 
@@ -154,11 +156,18 @@ export class SessionDetailPage {
   }
 
   openDeleteConfirm() {
-    this.confirmDelete.set(true);
-  }
-
-  cancelDelete() {
-    this.confirmDelete.set(false);
+    this.confirmationDialogService
+      .open(ConfirmationDialog, {
+        title: 'Are you sure',
+        confirmButtonText: 'Confirm',
+        cancelButtonText: 'Cancel',
+        message: 'Message',
+      })
+      .subscribe((result) => {
+        if (result === 'confirm') {
+          this.performDelete();
+        }
+      });
   }
 
   performDelete() {
@@ -168,12 +177,10 @@ export class SessionDetailPage {
     this.sessionService.deleteSession(id).subscribe({
       complete: () => {
         this.deleting.set(false);
-        this.confirmDelete.set(false);
         this.router.navigateByUrl('/scheduler');
       },
       error: () => {
         this.deleting.set(false);
-        this.confirmDelete.set(false);
       },
     });
   }
