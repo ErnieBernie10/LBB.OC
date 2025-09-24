@@ -26,6 +26,15 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
+    public static IServiceCollection AddPipelineBehavior(
+        this IServiceCollection services,
+        Type behaviorType
+    )
+    {
+        services.AddScoped(typeof(IPipelineBehavior<,>), behaviorType);
+        return services;
+    }
+
     private static void RegisterHandlers(
         IServiceCollection services,
         Assembly assembly,

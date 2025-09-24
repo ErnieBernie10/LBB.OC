@@ -4,18 +4,18 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseNLogHost();
 
-builder.Services
-    .AddOrchardCms()
-    // // Orchard Specific Pipeline
-    // .ConfigureServices( services => {
-    // })
+builder
+    .Services.AddOrchardCms()
+    // Orchard Specific Pipeline
+    .ConfigureServices(services =>
+    {
+        services.AddLogging();
+    })
     // .Configure( (app, routes, services) => {
     // })
-    ;
-
+;
 
 var app = builder.Build();
-
 
 if (!app.Environment.IsDevelopment())
 {

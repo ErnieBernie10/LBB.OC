@@ -1,5 +1,6 @@
 using LBB.Core;
 using LBB.Core.Contracts;
+using LBB.Core.Mediator.PipelineBehaviors;
 using LBB.OC.Outbox;
 using LBB.OC.Reservation.Migrations;
 using LBB.Reservation.Application;
@@ -39,6 +40,7 @@ public class Startup : StartupBase
                 typeof(ApplicationAssembly).Assembly,
                 typeof(DependencyInjection).Assembly
             )
+            .AddPipelineBehavior(typeof(LoggingBehavior<,>))
             .AddApplication()
             .AddInfrastructure();
 

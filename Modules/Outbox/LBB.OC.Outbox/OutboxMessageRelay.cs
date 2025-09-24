@@ -1,12 +1,11 @@
-﻿using System.Text.Json;
+﻿using System.Diagnostics;
+using System.Text.Json;
 using LBB.Core.Mediator;
 using LBB.OC.Outbox.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OrchardCore.BackgroundTasks;
-
-namespace LBB.OC.Outbox;
 
 public class OutboxMessageRelay : IBackgroundTask
 {
@@ -31,12 +30,11 @@ public class OutboxMessageRelay : IBackgroundTask
                 .ToListAsync(cancellationToken);
 
             if (messages.Count == 0)
-            {
                 break;
-            }
 
             foreach (var message in messages)
             {
+                var sw = Stopwatch.StartNew();
                 var success = false;
 
                 for (int attempt = 1; attempt <= MaxInProcessRetries && !success; attempt++)
@@ -46,18 +44,22 @@ public class OutboxMessageRelay : IBackgroundTask
                         var eventType = NotificationStore.GetTypeByName(message.Type);
                         if (eventType == null)
                         {
-                            logger.LogError("Failed to resolve event type {Type}", message.Type);
-                            break; // don’t bother retrying in-process
+                            logger.LogError(
+                                "Message {MessageId} failed: unknown type {Type}",
+                                message.Id,
+                                message.Type
+                            );
+                            break;
                         }
 
                         var domainEvent = JsonSerializer.Deserialize(message.Payload, eventType);
                         if (domainEvent == null)
                         {
                             logger.LogWarning(
-                                "Failed to deserialize message {MessageId}",
+                                "Message {MessageId} failed: could not deserialize payload",
                                 message.Id
                             );
-                            break; // permanent failure
+                            break;
                         }
 
                         var handlerInterfaceType =
@@ -74,35 +76,40 @@ public class OutboxMessageRelay : IBackgroundTask
                                 )!;
                         }
 
-                        // Success → mark processed
                         message.ProcessedAt = DateTime.UtcNow;
                         success = true;
+                        sw.Stop();
+
+                        logger.LogInformation(
+                            "Message {MessageId} processed in {Duration}ms on attempt {Attempt}/{MaxAttempts}",
+                            message.Id,
+                            sw.ElapsedMilliseconds,
+                            attempt,
+                            MaxInProcessRetries
+                        );
                     }
                     catch (Exception ex)
                     {
+                        sw.Stop();
                         logger.LogWarning(
                             ex,
-                            "Attempt {Attempt}/{MaxAttempts} failed for message {MessageId}",
+                            "Message {MessageId} attempt {Attempt}/{MaxAttempts} failed after {Duration}ms",
+                            message.Id,
                             attempt,
                             MaxInProcessRetries,
-                            message.Id
+                            sw.ElapsedMilliseconds
                         );
 
                         if (attempt < MaxInProcessRetries)
-                        {
-                            await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken); // small delay before retry
-                        }
+                            await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
                     }
                 }
 
                 if (!success)
                 {
-                    // Let the next job run handle it again
                     message.RetryCount = (message.RetryCount ?? 0) + 1;
-
                     logger.LogError(
-                        "Message {MessageId} failed after {Attempts} in-process retries. "
-                            + "Retry count now {RetryCount}/{MaxJobRetries}",
+                        "Message {MessageId} permanently failed after {InProcessRetries} attempts. RetryCount now {RetryCount}/{MaxJobRetries}",
                         message.Id,
                         MaxInProcessRetries,
                         message.RetryCount,
