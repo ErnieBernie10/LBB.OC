@@ -367,6 +367,62 @@ export class Client {
     }
 
     /**
+     * @return OK
+     */
+    cancel(id: number): Observable<number> {
+        let url_ = this.baseUrl + "/reservation/sessions/{id}/cancel";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            withCredentials: true,
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("patch", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCancel(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCancel(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<number>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<number>;
+        }));
+    }
+
+    protected processCancel(response: HttpResponseBase): Observable<number> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result200 = resultData200 !== undefined ? resultData200 : null as any;
+    
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * @param body (optional) 
      * @return OK
      */
@@ -1146,6 +1202,7 @@ export class GetSessionResponseDto implements IGetSessionResponseDto {
     location!: string | undefined;
     capacity!: number;
     id!: number;
+    cancelledOn!: Date | undefined;
     type!: SessionType;
     reservations!: GetReservationsResponseDto[] | undefined;
 
@@ -1168,6 +1225,7 @@ export class GetSessionResponseDto implements IGetSessionResponseDto {
             this.location = _data["location"];
             this.capacity = _data["capacity"];
             this.id = _data["id"];
+            this.cancelledOn = _data["cancelledOn"] ? new Date(_data["cancelledOn"].toString()) : undefined as any;
             this.type = _data["type"];
             if (Array.isArray(_data["reservations"])) {
                 this.reservations = [] as any;
@@ -1194,6 +1252,7 @@ export class GetSessionResponseDto implements IGetSessionResponseDto {
         data["location"] = this.location;
         data["capacity"] = this.capacity;
         data["id"] = this.id;
+        data["cancelledOn"] = this.cancelledOn ? this.cancelledOn.toISOString() : undefined as any;
         data["type"] = this.type;
         if (Array.isArray(this.reservations)) {
             data["reservations"] = [];
@@ -1213,6 +1272,7 @@ export interface IGetSessionResponseDto {
     location: string | undefined;
     capacity: number;
     id: number;
+    cancelledOn: Date | undefined;
     type: SessionType;
     reservations: GetReservationsResponseDto[] | undefined;
 }
@@ -1226,6 +1286,7 @@ export class GetSessionsResponseDto implements IGetSessionsResponseDto {
     location!: string | undefined;
     capacity!: number;
     id!: number;
+    cancelledOn!: Date | undefined;
     type!: SessionType;
 
     constructor(data?: IGetSessionsResponseDto) {
@@ -1247,6 +1308,7 @@ export class GetSessionsResponseDto implements IGetSessionsResponseDto {
             this.location = _data["location"];
             this.capacity = _data["capacity"];
             this.id = _data["id"];
+            this.cancelledOn = _data["cancelledOn"] ? new Date(_data["cancelledOn"].toString()) : undefined as any;
             this.type = _data["type"];
         }
     }
@@ -1268,6 +1330,7 @@ export class GetSessionsResponseDto implements IGetSessionsResponseDto {
         data["location"] = this.location;
         data["capacity"] = this.capacity;
         data["id"] = this.id;
+        data["cancelledOn"] = this.cancelledOn ? this.cancelledOn.toISOString() : undefined as any;
         data["type"] = this.type;
         return data;
     }
@@ -1282,6 +1345,7 @@ export interface IGetSessionsResponseDto {
     location: string | undefined;
     capacity: number;
     id: number;
+    cancelledOn: Date | undefined;
     type: SessionType;
 }
 

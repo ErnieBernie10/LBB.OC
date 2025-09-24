@@ -13,6 +13,7 @@ public class GetSessionsResponseDto
     public string Location { get; set; }
     public int Capacity { get; set; }
     public int Id { get; set; }
+    public DateTime? CancelledOn { get; set; }
 
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public Enums.SessionType Type { get; set; }

@@ -6,7 +6,7 @@
     <p>{{ message }}</p>
   </modal-content>
   <modal-footer>
-    <button (click)="confirm.emit()">{{ confirmButtonText }}</button>
-    <button (click)="cancel.emit()">{{ cancelButtonText }}</button>
+    <button (click)="confirm.emit()" [attr.aria-busy]="loading">{{ confirmButtonText }}</button>
+    <button class="secondary" (click)="cancel.emit()">{{ cancelButtonText }}</button>
   </modal-footer>
 </app-modal>

@@ -12,6 +12,7 @@ import { Errors } from '../../models/errors';
 })
 export class SessionFormFieldsComponent {
   @Input({ required: true }) form!: FormGroup;
+  @Input({ required: true }) isEditing!: boolean;
   protected readonly Errors = Errors;
 
   public get title() {

@@ -9,7 +9,7 @@
       }
     </modal-header>
     <modal-content>
-      <app-session-form-fields [form]="appointmentForm"></app-session-form-fields>
+      <app-session-form-fields [form]="appointmentForm" [isEditing]="false"></app-session-form-fields>
     </modal-content>
     <modal-footer>
       <button [attr.aria-busy]="savingSession" type="submit" i18n>Confirm</button>

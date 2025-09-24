@@ -12,6 +12,7 @@ export class ConfirmationDialog {
   @Input() message!: string;
   @Input() confirmButtonText!: string;
   @Input() cancelButtonText!: string;
+  @Input() loading: boolean = false;
   @Output() confirm = new EventEmitter<void>();
   // eslint-disable-next-line @angular-eslint/no-output-native
   @Output() cancel = new EventEmitter<void>();

@@ -8,32 +8,51 @@ export class DialogService {
     private injector: Injector
   ) {}
 
-  open<T extends object>(component: Type<T>, inputs: Partial<T>): Observable<'confirm' | 'cancel'> {
+  open<T extends object>(
+    component: Type<T>,
+    inputs: Partial<T>,
+    action$?: Observable<unknown> // optional observable to run on confirm
+  ): Observable<'confirm' | 'cancel'> {
     const subject = new Subject<'confirm' | 'cancel'>();
 
-    // Dynamically create the component instance
     const componentRef = createComponent(component, {
       environmentInjector: this.appRef.injector,
       elementInjector: this.injector,
     });
 
-    // Apply inputs to the component
     Object.assign(componentRef.instance, inputs);
 
-    // Attach component to Angular's change detection
     this.appRef.attachView(componentRef.hostView);
+    document.body.appendChild(componentRef.location.nativeElement);
 
-    // Add to DOM
-    const domElem = componentRef.location.nativeElement;
-    document.body.appendChild(domElem);
-
-    // Hook into outputs
+    // Handle confirm
     (componentRef.instance as any).confirm?.subscribe(() => {
-      subject.next('confirm');
-      subject.complete();
-      this.close(componentRef);
+      if (action$) {
+        // set loading flag if the component has it
+        if ('loading' in componentRef.instance) {
+          (componentRef.instance as any).loading = true;
+        }
+
+        action$.subscribe({
+          next: () => {
+            subject.next('confirm');
+          },
+          error: (err) => {
+            subject.error(err);
+          },
+          complete: () => {
+            subject.complete();
+            this.close(componentRef);
+          },
+        });
+      } else {
+        subject.next('confirm');
+        subject.complete();
+        this.close(componentRef);
+      }
     });
 
+    // Handle cancel
     (componentRef.instance as any).cancel?.subscribe(() => {
       subject.next('cancel');
       subject.complete();

@@ -17,6 +17,9 @@ export class SessionService {
   public deleteSession(id: number) {
     return this.api.sessionsDELETE(id);
   }
+  public cancelSession(id: number) {
+    return this.api.cancel(id);
+  }
 
   public getSessions(currentWeek: Signal<{ start: Date; end: Date }>) {
     return rxResource({

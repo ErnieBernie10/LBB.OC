@@ -50,17 +50,19 @@
         i18n-placeholder="@@scheduler.placeholder.location"
       />
     </app-input>
-    <app-input
-      [controlName]="'type'"
-      label="Type"
-      [attr.aria-invalid]="type | invalid"
-      i18n-label="@@scheduler.label.type"
-    >
-      <select name="type" id="type" formControlName="type">
-        <option value="Individual">Individueel</option>
-        <option value="Group">Groep</option>
-      </select>
-    </app-input>
+    @if (!isEditing) {
+      <app-input
+        [controlName]="'type'"
+        label="Type"
+        [attr.aria-invalid]="type | invalid"
+        i18n-label="@@scheduler.label.type"
+      >
+        <select name="type" id="type" formControlName="type">
+          <option value="Individual">Individueel</option>
+          <option value="Group">Groep</option>
+        </select>
+      </app-input>
+    }
   </div>
   @if (type?.getRawValue() === 'Group') {
     <app-input [controlName]="'capacity'" [required]="true" label="Capacity" i18n-label="@@scheduler.label.capacity">

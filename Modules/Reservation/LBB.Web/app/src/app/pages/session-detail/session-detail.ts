@@ -11,6 +11,8 @@ import { ReservationForm } from '../../components/reservation-form/reservation-f
 import { FormValidationService } from '../../services/form-validation.service';
 import { ConfirmationDialog } from '../../components/confirmation-dialog/confirmation-dialog';
 import { DialogService } from '../../services/confirmation-dialog.service';
+import { DefaultConfirmationDialog } from '../../constants/i18n-common';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-session-detail-page',
@@ -157,16 +159,43 @@ export class SessionDetailPage {
 
   openDeleteConfirm() {
     this.confirmationDialogService
-      .open(ConfirmationDialog, {
-        title: 'Are you sure',
-        confirmButtonText: 'Confirm',
-        cancelButtonText: 'Cancel',
-        message: 'Message',
-      })
-      .subscribe((result) => {
-        if (result === 'confirm') {
-          this.performDelete();
-        }
+      .open(
+        ConfirmationDialog,
+        {
+          ...DefaultConfirmationDialog,
+          message: $localize`Are you sure you want to delete this session? This action is irreversible.`,
+        },
+        this.performDelete()
+      )
+      .subscribe({
+        complete: () => {
+          this.deleting.set(false);
+          this.router.navigateByUrl('/scheduler');
+        },
+        error: () => {
+          this.deleting.set(false);
+        },
+      });
+  }
+
+  cancelSession() {
+    this.confirmationDialogService
+      .open(
+        ConfirmationDialog,
+        {
+          ...DefaultConfirmationDialog,
+          message: $localize`Are you sure you want to cancel this session? All participants will be notified. And their reservation will be cancelled.`,
+        },
+        this.performCancel()
+      )
+      .subscribe({
+        complete: () => {
+          this.deleting.set(false);
+          this.session.reload();
+        },
+        error: () => {
+          this.deleting.set(false);
+        },
       });
   }
 
@@ -174,14 +203,13 @@ export class SessionDetailPage {
     const id = this.session.value()?.id;
     if (!id) return;
     this.deleting.set(true);
-    this.sessionService.deleteSession(id).subscribe({
-      complete: () => {
-        this.deleting.set(false);
-        this.router.navigateByUrl('/scheduler');
-      },
-      error: () => {
-        this.deleting.set(false);
-      },
-    });
+    return this.sessionService.deleteSession(id);
+  }
+
+  performCancel() {
+    const id = this.session.value()?.id;
+    if (!id) return;
+    this.deleting.set(true);
+    return this.sessionService.cancelSession(id);
   }
 }

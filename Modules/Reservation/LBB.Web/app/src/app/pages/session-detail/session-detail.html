@@ -19,21 +19,33 @@
       <div>
         <nav>
           <ul>
-            <li><a routerLink="/scheduler">Back to scheduler</a></li>
+            <li><a routerLink="/scheduler" i18n>Back to scheduler</a></li>
           </ul>
         </nav>
         <h2>{{ session.value()?.title }}</h2>
       </div>
-      <div class="button-container">
-        @if (!editMode()) {
-          <button class="secondary" (click)="enableEdit()">Edit</button>
-        } @else {
-          <button class="primary" (click)="save()" [attr.aria-busy]="saving()" [disabled]="saving()">Save</button>
-          <button class="secondary" (click)="cancelEdit()" [disabled]="saving()">Cancel</button>
-        }
-        <button class="danger" (click)="openDeleteConfirm()">Delete</button>
-        <button class="primary" (click)="addReservation()">Add reservation</button>
-      </div>
+      @if (session.isLoading()) {
+        <p aria-busy="true">Loading...</p>
+      } @else {
+        <div class="button-container">
+          @if (!editMode()) {
+            @if (!session.value()?.cancelledOn) {
+              <button class="secondary" (click)="enableEdit()" i18n>Edit</button>
+            }
+          } @else {
+            <button class="primary" (click)="save()" [attr.aria-busy]="saving()" [disabled]="saving()" i18n>
+              Save
+            </button>
+            <button class="secondary" (click)="cancelEdit()" [disabled]="saving()" i18n>Cancel</button>
+          }
+          @if (session.value()?.cancelledOn) {
+            <button class="danger" (click)="openDeleteConfirm()" i18n>Delete</button>
+          } @else {
+            <button class="danger" (click)="cancelSession()" i18n>Cancel session</button>
+            <button class="primary" (click)="addReservation()" i18n>Add reservation</button>
+          }
+        </div>
+      }
     </div>
   </header>
 
@@ -57,7 +69,7 @@
         </section>
       } @else {
         <form [formGroup]="form" (ngSubmit)="save()">
-          <app-session-form-fields [form]="form"></app-session-form-fields>
+          <app-session-form-fields [form]="form" [isEditing]="editMode()"></app-session-form-fields>
         </form>
       }
 

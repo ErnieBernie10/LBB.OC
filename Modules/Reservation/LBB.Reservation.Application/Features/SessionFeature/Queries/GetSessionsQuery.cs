@@ -35,6 +35,7 @@ public class GetSessionsQueryHandler(LbbDbContext context)
                 Capacity = s.Capacity,
                 Type = (Enums.SessionType)s.Type,
                 Id = s.Id,
+                CancelledOn = s.CancelledOn,
             })
             .ToListAsync(cancellationToken);
 
