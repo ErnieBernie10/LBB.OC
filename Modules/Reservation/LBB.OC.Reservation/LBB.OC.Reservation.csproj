@@ -9,16 +9,16 @@
         <FrameworkReference Include="Microsoft.AspNetCore.App" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="OrchardCore.Module.Targets" Version="2.2.0" />
-        <PackageReference Include="OrchardCore.ContentManagement" Version="2.2.0" />
-        <PackageReference Include="OrchardCore.ContentTypes.Abstractions" Version="2.2.0" />
-        <PackageReference Include="OrchardCore.DisplayManagement" Version="2.2.0" />
-        <PackageReference Include="OrchardCore.Notifications" Version="2.2.0" />
-        <PackageReference Include="OrchardCore.Notifications.Abstractions" Version="2.2.0" />
-        <PackageReference Include="OrchardCore.Notifications.Core" Version="2.2.0" />
-        <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="8.1.4" />
-        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="8.1.4" />
-        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="8.1.4" />
+        <PackageReference Include="OrchardCore.Module.Targets" />
+        <PackageReference Include="OrchardCore.ContentManagement" />
+        <PackageReference Include="OrchardCore.ContentTypes.Abstractions" />
+        <PackageReference Include="OrchardCore.DisplayManagement" />
+        <PackageReference Include="OrchardCore.Notifications" />
+        <PackageReference Include="OrchardCore.Notifications.Abstractions" />
+        <PackageReference Include="OrchardCore.Notifications.Core" />
+        <PackageReference Include="Swashbuckle.AspNetCore.Swagger" />
+        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" />
+        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\..\Outbox\LBB.OC.Outbox\LBB.OC.Outbox.csproj" />
@@ -37,8 +37,8 @@
         <RazorGenerate Remove="Views\Shared\Components\Modal\Default.cshtml" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="OrchardCore.ResourceManagement" Version="2.2.0" />
-        <PackageReference Include="OrchardCore.Resources" Version="2.2.0" />
+        <PackageReference Include="OrchardCore.ResourceManagement" />
+        <PackageReference Include="OrchardCore.Resources" />
     </ItemGroup>
     <ItemGroup>
         <Folder Include="wwwroot\" />

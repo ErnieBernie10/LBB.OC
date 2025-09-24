@@ -9,18 +9,18 @@
         <FrameworkReference Include="Microsoft.AspNetCore.App" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.20" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.20" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.20">
+        <PackageReference Include="Microsoft.Data.Sqlite" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.20" />
-        <PackageReference Include="OrchardCore.BackgroundTasks" Version="2.2.0" />
-        <PackageReference Include="OrchardCore.Data" Version="2.2.0" />
-        <PackageReference Include="OrchardCore.Data.Abstractions" Version="2.2.0" />
-        <PackageReference Include="OrchardCore.Data.YesSql.Abstractions" Version="2.2.0" />
-        <PackageReference Include="OrchardCore.Module.Targets" Version="2.2.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
+        <PackageReference Include="OrchardCore.BackgroundTasks" />
+        <PackageReference Include="OrchardCore.Data" />
+        <PackageReference Include="OrchardCore.Data.Abstractions" />
+        <PackageReference Include="OrchardCore.Data.YesSql.Abstractions" />
+        <PackageReference Include="OrchardCore.Module.Targets" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\..\..\LBB.Core\LBB.Core.csproj" />
