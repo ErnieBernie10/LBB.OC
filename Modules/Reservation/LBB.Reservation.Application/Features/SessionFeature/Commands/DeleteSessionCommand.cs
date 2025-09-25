@@ -3,7 +3,6 @@ using LBB.Core.Contracts;
 using LBB.Core.Errors;
 using LBB.Core.Mediator;
 using LBB.Reservation.Application.Features.SessionFeature.Events;
-using LBB.Reservation.Domain.Aggregates.Session;
 using LBB.Reservation.Infrastructure.Context;
 using Session = LBB.Reservation.Infrastructure.DataModels.Session;
 

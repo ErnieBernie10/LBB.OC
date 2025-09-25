@@ -5,14 +5,13 @@ using LBB.Core.Errors;
 using LBB.Core.Mediator;
 using LBB.Core.ValueObjects;
 using LBB.Reservation.Application.Features.SessionFeature.Events;
-using LBB.Reservation.Domain.Aggregates.Session.Commands;
 using LBB.Reservation.Infrastructure;
 using LBB.Reservation.Infrastructure.Context;
 using LBB.Reservation.Infrastructure.DataModels;
 
 namespace LBB.Reservation.Application.Features.SessionFeature.Commands;
 
-public class UpdateSessionInfoCommand : IUpdateSessionInfoCommand, ICommand<Result>
+public class UpdateSessionInfoCommand : ICommand<Result>
 {
     public string Title { get; set; }
     public string Description { get; set; }

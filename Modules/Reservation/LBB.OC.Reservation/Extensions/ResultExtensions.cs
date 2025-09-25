@@ -27,43 +27,6 @@ public static class ResultExtensions
 
         foreach (var error in result.Errors)
         {
-            // 1) Map DomainValidationError (preferred)
-            if (error is DomainValidationError dve)
-            {
-                var key = string.IsNullOrWhiteSpace(dve.PropertyName)
-                    ? string.Empty
-                    : dve.PropertyName;
-
-                // populate messages
-                if (!messages.TryGetValue(key, out var arr))
-                {
-                    messages[key] = new[] { dve.Message };
-                }
-                else
-                {
-                    messages[key] = arr.Concat(new[] { dve.Message }).ToArray();
-                }
-
-                // populate detailed with metadata flattened as top-level properties
-                if (!detailed.TryGetValue(key, out var list))
-                {
-                    list = new List<object>();
-                    detailed[key] = list;
-                }
-
-                list.Add(
-                    CreateFlatErrorObject(
-                        propertyName: key,
-                        message: dve.Message,
-                        errorCode: dve.ErrorCode,
-                        metadata: error.Metadata
-                    )
-                );
-
-                continue;
-            }
-
-            // 2) Backward compatibility: map FluentValidation ValidationError wrapper
             if (error is ValidationError ve)
             {
                 foreach (var validationError in ve.Result.Errors)

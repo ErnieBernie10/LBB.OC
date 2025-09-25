@@ -13,4 +13,6 @@ export const Errors = {
   MaximumLengthValidator: 'MaximumLengthValidator',
   LessThanOrEqualValidator: 'LessThanOrEqualValidator',
   GreaterThanOrEqualValidator: 'GreaterThanOrEqualValidator',
+  GreaterThanValidator: 'GreaterThanValidator',
+  LessThanValidator: 'LessThanValidator',
 } as const;

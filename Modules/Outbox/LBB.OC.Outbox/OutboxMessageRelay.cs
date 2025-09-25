@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Text.Json;
 using LBB.Core.Mediator;
+using LBB.OC.Outbox;
 using LBB.OC.Outbox.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -41,7 +42,7 @@ public class OutboxMessageRelay : IBackgroundTask
                 {
                     try
                     {
-                        var eventType = NotificationStore.GetTypeByName(message.Type);
+                        var eventType = NotificationCache.GetTypeByName(message.Type);
                         if (eventType == null)
                         {
                             logger.LogError(

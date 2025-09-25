@@ -6,4 +6,6 @@ public class NotFoundError : Error
 {
     public NotFoundError(string message)
         : base(message) { }
+
+    public override string ErrorCode { get; }
 }

@@ -56,7 +56,7 @@ public class SessionController(IMediator mediator) : ControllerBase
         var session = await mediator.SendCommandAsync<CreateSessionCommand, Result<int>>(command);
         if (session.IsFailed)
         {
-            if (session.HasError<DomainValidationError>() || session.HasError<ValidationError>())
+            if (session.HasError<ValidationError>())
                 return BadRequest(session.MapValidationErrorsToProblemDetails());
             if (session.HasError<NotFoundError>())
                 return NotFound(session.Errors);
@@ -74,7 +74,7 @@ public class SessionController(IMediator mediator) : ControllerBase
         var result = await mediator.SendCommandAsync<CancelSessionCommand, Result>(command);
         if (result.IsFailed)
         {
-            if (result.HasError<DomainValidationError>() || result.HasError<ValidationError>())
+            if (result.HasError<ValidationError>())
                 return BadRequest(result.MapValidationErrorsToProblemDetails());
             if (result.HasError<NotFoundError>())
                 return NotFound(result.Errors);
@@ -94,7 +94,7 @@ public class SessionController(IMediator mediator) : ControllerBase
         var session = await mediator.SendCommandAsync<UpdateSessionInfoCommand, Result>(command);
         if (session.IsFailed)
         {
-            if (session.HasError<DomainValidationError>() || session.HasError<ValidationError>())
+            if (session.HasError<ValidationError>())
                 return BadRequest(session.MapValidationErrorsToProblemDetails());
             if (session.HasError<NotFoundError>())
                 return NotFound(session.Errors);
@@ -128,7 +128,7 @@ public class SessionController(IMediator mediator) : ControllerBase
         var session = await mediator.SendCommandAsync<AddReservationCommand, Result<int>>(command);
         if (session.IsFailed)
         {
-            if (session.HasError<DomainValidationError>() || session.HasError<ValidationError>())
+            if (session.HasError<ValidationError>())
                 return BadRequest(session.MapValidationErrorsToProblemDetails());
             if (session.HasError<NotFoundError>())
                 return NotFound(session.Errors);
@@ -147,7 +147,7 @@ public class SessionController(IMediator mediator) : ControllerBase
         var result = await mediator.SendCommandAsync<CancelReservationCommand, Result>(command);
         if (result.IsFailed)
         {
-            if (result.HasError<DomainValidationError>() || result.HasError<ValidationError>())
+            if (result.HasError<ValidationError>())
                 return BadRequest(result.MapValidationErrorsToProblemDetails());
             if (result.HasError<NotFoundError>())
                 return NotFound(result.Errors);
@@ -165,7 +165,7 @@ public class SessionController(IMediator mediator) : ControllerBase
         var result = await mediator.SendCommandAsync<DeleteSessionCommand, Result>(command);
         if (result.IsFailed)
         {
-            if (result.HasError<DomainValidationError>() || result.HasError<ValidationError>())
+            if (result.HasError<ValidationError>())
                 return BadRequest(result.MapValidationErrorsToProblemDetails());
             if (result.HasError<NotFoundError>())
                 return NotFound(result.Errors);

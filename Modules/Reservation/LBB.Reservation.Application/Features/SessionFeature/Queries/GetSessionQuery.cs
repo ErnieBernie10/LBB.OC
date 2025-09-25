@@ -3,7 +3,6 @@ using LBB.Core.Errors;
 using LBB.Core.Mediator;
 using LBB.Reservation.Application.Features.SessionFeature.Dtos;
 using LBB.Reservation.Domain;
-using LBB.Reservation.Domain.Aggregates.Session;
 using LBB.Reservation.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 

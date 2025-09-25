@@ -8,9 +8,8 @@ using LBB.Core.Mediator;
 using LBB.Core.ValueObjects;
 using LBB.Reservation.Application.Features.SessionFeature.Errors;
 using LBB.Reservation.Application.Features.SessionFeature.Events;
+using LBB.Reservation.Application.Features.SessionFeature.Framework;
 using LBB.Reservation.Domain;
-using LBB.Reservation.Domain.Aggregates.Session;
-using LBB.Reservation.Domain.Aggregates.Session.Commands;
 using LBB.Reservation.Infrastructure;
 using LBB.Reservation.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
@@ -19,7 +18,7 @@ using Session = LBB.Reservation.Infrastructure.DataModels.Session;
 
 namespace LBB.Reservation.Application.Features.SessionFeature.Commands;
 
-public class AddReservationCommand : IAddReservationCommand, ICommand<Result<int>>
+public class AddReservationCommand : ICommand<Result<int>>
 {
     public string? Firstname { get; set; }
 
@@ -40,7 +39,7 @@ public class AddReservationCommand : IAddReservationCommand, ICommand<Result<int
             Lastname = Lastname ?? "",
             Phone = PhoneNumber ?? "",
             SessionId = SessionId,
-            Reference = ReservationReference.New,
+            Reference = ReservationReference.GenerateReference(),
             AttendeeCount = AttendeeCount ?? 1,
         };
     }
@@ -93,6 +92,9 @@ public class AddReservationCommandHandler(
         var canReserve = CanReserve(session, command);
         if (canReserve.IsFailed)
             return canReserve;
+
+        if (session.Reservations.Any(r => r.Email == command.Email))
+            return new ReservationExistsError();
 
         await Persist(command, cancellationToken);
 

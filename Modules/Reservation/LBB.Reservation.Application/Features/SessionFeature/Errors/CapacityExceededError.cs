@@ -2,10 +2,10 @@
 
 namespace LBB.Reservation.Application.Features.SessionFeature.Errors;
 
-public class CapacityExceededError : DomainValidationError
+public class CapacityExceededError : PropertyError
 {
     public CapacityExceededError(string propertyName)
-        : base(propertyName, "Capacity exceeded") { }
+        : base("Capacity exceeded", propertyName) { }
 
     public override string ErrorCode => nameof(CapacityExceededError);
 }

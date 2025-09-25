@@ -1,11 +1,12 @@
-﻿using System.Reflection;
-using LBB.Core.Mediator;
+﻿using LBB.Core.Mediator;
 
-public static class NotificationStore
+namespace LBB.OC.Outbox;
+
+public static class NotificationCache
 {
     private static readonly Dictionary<string, Type> _cache;
 
-    static NotificationStore()
+    static NotificationCache()
     {
         // Scan all loaded assemblies for types implementing INotification (your domain events)
         _cache = AppDomain

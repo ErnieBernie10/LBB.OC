@@ -22,7 +22,7 @@
   <div class="form-group">
     <app-input [controlName]="'start'" label="Start" i18n-label="@@scheduler.label.start" [required]="true">
       <input id="start" type="datetime-local" formControlName="start" [attr.aria-invalid]="start | invalid" />
-      @if (start?.hasError(Errors.LessThanDateError)) {
+      @if (start?.hasError(Errors.LessThanValidator)) {
         <small i18n>Start time must be before end time</small>
       }
       @if (start?.hasError(Errors.NotEmptyError)) {
@@ -31,7 +31,7 @@
     </app-input>
     <app-input [controlName]="'end'" label="End" i18n-label="@@scheduler.label.end" [required]="true">
       <input id="end" type="datetime-local" formControlName="end" [attr.aria-invalid]="end | invalid" />
-      @if (end?.hasError(Errors.GreaterThanDateError)) {
+      @if (end?.hasError(Errors.GreaterThanValidator)) {
         <small i18n>End time must be after start time</small>
       }
       @if (end?.hasError(Errors.NotEmptyError)) {

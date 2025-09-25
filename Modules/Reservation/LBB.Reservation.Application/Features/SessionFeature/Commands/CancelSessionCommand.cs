@@ -2,6 +2,7 @@
 using LBB.Core.Contracts;
 using LBB.Core.Errors;
 using LBB.Core.Mediator;
+using LBB.Reservation.Application.Features.SessionFeature.Errors;
 using LBB.Reservation.Application.Features.SessionFeature.Events;
 using LBB.Reservation.Infrastructure.Context;
 using LBB.Reservation.Infrastructure.DataModels;
@@ -30,7 +31,7 @@ public class CancelSessionCommandHandler(LbbDbContext context, IOutboxService ou
             return Result.Fail(new NotFoundError("Session not found"));
 
         if (session.Start.ToUniversalTime() < DateTime.UtcNow)
-            return Result.Fail(new Error("Session has already started"));
+            return Result.Fail(new SessionPassedError());
 
         var now = DateTime.UtcNow;
         foreach (var reservation in session.Reservations)
