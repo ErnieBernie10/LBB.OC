@@ -142,7 +142,11 @@ public class SessionController(IMediator mediator) : ControllerBase
     [Authorize(Constants.Policies.ManageReservations)]
     public async Task<ActionResult<int>> RemoveReservation(int sessionId, int reservationId)
     {
-        var command = new CancelReservationCommand();
+        var command = new CancelReservationCommand
+        {
+            SessionId = sessionId,
+            ReservationId = reservationId,
+        };
 
         var result = await mediator.SendCommandAsync<CancelReservationCommand, Result>(command);
         if (result.IsFailed)
