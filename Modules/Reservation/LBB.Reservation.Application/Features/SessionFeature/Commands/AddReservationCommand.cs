@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data;
 using FluentResults;
 using FluentValidation;
+using LBB.Core;
 using LBB.Core.Contracts;
 using LBB.Core.Errors;
 using LBB.Core.Mediator;
@@ -18,7 +19,7 @@ using Session = LBB.Reservation.Infrastructure.DataModels.Session;
 
 namespace LBB.Reservation.Application.Features.SessionFeature.Commands;
 
-public class AddReservationCommand : ICommand<Result<int>>
+public class AddReservationCommand : ICommand<Result<int>>, IReservationInput
 {
     public string? Firstname { get; set; }
 
@@ -89,31 +90,20 @@ public class AddReservationCommandHandler(
         if (session == null)
             return Result.Fail(new NotFoundError("Session not found"));
 
-        var canReserve = CanReserve(session, command);
-        if (canReserve.IsFailed)
-            return canReserve;
-
-        if (session.Reservations.Any(r => r.Email == command.Email))
-            return new ReservationExistsError();
+        var ruleset = new BusinessRuleSet<ReservationRuleContext>(
+            new ReservationRules.CanReserveRule(),
+            new ReservationRules.NoExistingReservationWithEmail()
+        );
+        var rulesResult = await ruleset.ValidateAsync(
+            new ReservationRuleContext(command, session),
+            cancellationToken
+        );
+        if (rulesResult.IsFailed)
+            return rulesResult;
 
         await Persist(command, cancellationToken);
 
         return Result.Ok(session.Id);
-    }
-
-    private Result CanReserve(Session session, AddReservationCommand command)
-    {
-        switch ((Enums.SessionType)session.Type)
-        {
-            case Enums.SessionType.Individual when session.Reservations.Any():
-                return Result.Fail(new CapacityExceededError(nameof(command.AttendeeCount)));
-            case Enums.SessionType.Group
-                when session.Reservations.Sum(r => r.AttendeeCount) + (command.AttendeeCount ?? 1)
-                    > session.Capacity:
-                return Result.Fail(new CapacityExceededError(nameof(command.AttendeeCount)));
-            default:
-                return Result.Ok();
-        }
     }
 
     private async Task Persist(AddReservationCommand command, CancellationToken cancellationToken)

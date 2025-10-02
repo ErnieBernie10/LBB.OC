@@ -17,7 +17,7 @@ namespace LBB.OC.Reservation.Controllers;
 
 [Route(Constants.ModuleBasePath + "/sessions")]
 [ApiController]
-public class SessionController(IMediator mediator) : ControllerBase
+public class SessionController(IMediator mediator) : LbbApiControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<IEnumerable<GetSessionsResponseDto>>> GetSessions(
@@ -40,13 +40,7 @@ public class SessionController(IMediator mediator) : ControllerBase
         var session = await mediator.SendQueryAsync<GetSessionQuery, Result<GetSessionResponseDto>>(
             query
         );
-        if (session.IsFailed)
-        {
-            if (session.HasError<NotFoundError>())
-                return NotFound(session.Errors);
-            return BadRequest(session.Errors);
-        }
-        return Ok(session.Value);
+        return session.IsFailed ? HandleProblems(session) : Ok(session.Value);
     }
 
     [HttpPost]
@@ -54,15 +48,7 @@ public class SessionController(IMediator mediator) : ControllerBase
     public async Task<ActionResult<int>> CreateSession([FromBody] CreateSessionCommand command)
     {
         var session = await mediator.SendCommandAsync<CreateSessionCommand, Result<int>>(command);
-        if (session.IsFailed)
-        {
-            if (session.HasError<ValidationError>())
-                return BadRequest(session.MapValidationErrorsToProblemDetails());
-            if (session.HasError<NotFoundError>())
-                return NotFound(session.Errors);
-            return BadRequest(session.Errors);
-        }
-        return Ok(session.Value);
+        return session.IsFailed ? HandleProblems(session) : Ok(session.Value);
     }
 
     [HttpPatch("{id:int}/cancel")]
@@ -72,15 +58,7 @@ public class SessionController(IMediator mediator) : ControllerBase
         var command = new CancelSessionCommand() { SessionId = id };
 
         var result = await mediator.SendCommandAsync<CancelSessionCommand, Result>(command);
-        if (result.IsFailed)
-        {
-            if (result.HasError<ValidationError>())
-                return BadRequest(result.MapValidationErrorsToProblemDetails());
-            if (result.HasError<NotFoundError>())
-                return NotFound(result.Errors);
-            return BadRequest(result.Errors);
-        }
-        return Ok();
+        return result.IsFailed ? HandleProblems(result) : Ok();
     }
 
     [HttpPatch("{id:int}")]
@@ -92,15 +70,7 @@ public class SessionController(IMediator mediator) : ControllerBase
     {
         command.SessionId = id;
         var session = await mediator.SendCommandAsync<UpdateSessionInfoCommand, Result>(command);
-        if (session.IsFailed)
-        {
-            if (session.HasError<ValidationError>())
-                return BadRequest(session.MapValidationErrorsToProblemDetails());
-            if (session.HasError<NotFoundError>())
-                return NotFound(session.Errors);
-            return BadRequest(session.Errors);
-        }
-        return Ok();
+        return session.IsFailed ? HandleProblems(session) : Ok();
     }
 
     [HttpGet("{sessionId:int}/reservations")]
@@ -113,9 +83,7 @@ public class SessionController(IMediator mediator) : ControllerBase
             GetReservationsBySessionQuery,
             Result<IEnumerable<GetReservationsResponseDto>>
         >(query);
-        if (reservations.IsFailed)
-            return BadRequest(reservations.Errors);
-        return Ok(reservations.Value);
+        return reservations.IsFailed ? HandleProblems(reservations) : Ok(reservations.Value);
     }
 
     [HttpPost("{sessionId:int}/reservations")]
@@ -126,16 +94,7 @@ public class SessionController(IMediator mediator) : ControllerBase
     {
         command.SessionId = sessionId;
         var session = await mediator.SendCommandAsync<AddReservationCommand, Result<int>>(command);
-        if (session.IsFailed)
-        {
-            if (session.HasError<ValidationError>())
-                return BadRequest(session.MapValidationErrorsToProblemDetails());
-            if (session.HasError<NotFoundError>())
-                return NotFound(session.Errors);
-
-            return BadRequest(session.Errors);
-        }
-        return Ok(session.Value);
+        return session.IsFailed ? HandleProblems(session) : Ok(session.Value);
     }
 
     [HttpDelete("{sessionId:int}/reservations/{reservationId:int}")]
@@ -149,15 +108,7 @@ public class SessionController(IMediator mediator) : ControllerBase
         };
 
         var result = await mediator.SendCommandAsync<CancelReservationCommand, Result>(command);
-        if (result.IsFailed)
-        {
-            if (result.HasError<ValidationError>())
-                return BadRequest(result.MapValidationErrorsToProblemDetails());
-            if (result.HasError<NotFoundError>())
-                return NotFound(result.Errors);
-            return BadRequest(result.Errors);
-        }
-        return Ok();
+        return result.IsFailed ? HandleProblems(result) : Ok();
     }
 
     [HttpDelete("{sessionId:int}")]
@@ -167,14 +118,19 @@ public class SessionController(IMediator mediator) : ControllerBase
         var command = new DeleteSessionCommand() { SessionId = sessionId };
 
         var result = await mediator.SendCommandAsync<DeleteSessionCommand, Result>(command);
-        if (result.IsFailed)
-        {
-            if (result.HasError<ValidationError>())
-                return BadRequest(result.MapValidationErrorsToProblemDetails());
-            if (result.HasError<NotFoundError>())
-                return NotFound(result.Errors);
-            return BadRequest(result.Errors);
-        }
-        return Ok();
+        return result.IsFailed ? HandleProblems(result) : Ok();
+    }
+
+    [HttpPatch("{sessionId:int}/reservations/{reservationId:int}")]
+    public async Task<ActionResult> UpdateReservation(
+        int sessionId,
+        int reservationId,
+        [FromBody] UpdateReservationCommand command
+    )
+    {
+        command.SessionId = sessionId;
+        command.ReservationId = reservationId;
+        var session = await mediator.SendCommandAsync<UpdateReservationCommand, Result>(command);
+        return session.IsFailed ? HandleProblems(session) : Ok();
     }
 }

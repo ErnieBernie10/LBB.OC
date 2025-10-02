@@ -1,8 +1,6 @@
-using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using FluentResults;
 using FluentValidation;
-using LBB.Core;
 using LBB.Core.Contracts;
 using LBB.Core.Errors;
 using LBB.Core.Mediator;
@@ -11,7 +9,6 @@ using LBB.Reservation.Domain;
 using LBB.Reservation.Infrastructure;
 using LBB.Reservation.Infrastructure.Context;
 using LBB.Reservation.Infrastructure.DataModels;
-using Microsoft.Extensions.Localization;
 
 namespace LBB.Reservation.Application.Features.SessionFeature.Commands;
 
