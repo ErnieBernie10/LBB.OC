@@ -7,7 +7,7 @@ namespace LBB.OC.Reservation.Controllers;
 
 public abstract class LbbApiControllerBase : ControllerBase
 {
-    public ActionResult HandleProblems(ResultBase result)
+    protected ActionResult HandleProblems(ResultBase result)
     {
         if (result.HasError<ValidationError>())
             return BadRequest(result.MapValidationErrorsToProblemDetails());
