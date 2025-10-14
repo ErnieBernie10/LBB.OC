@@ -74,26 +74,34 @@
       }
 
       <section>
-        <h3>Reservations</h3>
+        <h3 i18n>Reservations</h3>
         @if (!reservations.value()) {
-          <p>No reservations found.</p>
+          <p i18n>No reservations found.</p>
         } @else {
-          <ul>
-            @for (r of reservations.value(); track r.reference) {
-              <li>
-                <article>
-                  <header>
-                    <strong>{{ r.firstname }} {{ r.lastname }}</strong>
-                  </header>
-                  <p>
-                    Attendees: {{ r.attendeeCount }}
-                    <span class="secondary" style="margin-left: 0.5rem">{{ r.email }}</span>
-                    <span class="secondary" style="margin-left: 0.5rem">{{ r.phone }}</span>
-                  </p>
-                </article>
-              </li>
-            }
-          </ul>
+          <table>
+            <thead>
+              <tr>
+                <th i18n>Name</th>
+                <th i18n>Email</th>
+                <th i18n>Phone</th>
+                <th i18n>Attendees</th>
+                <th i18n>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (res of reservations.value(); track res.reference) {
+                <tr>
+                  <td>{{ res.firstname }}</td>
+                  <td>{{ res.email }}</td>
+                  <td>{{ res.phone }}</td>
+                  <td>{{ res.attendeeCount }}</td>
+                  <td>
+                    <button class="danger" (click)="deleteReservation(res.reference)" i18n>Delete</button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
         }
       </section>
     }

@@ -31,3 +31,11 @@
   font-family: Ubuntu /* Replace with your custom font */, sans-serif !important;
   /* Add !important to overwrite all elements */
 }
+
+table {
+  border-collapse: separate;
+  border-spacing: 0;
+  border: none;
+  overflow: hidden; /* This makes the corners clip! */
+  border-radius: var(--pico-border-radius);
+}

@@ -212,4 +212,6 @@ export class SessionDetailPage {
     this.deleting.set(true);
     return this.sessionService.cancelSession(id);
   }
+
+  deleteReservation(reference: string | undefined) {}
 }
