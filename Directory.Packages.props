@@ -14,29 +14,29 @@
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.20" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="9.0.7" />
     <PackageVersion Include="Microsoft.Extensions.Localization.Abstractions" Version="8.0.19" />
-    <PackageVersion Include="OrchardCore.Admin" Version="2.2.0" />
-    <PackageVersion Include="OrchardCore.Application.Cms.Targets" Version="2.2.0" />
-    <PackageVersion Include="OrchardCore.BackgroundTasks" Version="2.2.0" />
-    <PackageVersion Include="OrchardCore.ContentManagement" Version="2.2.0" />
-    <PackageVersion Include="OrchardCore.ContentTypes.Abstractions" Version="2.2.0" />
-    <PackageVersion Include="OrchardCore.Data" Version="2.2.0" />
-    <PackageVersion Include="OrchardCore.Data.Abstractions" Version="2.2.0" />
-    <PackageVersion Include="OrchardCore.Data.YesSql.Abstractions" Version="2.2.0" />
-    <PackageVersion Include="OrchardCore.DisplayManagement" Version="2.2.0" />
-    <PackageVersion Include="OrchardCore.Email.Abstractions" Version="2.2.0" />
-    <PackageVersion Include="OrchardCore.Logging.NLog" Version="2.2.0" />
-    <PackageVersion Include="OrchardCore.Menu" Version="2.2.0" />
-    <PackageVersion Include="OrchardCore.Module.Targets" Version="2.2.0" />
-    <PackageVersion Include="OrchardCore.Notifications" Version="2.2.0" />
-    <PackageVersion Include="OrchardCore.Notifications.Abstractions" Version="2.2.0" />
-    <PackageVersion Include="OrchardCore.Notifications.Core" Version="2.2.0" />
-    <PackageVersion Include="OrchardCore.ResourceManagement" Version="2.2.0" />
-    <PackageVersion Include="OrchardCore.ResourceManagement.Abstractions" Version="2.2.0" />
-    <PackageVersion Include="OrchardCore.Resources" Version="2.2.0" />
-    <PackageVersion Include="OrchardCore.Theme.Targets" Version="2.2.0" />
-    <PackageVersion Include="OrchardCore.Themes" Version="2.2.0" />
+    <PackageVersion Include="OrchardCore.Admin" Version="2.2.1" />
+    <PackageVersion Include="OrchardCore.Application.Cms.Targets" Version="2.2.1" />
+    <PackageVersion Include="OrchardCore.BackgroundTasks" Version="2.2.1" />
+    <PackageVersion Include="OrchardCore.ContentManagement" Version="2.2.1" />
+    <PackageVersion Include="OrchardCore.ContentTypes.Abstractions" Version="2.2.1" />
+    <PackageVersion Include="OrchardCore.Data" Version="2.2.1" />
+    <PackageVersion Include="OrchardCore.Data.Abstractions" Version="2.2.1" />
+    <PackageVersion Include="OrchardCore.Data.YesSql.Abstractions" Version="2.2.1" />
+    <PackageVersion Include="OrchardCore.DisplayManagement" Version="2.2.1" />
+    <PackageVersion Include="OrchardCore.Email.Abstractions" Version="2.2.1" />
+    <PackageVersion Include="OrchardCore.Logging.NLog" Version="2.2.1" />
+    <PackageVersion Include="OrchardCore.Menu" Version="2.2.1" />
+    <PackageVersion Include="OrchardCore.Module.Targets" Version="2.2.1" />
+    <PackageVersion Include="OrchardCore.Notifications" Version="2.2.1" />
+    <PackageVersion Include="OrchardCore.Notifications.Abstractions" Version="2.2.1" />
+    <PackageVersion Include="OrchardCore.Notifications.Core" Version="2.2.1" />
+    <PackageVersion Include="OrchardCore.ResourceManagement" Version="2.2.1" />
+    <PackageVersion Include="OrchardCore.ResourceManagement.Abstractions" Version="2.2.1" />
+    <PackageVersion Include="OrchardCore.Resources" Version="2.2.1" />
+    <PackageVersion Include="OrchardCore.Theme.Targets" Version="2.2.1" />
+    <PackageVersion Include="OrchardCore.Themes" Version="2.2.1" />
     <PackageVersion Include="OrchardCore.Translations.nl" Version="2.1.0" />
-    <PackageVersion Include="OrchardCore.Users" Version="2.2.0" />
+    <PackageVersion Include="OrchardCore.Users" Version="2.2.1" />
     <PackageVersion Include="Swashbuckle.AspNetCore.Swagger" Version="8.1.4" />
     <PackageVersion Include="Swashbuckle.AspNetCore.SwaggerGen" Version="8.1.4" />
     <PackageVersion Include="Swashbuckle.AspNetCore.SwaggerUI" Version="8.1.4" />
