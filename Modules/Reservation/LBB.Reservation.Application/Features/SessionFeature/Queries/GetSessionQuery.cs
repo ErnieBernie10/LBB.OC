@@ -37,6 +37,7 @@ public class GetSessionQueryHandler(LbbDbContext context)
                 CancelledOn = s.CancelledOn,
                 Reservations = s.Reservations.Select(s => new GetReservationsResponseDto()
                 {
+                    Id = s.Id,
                     Email = s.Email,
                     Firstname = s.Firstname,
                     Lastname = s.Lastname,

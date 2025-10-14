@@ -11,7 +11,7 @@ export class DialogService {
   open<T extends object>(
     component: Type<T>,
     inputs: Partial<T>,
-    action$?: Observable<unknown> // optional observable to run on confirm
+    action?: Observable<unknown> | (() => Observable<unknown> | void) // optional action (observable or factory) to run on confirm
   ): Observable<'confirm' | 'cancel'> {
     const subject = new Subject<'confirm' | 'cancel'>();
 
@@ -27,13 +27,16 @@ export class DialogService {
 
     // Handle confirm
     (componentRef.instance as any).confirm?.subscribe(() => {
-      if (action$) {
+      // Normalize to an observable if a factory is given
+      const obs: Observable<unknown> | void = typeof action === 'function' ? (action as () => Observable<unknown> | void)() : action;
+
+      if (obs) {
         // set loading flag if the component has it
         if ('loading' in componentRef.instance) {
           (componentRef.instance as any).loading = true;
         }
 
-        action$.subscribe({
+        (obs as Observable<unknown>).subscribe({
           next: () => {
             subject.next('confirm');
           },

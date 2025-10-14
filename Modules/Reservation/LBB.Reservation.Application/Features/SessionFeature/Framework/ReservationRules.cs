@@ -1,13 +1,14 @@
 ﻿using FluentResults;
 using LBB.Core;
 using LBB.Core.Contracts;
+using LBB.Core.Enums;
 using LBB.Reservation.Application.Features.SessionFeature.Errors;
 using LBB.Reservation.Domain;
 using LBB.Reservation.Infrastructure.DataModels;
 
 namespace LBB.Reservation.Application.Features.SessionFeature.Framework;
 
-public record ReservationRuleContext(IReservationInput Input, Session Session);
+public record ReservationRuleContext(IReservationInput Input, Session Session, EditType EditType);
 
 public static class ReservationRules
 {
@@ -24,7 +25,8 @@ public static class ReservationRules
             var command = input.Input;
             switch ((Enums.SessionType)session.Type)
             {
-                case Enums.SessionType.Individual when session.Reservations.Any():
+                case Enums.SessionType.Individual
+                    when session.Reservations.Any() && input.EditType == EditType.Add:
                     return Result.Fail(new CapacityExceededError(nameof(command.AttendeeCount)));
                 case Enums.SessionType.Group
                     when session.Reservations.Sum(r => r.AttendeeCount)

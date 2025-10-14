@@ -1,5 +1,11 @@
 import { inject, Injectable, Signal } from '@angular/core';
-import { AddReservationCommand, Client, CreateSessionCommand, UpdateSessionInfoCommand } from '../api/api';
+import {
+  AddReservationCommand,
+  Client,
+  CreateSessionCommand,
+  UpdateReservationCommand,
+  UpdateSessionInfoCommand,
+} from '../api/api';
 import { rxResource } from '@angular/core/rxjs-interop';
 
 @Injectable({
@@ -44,5 +50,13 @@ export class SessionService {
 
   public addReservation(sessionId: number, command: AddReservationCommand) {
     return this.api.reservationsPOST(sessionId, command);
+  }
+
+  public deleteReservation(sessionId: number, reservationId: number) {
+    return this.api.reservationsDELETE(sessionId, reservationId);
+  }
+
+  public editReservation(sessionId: number, reservationId: number, command: UpdateReservationCommand) {
+    return this.api.reservationsPATCH(sessionId, reservationId, command);
   }
 }

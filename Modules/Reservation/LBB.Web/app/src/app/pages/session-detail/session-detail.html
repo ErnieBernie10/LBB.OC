@@ -1,14 +1,18 @@
 @if (reservation() != null) {
   <form [formGroup]="reservationForm" (ngSubmit)="saveReservation()">
-    <app-modal [isOpen]="true" (close)="reservation.set(null)">
+    <app-modal [isOpen]="true" (close)="reservation.set(null); editingReservationId.set(null)">
       <modal-header>
-        <h4>Add reservation</h4>
+        @if (editingReservationId() != null) {
+          <h4 i18n>Edit reservation</h4>
+        } @else {
+          <h4 i18n>Add reservation</h4>
+        }
       </modal-header>
       <modal-content>
         <app-reservation-form [form]="reservationForm"></app-reservation-form>
       </modal-content>
       <modal-footer>
-        <button [attr.aria-busy]="savingReservation" type="submit" i18n>Confirm</button>
+        <button [attr.aria-busy]="savingReservation()" type="submit" i18n>Confirm</button>
       </modal-footer>
     </app-modal>
   </form>
@@ -89,14 +93,17 @@
               </tr>
             </thead>
             <tbody>
-              @for (res of reservations.value(); track res.reference) {
+              @for (res of reservations.value(); track res.id) {
                 <tr>
                   <td>{{ res.firstname }}</td>
                   <td>{{ res.email }}</td>
                   <td>{{ res.phone }}</td>
                   <td>{{ res.attendeeCount }}</td>
                   <td>
-                    <button class="danger" (click)="deleteReservation(res.reference)" i18n>Delete</button>
+                    <div class="button-container">
+                      <button class="secondary" (click)="openEditReservation(res)" i18n>Edit</button>
+                      <button class="danger" (click)="deleteReservation(res.id)" i18n>Delete</button>
+                    </div>
                   </td>
                 </tr>
               }

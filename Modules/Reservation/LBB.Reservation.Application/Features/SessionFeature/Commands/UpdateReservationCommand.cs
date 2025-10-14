@@ -2,6 +2,7 @@
 using FluentValidation;
 using LBB.Core;
 using LBB.Core.Contracts;
+using LBB.Core.Enums;
 using LBB.Core.Errors;
 using LBB.Core.Mediator;
 using LBB.Reservation.Application.Features.SessionFeature.Events;
@@ -67,7 +68,7 @@ public class UpdateReservationCommandHandler(
                 new NotFoundError($"Reservation with id {command.ReservationId} not found")
             );
 
-        var ruleContext = new ReservationRuleContext(command, session);
+        var ruleContext = new ReservationRuleContext(command, session, EditType.Update);
         var ruleSet = new BusinessRuleSet<ReservationRuleContext>(
             new ReservationRules.CanReserveRule()
         );

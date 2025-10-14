@@ -4,6 +4,7 @@ using FluentResults;
 using FluentValidation;
 using LBB.Core;
 using LBB.Core.Contracts;
+using LBB.Core.Enums;
 using LBB.Core.Errors;
 using LBB.Core.Mediator;
 using LBB.Core.ValueObjects;
@@ -95,7 +96,7 @@ public class AddReservationCommandHandler(
             new ReservationRules.NoExistingReservationWithEmail()
         );
         var rulesResult = await ruleset.ValidateAsync(
-            new ReservationRuleContext(command, session),
+            new ReservationRuleContext(command, session, EditType.Add),
             cancellationToken
         );
         if (rulesResult.IsFailed)

@@ -5,7 +5,12 @@ import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { SessionFormFieldsComponent } from '../../components/session-form/session-form-fields';
 import { SessionService } from '../../services/session.service';
 import { toFormDate } from '../../util/dateutils';
-import { AddReservationCommand, IAddReservationCommand, UpdateSessionInfoCommand } from '../../api/api';
+import {
+  AddReservationCommand,
+  IAddReservationCommand,
+  UpdateReservationCommand,
+  UpdateSessionInfoCommand,
+} from '../../api/api';
 import { Modal, ModalContent, ModalFooter, ModalHeader } from '../../components/modal/modal';
 import { ReservationForm } from '../../components/reservation-form/reservation-form';
 import { FormValidationService } from '../../services/form-validation.service';
@@ -64,6 +69,9 @@ export class SessionDetailPage {
     attendeeCount: [1],
   });
 
+  // Tracks the reservation being edited; null means creating new
+  editingReservationId = signal<number | null>(null);
+
   enableEdit() {
     const s = this.session.value();
     if (s) {
@@ -99,6 +107,7 @@ export class SessionDetailPage {
   }
 
   addReservation() {
+    this.editingReservationId.set(null);
     this.reservation.set({
       ...this.reservationForm.getRawValue(),
       sessionId: this.session?.value()?.id ?? -1,
@@ -137,24 +146,41 @@ export class SessionDetailPage {
 
     const value = this.reservationForm.getRawValue();
     this.savingReservation.set(true);
-    this.sessionService
-      .addReservation(
-        this.session.value()!.id,
-        new AddReservationCommand({
-          ...value,
-          sessionId: this.session.value()!.id,
-        })
-      )
-      .subscribe({
-        complete: () => {
-          this.savingReservation.set(false);
-          this.reservationForm.reset();
-          this.reservations.reload();
-        },
-        error: this.formService.setServerErrors(this.reservationForm, () => {
-          this.savingReservation.set(false);
-        }),
-      });
+
+    const sessionId = this.session.value()!.id;
+    const editingId = this.editingReservationId();
+    const isEdit = this.editingReservationId() !== null;
+
+    const req$: Observable<unknown> = isEdit
+      ? this.sessionService.editReservation(
+          sessionId,
+          editingId as number,
+          new UpdateReservationCommand({
+            ...value,
+            reservationId: editingId as number,
+            sessionId,
+          })
+        )
+      : this.sessionService.addReservation(
+          sessionId,
+          new AddReservationCommand({
+            ...value,
+            sessionId,
+          })
+        );
+
+    req$.subscribe({
+      complete: () => {
+        this.savingReservation.set(false);
+        this.reservationForm.reset();
+        this.reservations.reload();
+        this.reservation.set(null);
+        this.editingReservationId.set(null);
+      },
+      error: this.formService.setServerErrors(this.reservationForm, () => {
+        this.savingReservation.set(false);
+      }),
+    });
   }
 
   openDeleteConfirm() {
@@ -165,7 +191,7 @@ export class SessionDetailPage {
           ...DefaultConfirmationDialog,
           message: $localize`Are you sure you want to delete this session? This action is irreversible.`,
         },
-        this.performDelete()
+        () => this.performDelete()
       )
       .subscribe({
         complete: () => {
@@ -186,7 +212,7 @@ export class SessionDetailPage {
           ...DefaultConfirmationDialog,
           message: $localize`Are you sure you want to cancel this session? All participants will be notified. And their reservation will be cancelled.`,
         },
-        this.performCancel()
+        () => this.performCancel()
       )
       .subscribe({
         complete: () => {
@@ -213,5 +239,62 @@ export class SessionDetailPage {
     return this.sessionService.cancelSession(id);
   }
 
-  deleteReservation(reference: string | undefined) {}
+  openEditReservation(res: {
+    id?: number;
+    firstname?: string;
+    lastname?: string;
+    email?: string;
+    phone?: string;
+    attendeeCount: number;
+  }) {
+    // Prefill the form with selected reservation values and open modal in edit mode
+    this.reservationForm.reset();
+    this.reservationForm.patchValue({
+      firstname: res.firstname ?? '',
+      lastname: res.lastname ?? '',
+      email: res.email ?? '',
+      phoneNumber: res.phone ?? '',
+      attendeeCount: res.attendeeCount ?? 1,
+    });
+    const id = res.id ?? null;
+    this.editingReservationId.set(id);
+    this.reservation.set({
+      ...this.reservationForm.getRawValue(),
+      sessionId: this.session?.value()?.id ?? -1,
+    });
+  }
+
+  deleteReservation(id: number) {
+    const sessionId = this.session.value()?.id;
+
+    if (sessionId === undefined) {
+      return;
+    }
+    const reservationId = id;
+
+    this.confirmationDialogService
+      .open(
+        ConfirmationDialog,
+        {
+          ...DefaultConfirmationDialog,
+          message: $localize`Are you sure you want to delete this reservation? This action is irreversible.`,
+        },
+        () => this.performReservationDelete(sessionId, reservationId)
+      )
+      .subscribe({
+        complete: () => {
+          this.deleting.set(false);
+          this.reservations.reload();
+          this.session.reload();
+        },
+        error: () => {
+          this.deleting.set(false);
+        },
+      });
+  }
+
+  private performReservationDelete(sessionId: number, reservationId: number) {
+    this.deleting.set(true);
+    return this.sessionService.deleteReservation(sessionId, reservationId);
+  }
 }
