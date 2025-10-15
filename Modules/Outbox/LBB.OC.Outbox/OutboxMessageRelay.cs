@@ -67,15 +67,18 @@ public class OutboxMessageRelay : IBackgroundTask
                             typeof(IOutboxNotificationHandler<>).MakeGenericType(eventType);
                         var handlers = serviceProvider.GetServices(handlerInterfaceType).ToArray();
 
+                        var tasks = new List<Task>();
                         foreach (var handler in handlers)
                         {
                             var method = handlerInterfaceType.GetMethod("HandleAsync")!;
-                            await (Task)
+                            var task = (Task)
                                 method.Invoke(
                                     handler,
                                     new object[] { domainEvent, cancellationToken }
                                 )!;
+                            tasks.Add(task);
                         }
+                        await Task.WhenAll(tasks);
 
                         message.ProcessedAt = DateTime.UtcNow;
                         success = true;

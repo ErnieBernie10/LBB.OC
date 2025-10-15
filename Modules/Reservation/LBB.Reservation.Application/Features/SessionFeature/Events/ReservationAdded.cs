@@ -1,4 +1,7 @@
-﻿using LBB.Core.Mediator;
+﻿using FluentResults;
+using LBB.Core.Errors;
+using LBB.Core.Mediator;
+using LBB.Reservation.Application.Shared.Exceptions;
 using LBB.Reservation.Infrastructure.Context;
 using Microsoft.Extensions.Logging;
 using OrchardCore.Email;
@@ -28,7 +31,7 @@ public class ReservationAddedOutboxHandler(
         if (reservation.ConfirmationSentOn.HasValue)
             return;
 
-        await emailService.SendAsync(
+        var result = await emailService.SendAsync(
             new MailMessage()
             {
                 To = reservation.Email,
@@ -36,6 +39,10 @@ public class ReservationAddedOutboxHandler(
                 Body = "Reservation created",
             }
         );
+        if (!result.Succeeded)
+        {
+            throw new EmailException(result);
+        }
 
         reservation.ConfirmationSentOn = DateTime.UtcNow;
         await context.SaveChangesAsync(cancellationToken);

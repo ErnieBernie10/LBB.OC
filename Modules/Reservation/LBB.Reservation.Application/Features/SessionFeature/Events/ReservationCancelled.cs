@@ -1,4 +1,5 @@
 ﻿using LBB.Core.Mediator;
+using LBB.Reservation.Application.Shared.Exceptions;
 using LBB.Reservation.Infrastructure.Context;
 using Microsoft.Extensions.Logging;
 using OrchardCore.Email;
@@ -26,7 +27,7 @@ public class ReservationCancelledOutboxHandler(
             return;
         }
 
-        await emailService.SendAsync(
+        var result = await emailService.SendAsync(
             new MailMessage()
             {
                 To = reservation.Email,
@@ -34,5 +35,9 @@ public class ReservationCancelledOutboxHandler(
                 Body = "Reservation cancelled",
             }
         );
+        if (!result.Succeeded)
+        {
+            throw new EmailException(result);
+        }
     }
 }
