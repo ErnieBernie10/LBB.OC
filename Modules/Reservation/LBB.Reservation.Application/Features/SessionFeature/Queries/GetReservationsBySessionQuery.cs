@@ -30,6 +30,7 @@ public class GetReservationsBySessionQueryHandler(LbbDbContext context)
                 Phone = s.Phone,
                 AttendeeCount = s.AttendeeCount,
                 Reference = s.Reference,
+                CancelledOn = s.CancelledOn,
             })
             .ToListAsync(cancellationToken: cancellationToken);
 

@@ -2,6 +2,7 @@ using FluentResults;
 using LBB.Core.Errors;
 using LBB.Core.Mediator;
 using LBB.Reservation.Application.Features.SessionFeature.Dtos;
+using LBB.Reservation.Application.Features.SessionFeature.Framework;
 using LBB.Reservation.Domain;
 using LBB.Reservation.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
@@ -44,6 +45,7 @@ public class GetSessionQueryHandler(LbbDbContext context)
                     Phone = s.Phone,
                     Reference = s.Reference,
                     AttendeeCount = s.AttendeeCount,
+                    CancelledOn = s.CancelledOn,
                 }),
             })
             .FirstOrDefaultAsync(s => s.Id == query.Id, cancellationToken: cancellationToken);

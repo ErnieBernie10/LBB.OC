@@ -7,6 +7,7 @@ import {
   UpdateSessionInfoCommand,
 } from '../api/api';
 import { rxResource } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -44,7 +45,34 @@ export class SessionService {
   public getSessionReservations(sessionId: number) {
     return rxResource({
       params: () => ({ sessionId }),
-      stream: ({ params }) => this.api.reservationsAll(params.sessionId),
+      stream: ({ params }) =>
+        this.api.reservationsAll(params.sessionId).pipe(
+          map((r) =>
+            r.sort((a, b) => {
+              // First, sort by cancelledOn (active reservations first)
+              const aCancelled = a.cancelledOn ? 1 : 0;
+              const bCancelled = b.cancelledOn ? 1 : 0;
+              if (aCancelled !== bCancelled) {
+                return aCancelled - bCancelled;
+              }
+
+              // Then sort by lastname
+              const lastNameCompare = (a.lastname || '').localeCompare(b.lastname || '');
+              if (lastNameCompare !== 0) {
+                return lastNameCompare;
+              }
+
+              // Then sort by firstname
+              const firstNameCompare = (a.firstname || '').localeCompare(b.firstname || '');
+              if (firstNameCompare !== 0) {
+                return firstNameCompare;
+              }
+
+              // Finally sort by email
+              return (a.email || '').localeCompare(b.email || '');
+            })
+          )
+        ),
     });
   }
 

@@ -1204,6 +1204,7 @@ export class GetReservationsResponseDto implements IGetReservationsResponseDto {
     attendeeCount!: number;
     email!: string | undefined;
     phone!: string | undefined;
+    cancelledOn!: Date | undefined;
 
     constructor(data?: IGetReservationsResponseDto) {
         if (data) {
@@ -1223,6 +1224,7 @@ export class GetReservationsResponseDto implements IGetReservationsResponseDto {
             this.attendeeCount = _data["attendeeCount"];
             this.email = _data["email"];
             this.phone = _data["phone"];
+            this.cancelledOn = _data["cancelledOn"] ? new Date(_data["cancelledOn"].toString()) : undefined as any;
         }
     }
 
@@ -1242,6 +1244,7 @@ export class GetReservationsResponseDto implements IGetReservationsResponseDto {
         data["attendeeCount"] = this.attendeeCount;
         data["email"] = this.email;
         data["phone"] = this.phone;
+        data["cancelledOn"] = this.cancelledOn ? this.cancelledOn.toISOString() : undefined as any;
         return data;
     }
 }
@@ -1254,6 +1257,7 @@ export interface IGetReservationsResponseDto {
     attendeeCount: number;
     email: string | undefined;
     phone: string | undefined;
+    cancelledOn: Date | undefined;
 }
 
 export class GetSessionResponseDto implements IGetSessionResponseDto {

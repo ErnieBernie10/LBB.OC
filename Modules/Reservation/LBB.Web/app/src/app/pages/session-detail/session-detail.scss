@@ -17,3 +17,7 @@ header {
   display: flex;
   justify-content: space-between;
 }
+
+td.cancelled {
+  text-decoration: line-through;
+}

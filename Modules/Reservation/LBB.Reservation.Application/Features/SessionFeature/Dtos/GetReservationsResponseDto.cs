@@ -9,4 +9,5 @@ public class GetReservationsResponseDto
     public int AttendeeCount { get; set; }
     public string Email { get; set; }
     public string Phone { get; set; }
+    public DateTime? CancelledOn { get; set; }
 }

@@ -34,7 +34,7 @@ public sealed class CreateSessionCommand : ICommand<Result<int>>
             Start = Start,
             End = End,
             Location = Location,
-            Capacity = Capacity ?? 1,
+            Capacity = Type == Enums.SessionType.Individual ? 1 : Capacity ?? 1,
         };
     }
 }

@@ -46,13 +46,19 @@
             <button class="danger" (click)="openDeleteConfirm()" i18n>Delete</button>
           } @else {
             <button class="danger" (click)="cancelSession()" i18n>Cancel session</button>
-            <button class="primary" (click)="addReservation()" i18n>Add reservation</button>
+            <button
+              class="primary"
+              (click)="addReservation()"
+              [disabled]="session.value()?.attendeeCount ?? 0 >= session?.value()?.capacity ?? 0"
+              i18n
+            >
+              Add reservation
+            </button>
           }
         </div>
       }
     </div>
   </header>
-
   <div>
     @if (session.isLoading()) {
       <p aria-busy="true">Loading...</p>
@@ -66,8 +72,17 @@
           </p>
           <p><strong>Location:</strong> {{ session.value()?.location }}</p>
           <p>
-            <strong>Type:</strong> {{ session.value()?.type }}
-            <span class="contrast" style="margin-left: 0.5rem">Capacity: {{ session.value()?.capacity }}</span>
+            <strong>Type:</strong>
+            {{ session.value()?.type }}
+            @if (session.value()?.type === 'Group') {
+              <i class="ti ti-users"></i>
+            } @else {
+              <i class="ti ti-user"></i>
+            }
+            <span class="contrast" style="margin-left: 0.5rem"
+              >Capacity: <strong>{{ session.value()?.capacity }}</strong
+              >/{{ session.value()?.attendeeCount }}</span
+            >
           </p>
           <p><strong>Reservations:</strong> {{ session.value()?.attendeeCount }}</p>
         </section>
@@ -95,14 +110,18 @@
             <tbody>
               @for (res of reservations.value(); track res.id) {
                 <tr>
-                  <td>{{ res.firstname }}</td>
-                  <td>{{ res.email }}</td>
-                  <td>{{ res.phone }}</td>
-                  <td>{{ res.attendeeCount }}</td>
+                  <td [class.cancelled]="!!res.cancelledOn">{{ res.firstname }} {{ res.lastname }}</td>
+                  <td [class.cancelled]="!!res.cancelledOn">{{ res.email }}</td>
+                  <td [class.cancelled]="!!res.cancelledOn">{{ res.phone }}</td>
+                  <td [class.cancelled]="!!res.cancelledOn">{{ res.attendeeCount }}</td>
                   <td>
                     <div class="button-container">
-                      <button class="secondary" (click)="openEditReservation(res)" i18n>Edit</button>
-                      <button class="danger" (click)="deleteReservation(res.id)" i18n>Delete</button>
+                      @if (!res.cancelledOn) {
+                        <button class="secondary" (click)="openEditReservation(res)" i18n>Edit</button>
+                        <button class="danger" (click)="deleteReservation(res.id)" i18n>Delete</button>
+                      } @else {
+                        <em i18n>Cancelled</em>
+                      }
                     </div>
                   </td>
                 </tr>
