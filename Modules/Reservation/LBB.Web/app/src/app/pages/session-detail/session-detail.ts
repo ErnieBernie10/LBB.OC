@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { SessionFormFieldsComponent } from '../../components/session-form/session-form-fields';
@@ -18,6 +18,7 @@ import { ConfirmationDialog } from '../../components/confirmation-dialog/confirm
 import { DialogService } from '../../services/confirmation-dialog.service';
 import { DefaultConfirmationDialog } from '../../constants/i18n-common';
 import { Observable } from 'rxjs';
+import { RealtimeService } from '../../services/realtime.service';
 
 @Component({
   selector: 'app-session-detail-page',
@@ -36,11 +37,19 @@ import { Observable } from 'rxjs';
   templateUrl: './session-detail.html',
   styleUrls: ['./session-detail.scss'],
 })
-export class SessionDetailPage {
+export class SessionDetailPage implements OnInit {
+  ngOnInit(): void {
+    this.realtimeService.start().then((_) => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
+      this.realtimeService.subscribe('ReservationAdded', (data) => console.log(data));
+    });
+  }
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private sessionService = inject(SessionService);
   private confirmationDialogService = inject(DialogService);
+  private realtimeService = inject(RealtimeService);
 
   session = this.sessionService.getSession(Number(this.route.snapshot.paramMap.get('id')!));
   reservations = this.sessionService.getSessionReservations(Number(this.route.snapshot.paramMap.get('id')!));

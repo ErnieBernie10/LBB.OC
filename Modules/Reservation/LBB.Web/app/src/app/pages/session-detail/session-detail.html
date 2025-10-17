@@ -46,14 +46,7 @@
             <button class="danger" (click)="openDeleteConfirm()" i18n>Delete</button>
           } @else {
             <button class="danger" (click)="cancelSession()" i18n>Cancel session</button>
-            <button
-              class="primary"
-              (click)="addReservation()"
-              [disabled]="session.value()?.attendeeCount ?? 0 >= session?.value()?.capacity ?? 0"
-              i18n
-            >
-              Add reservation
-            </button>
+            <button class="primary" (click)="addReservation()" i18n>Add reservation</button>
           }
         </div>
       }

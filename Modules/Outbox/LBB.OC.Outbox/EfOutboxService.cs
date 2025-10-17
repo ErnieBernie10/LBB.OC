@@ -1,5 +1,7 @@
-﻿using LBB.Core.Contracts;
+﻿using LBB.Core;
+using LBB.Core.Contracts;
 using LBB.Core.Mediator;
+using Microsoft.AspNetCore.SignalR;
 
 namespace LBB.OC.Outbox;
 
@@ -10,10 +12,12 @@ public sealed class EfOutboxService<TDbContext> : IOutboxService
     where TDbContext : DbContext
 {
     private readonly TDbContext _db;
+    private readonly IHubContext<RealtimeHub, IEventClient> _hub;
 
-    public EfOutboxService(TDbContext db)
+    public EfOutboxService(TDbContext db, IHubContext<RealtimeHub, IEventClient> hub)
     {
         _db = db;
+        _hub = hub;
     }
 
     public async Task PublishAsync<T>(
@@ -46,6 +50,9 @@ public sealed class EfOutboxService<TDbContext> : IOutboxService
     )
         where T : INotification
     {
+        await _hub
+            .Clients.Group(payload.GetType().Name)
+            .EventReceived(payload.GetType().Name, payload);
         var outboxEvent = new DataModels.Outbox()
         {
             AggregateType = aggregateType,

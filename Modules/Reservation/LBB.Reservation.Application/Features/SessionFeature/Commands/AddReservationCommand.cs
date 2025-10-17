@@ -14,6 +14,7 @@ using LBB.Reservation.Application.Features.SessionFeature.Framework;
 using LBB.Reservation.Domain;
 using LBB.Reservation.Infrastructure;
 using LBB.Reservation.Infrastructure.Context;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 using Session = LBB.Reservation.Infrastructure.DataModels.Session;
@@ -65,7 +66,7 @@ public class AddReservationCommandValidator : AbstractValidator<AddReservationCo
 public class AddReservationCommandHandler(
     IValidator<AddReservationCommand> validator,
     LbbDbContext context,
-    IOutboxService outboxService
+    EventDispatcherService eventDispatcherService
 ) : ICommandHandler<AddReservationCommand, Result<int>>
 {
     public async Task<Result<int>> HandleAsync(
@@ -116,12 +117,10 @@ public class AddReservationCommandHandler(
         context.Reservations.Add(reservation);
         await context.SaveChangesAsync(cancellationToken);
 
-        await outboxService.PublishAsync(
-            nameof(Reservation),
-            reservation.Id.ToString(),
-            new ReservationAdded(reservation.Id),
-            cancellationToken
-        );
+        await eventDispatcherService
+            .To(DispatchTarget.Outbox | DispatchTarget.RealtimeHub)
+            .DispatchAsync(new ReservationAdded(reservation.Id));
+
         await context.SaveChangesAsync(cancellationToken);
 
         await tran.CommitAsync(cancellationToken);

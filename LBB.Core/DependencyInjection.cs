@@ -14,6 +14,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddScoped<IMediator, Mediator.Mediator>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<EventDispatcherService>();
 
         foreach (var assembly in assemblies)
         {

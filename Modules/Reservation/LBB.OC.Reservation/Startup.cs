@@ -56,9 +56,10 @@ public class Startup : StartupBase
         services.ConfigureReservationModuleAuthorization();
         services.AddSwaggerGen();
         services.AddHttpContextAccessor();
+        services.AddSignalR();
+        services.AddScoped<IOutboxService, EfOutboxService<LbbDbContext>>();
 
         services.AddSingleton<ISpaProvider, SpaProvider>();
-        services.AddScoped<IOutboxService, EfOutboxService<LbbDbContext>>();
     }
 
     public override void Configure(
@@ -83,5 +84,7 @@ public class Startup : StartupBase
             pattern: Constants.ModuleBasePath + "/{**slug}",
             defaults: new { controller = "Home", action = "Index" }
         );
+
+        routes.MapHub<RealtimeHub>($"{Constants.ModuleBasePath}/realtime");
     }
 }

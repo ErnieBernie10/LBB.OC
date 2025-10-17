@@ -41,6 +41,7 @@
         <PackageReference Include="OrchardCore.Resources" />
     </ItemGroup>
     <ItemGroup>
+        <Folder Include="Hubs\" />
         <Folder Include="wwwroot\" />
     </ItemGroup>
     <ItemGroup>
