@@ -1,6 +1,7 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import * as signalR from '@microsoft/signalr';
-import { BehaviorSubject, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { filter, map } from 'rxjs/operators';
 
 export interface HubEvent {
   topic: string;
@@ -13,6 +14,8 @@ export interface HubEvent {
 export class RealtimeService implements OnDestroy {
   private hubConnection?: signalR.HubConnection;
   private readonly hubUrl = '/reservation/realtime';
+  private startPromise?: Promise<void>;
+  private subscribedTopics = new Set<string>();
 
   // Stream of all incoming events
   private eventSubject = new Subject<HubEvent>();
@@ -22,14 +25,68 @@ export class RealtimeService implements OnDestroy {
   private connectionStateSubject = new BehaviorSubject<boolean>(false);
   public connected$ = this.connectionStateSubject.asObservable();
 
-  constructor() {}
+  constructor() {
+    // Automatically start the connection when the service is instantiated
+    this.ensureStarted();
+  }
 
-  async start(): Promise<void> {
+  /**
+   * Subscribe to a topic and return an observable filtered to that topic's events.
+   * Similar to sessionService.getSession() pattern.
+   * Automatically ensures connection is started before subscribing.
+   */
+  public subscribeToTopic<T = any>(topic: string): Observable<T> {
+    this.ensureStarted().then(() => {
+      if (!this.subscribedTopics.has(topic)) {
+        this.subscribe(topic);
+        this.subscribedTopics.add(topic);
+      }
+    });
+
+    return this.events$.pipe(
+      filter((event) => event.topic === topic),
+      map((event) => event.payload as T)
+    );
+  }
+
+  private async ensureStarted(): Promise<void> {
+    if (this.startPromise) {
+      return this.startPromise;
+    }
+    this.startPromise = this.start();
+    return this.startPromise;
+  }
+
+  private async start(): Promise<void> {
     if (this.hubConnection) return; // already started
 
     this.hubConnection = new signalR.HubConnectionBuilder().withUrl(this.hubUrl).withAutomaticReconnect().build();
 
-    this.registerEventHandlers();
+    // Register event handlers BEFORE starting and only ONCE
+    this.hubConnection.on('EventReceived', (topic: string, payload: any) => {
+      console.log(`📩 Event received [${topic}]`, payload);
+      this.eventSubject.next({ topic, payload });
+    });
+
+    // Handle reconnection events
+    this.hubConnection.onreconnecting(() => {
+      console.log('🔄 Reconnecting to EventHub...');
+      this.connectionStateSubject.next(false);
+    });
+
+    this.hubConnection.onreconnected(async () => {
+      console.log('✅ Reconnected to EventHub');
+      this.connectionStateSubject.next(true);
+      // Re-subscribe to all topics after reconnection
+      for (const topic of this.subscribedTopics) {
+        await this.subscribe(topic);
+      }
+    });
+
+    this.hubConnection.onclose(() => {
+      console.log('❌ Connection closed');
+      this.connectionStateSubject.next(false);
+    });
 
     try {
       await this.hubConnection.start();
@@ -43,12 +100,18 @@ export class RealtimeService implements OnDestroy {
 
   async stop(): Promise<void> {
     if (!this.hubConnection) return;
+
+    // Remove all event handlers before stopping
+    this.hubConnection.off('EventReceived');
+
     await this.hubConnection.stop();
     this.connectionStateSubject.next(false);
     this.hubConnection = undefined;
+    this.subscribedTopics.clear();
+    this.startPromise = undefined;
   }
 
-  async subscribe(topic: string): Promise<void> {
+  private async subscribe(topic: string): Promise<void> {
     if (!this.hubConnection) return;
     await this.hubConnection.invoke('Subscribe', topic);
     console.log(`Subscribed to topic: ${topic}`);
@@ -57,14 +120,8 @@ export class RealtimeService implements OnDestroy {
   async unsubscribe(topic: string): Promise<void> {
     if (!this.hubConnection) return;
     await this.hubConnection.invoke('Unsubscribe', topic);
+    this.subscribedTopics.delete(topic);
     console.log(`Unsubscribed from topic: ${topic}`);
-  }
-
-  private registerEventHandlers(): void {
-    this.hubConnection?.on('EventReceived', (topic: string, payload: any) => {
-      console.log(`📩 Event received [${topic}]`, payload);
-      this.eventSubject.next({ topic, payload });
-    });
   }
 
   ngOnDestroy(): void {

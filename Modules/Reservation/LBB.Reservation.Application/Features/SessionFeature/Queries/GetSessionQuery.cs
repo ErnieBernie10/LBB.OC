@@ -27,7 +27,9 @@ public class GetSessionQueryHandler(LbbDbContext context)
             .Select(s => new GetSessionResponseDto()
             {
                 Id = s.Id,
-                AttendeeCount = s.Reservations.Sum(r => r.AttendeeCount),
+                AttendeeCount = s
+                    .Reservations.Where(r => r.CancelledOn == null)
+                    .Sum(r => r.AttendeeCount),
                 Capacity = s.Capacity,
                 Description = s.Description,
                 Start = s.Start,

@@ -119,7 +119,7 @@ public class AddReservationCommandHandler(
 
         await eventDispatcherService
             .To(DispatchTarget.Outbox | DispatchTarget.RealtimeHub)
-            .DispatchAsync(new ReservationAdded(reservation.Id));
+            .DispatchAsync(new ReservationAdded(reservation.Id), command.SessionId);
 
         await context.SaveChangesAsync(cancellationToken);
 

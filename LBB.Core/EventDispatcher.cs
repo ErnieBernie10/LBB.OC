@@ -2,6 +2,7 @@
 using LBB.Core.Mediator;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace LBB.Core;
 
@@ -15,34 +16,47 @@ public enum DispatchTarget
 public class EventDispatcherService
 {
     private readonly IServiceProvider _provider;
+    private readonly ILogger<EventDispatcherService> _logger;
 
-    public EventDispatcherService(IServiceProvider provider)
+    public EventDispatcherService(IServiceProvider provider, ILogger<EventDispatcherService> logger)
     {
         _provider = provider;
+        _logger = logger;
     }
 
     public Dispatcher To(DispatchTarget target)
     {
-        return new Dispatcher(_provider, target);
+        return new Dispatcher(_provider, target, _logger);
     }
 
     public class Dispatcher
     {
+        private readonly ILogger<EventDispatcherService> _logger;
         private readonly IServiceProvider _provider;
         private readonly DispatchTarget _target;
 
-        public Dispatcher(IServiceProvider provider, DispatchTarget target)
+        public Dispatcher(
+            IServiceProvider provider,
+            DispatchTarget target,
+            ILogger<EventDispatcherService> logger
+        )
         {
             _provider = provider;
             _target = target;
+            _logger = logger;
         }
 
         public Task DispatchAsync(INotification notification)
         {
+            return DispatchAsync<string>(notification, null);
+        }
+
+        public Task DispatchAsync<T>(INotification notification, T? identifier)
+        {
             var tasks = new List<Task>();
             if (_target.HasFlag(DispatchTarget.RealtimeHub))
             {
-                tasks.Add(DispatchRealtime(notification));
+                tasks.Add(DispatchRealtime(notification, identifier));
             }
             if (_target.HasFlag(DispatchTarget.Outbox))
             {
@@ -51,13 +65,19 @@ public class EventDispatcherService
             return Task.WhenAll(tasks);
         }
 
-        private async Task DispatchRealtime(INotification notification)
+        private async Task DispatchRealtime<T>(INotification notification, T? identifier)
         {
             var hub = _provider.GetService<IHubContext<RealtimeHub, IEventClient>>();
             if (hub == null)
                 throw new InvalidOperationException("No hub context found");
 
-            await hub.Clients.All.EventReceived(notification.GetType().Name, notification);
+            var topic = notification.GetType().Name;
+            await hub.Clients.Group(topic).EventReceived(topic, notification);
+
+            if (identifier != null)
+                topic += $".{identifier}";
+            await hub.Clients.Group(topic).EventReceived(topic, notification);
+            _logger.LogInformation("Event dispatched to RealtimeHub topic: {Topic}", topic);
         }
 
         private async Task DispatchOutbox(INotification notification)
@@ -67,6 +87,7 @@ public class EventDispatcherService
                 throw new InvalidOperationException("No outbox service found");
 
             await outbox.PublishAsync("", "", notification);
+            _logger.LogInformation("Event dispatched to Outbox");
         }
     }
 }

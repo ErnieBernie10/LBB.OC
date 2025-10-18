@@ -26,11 +26,13 @@ public static class ReservationRules
             switch ((Enums.SessionType)session.Type)
             {
                 case Enums.SessionType.Individual
-                    when session.Reservations.Any() && input.EditType == EditType.Add:
+                    when session.Reservations.Any(r => r.CancelledOn == null)
+                        && input.EditType == EditType.Add:
                     return Result.Fail(new CapacityExceededError(nameof(command.AttendeeCount)));
                 case Enums.SessionType.Group
-                    when session.Reservations.Sum(r => r.AttendeeCount)
-                        + (command.AttendeeCount ?? 1)
+                    when session
+                        .Reservations.Where(r => r.CancelledOn == null)
+                        .Sum(r => r.AttendeeCount) + (command.AttendeeCount ?? 1)
                         > session.Capacity:
                     return Result.Fail(new CapacityExceededError(nameof(command.AttendeeCount)));
                 default:
@@ -50,7 +52,11 @@ public static class ReservationRules
         {
             var session = input.Session;
             var command = input.Input;
-            if (session.Reservations.Any(r => r.Email == command.Email))
+            if (
+                session
+                    .Reservations.Where(r => r.CancelledOn == null)
+                    .Any(r => r.Email == command.Email)
+            )
                 return new ReservationExistsError();
 
             return Result.Ok();

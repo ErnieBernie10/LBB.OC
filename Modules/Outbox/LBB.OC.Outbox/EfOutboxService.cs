@@ -50,9 +50,6 @@ public sealed class EfOutboxService<TDbContext> : IOutboxService
     )
         where T : INotification
     {
-        await _hub
-            .Clients.Group(payload.GetType().Name)
-            .EventReceived(payload.GetType().Name, payload);
         var outboxEvent = new DataModels.Outbox()
         {
             AggregateType = aggregateType,

@@ -8,6 +8,7 @@ public class RealtimeHub : Hub<IEventClient>
 {
     private static readonly ConcurrentDictionary<string, HashSet<string>> _subscriptions = new();
 
+    // TODO : Add possibility to listen to a topic for a specific resource
     public async Task Subscribe(string topic)
     {
         await Groups.AddToGroupAsync(Context.ConnectionId, topic);

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { SessionFormFieldsComponent } from '../../components/session-form/session-form-fields';
@@ -17,7 +17,7 @@ import { FormValidationService } from '../../services/form-validation.service';
 import { ConfirmationDialog } from '../../components/confirmation-dialog/confirmation-dialog';
 import { DialogService } from '../../services/confirmation-dialog.service';
 import { DefaultConfirmationDialog } from '../../constants/i18n-common';
-import { Observable } from 'rxjs';
+import { Observable, Subject, takeUntil } from 'rxjs';
 import { RealtimeService } from '../../services/realtime.service';
 
 @Component({
@@ -37,14 +37,22 @@ import { RealtimeService } from '../../services/realtime.service';
   templateUrl: './session-detail.html',
   styleUrls: ['./session-detail.scss'],
 })
-export class SessionDetailPage implements OnInit {
+export class SessionDetailPage implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
   ngOnInit(): void {
-    this.realtimeService.start().then((_) => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-expect-error
-      this.realtimeService.subscribe('ReservationAdded', (data) => console.log(data));
-    });
+    this.realtimeService
+      .subscribeToTopic('ReservationAdded.' + this.route.snapshot.paramMap.get('id')!)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((_) => {
+        this.session.reload();
+        this.reservations.reload();
+      });
   }
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private sessionService = inject(SessionService);
@@ -142,7 +150,6 @@ export class SessionDetailPage implements OnInit {
         complete: () => {
           this.saving.set(false);
           this.editMode.set(false);
-          this.session.reload();
         },
         error: this.formService.setServerErrors(this.form, () => {
           this.saving.set(false);
@@ -182,7 +189,6 @@ export class SessionDetailPage implements OnInit {
       complete: () => {
         this.savingReservation.set(false);
         this.reservationForm.reset();
-        this.reservations.reload();
         this.reservation.set(null);
         this.editingReservationId.set(null);
       },
@@ -226,7 +232,6 @@ export class SessionDetailPage implements OnInit {
       .subscribe({
         complete: () => {
           this.deleting.set(false);
-          this.session.reload();
         },
         error: () => {
           this.deleting.set(false);
@@ -293,8 +298,6 @@ export class SessionDetailPage implements OnInit {
       .subscribe({
         complete: () => {
           this.deleting.set(false);
-          this.reservations.reload();
-          this.session.reload();
         },
         error: () => {
           this.deleting.set(false);
