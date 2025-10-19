@@ -1,4 +1,5 @@
 ﻿using FluentResults;
+using LBB.Core;
 using LBB.Core.Contracts;
 using LBB.Core.Errors;
 using LBB.Core.Mediator;
@@ -13,7 +14,7 @@ public class DeleteSessionCommand : ICommand<Result>
     public int SessionId { get; set; }
 }
 
-public class DeleteSessionCommandHandler(LbbDbContext context, IOutboxService outboxService)
+public class DeleteSessionCommandHandler(LbbDbContext context, EventDispatcherService eventService)
     : ICommandHandler<DeleteSessionCommand, Result>
 {
     public async Task<Result> HandleAsync(
@@ -25,19 +26,16 @@ public class DeleteSessionCommandHandler(LbbDbContext context, IOutboxService ou
         if (session == null)
             return Result.Fail(new NotFoundError("Session not found"));
 
-        await Persist(session);
+        context.Sessions.Remove(session);
+        eventService
+            .To(DispatchTarget.Outbox | DispatchTarget.RealtimeHub)
+            .QueueMessage(new SessionDeleted(session.Id), session.Id);
+        eventService
+            .To(DispatchTarget.RealtimeHub)
+            .QueueMessage(new SessionUpdated(session.Id), session.Id);
+        await eventService.DispatchAsync();
+        await context.SaveChangesAsync();
 
         return Result.Ok();
-    }
-
-    private async Task Persist(Session session)
-    {
-        context.Sessions.Remove(session);
-        await outboxService.PublishAsync(
-            nameof(Session),
-            session.Id.ToString(),
-            new SessionDeleted(session.Id)
-        );
-        await context.SaveChangesAsync();
     }
 }

@@ -103,26 +103,33 @@ public class AddReservationCommandHandler(
         if (rulesResult.IsFailed)
             return rulesResult;
 
-        await Persist(command, cancellationToken);
+        var tran = await context.Database.BeginTransactionAsync(cancellationToken);
+        int id = await Persist(command, cancellationToken);
 
+        eventDispatcherService
+            .To(DispatchTarget.Outbox | DispatchTarget.RealtimeHub)
+            .QueueMessage(new ReservationAdded(id), id);
+        eventDispatcherService
+            .To(DispatchTarget.RealtimeHub)
+            .QueueMessage(new SessionUpdated(session.Id), session.Id);
+        await eventDispatcherService.DispatchAsync();
+
+        await context.SaveChangesAsync(cancellationToken);
+        await tran.CommitAsync(cancellationToken);
         return Result.Ok(session.Id);
     }
 
-    private async Task Persist(AddReservationCommand command, CancellationToken cancellationToken)
+    private async Task<int> Persist(
+        AddReservationCommand command,
+        CancellationToken cancellationToken
+    )
     {
         var reservation = command.ToDataModel();
 
-        var tran = await context.Database.BeginTransactionAsync(cancellationToken);
-
         context.Reservations.Add(reservation);
-        await context.SaveChangesAsync(cancellationToken);
-
-        await eventDispatcherService
-            .To(DispatchTarget.Outbox | DispatchTarget.RealtimeHub)
-            .DispatchAsync(new ReservationAdded(reservation.Id), command.SessionId);
 
         await context.SaveChangesAsync(cancellationToken);
 
-        await tran.CommitAsync(cancellationToken);
+        return reservation.Id;
     }
 }

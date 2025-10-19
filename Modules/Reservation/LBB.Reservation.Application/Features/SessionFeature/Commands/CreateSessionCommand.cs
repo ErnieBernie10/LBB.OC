@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using FluentResults;
 using FluentValidation;
+using LBB.Core;
 using LBB.Core.Contracts;
 using LBB.Core.Errors;
 using LBB.Core.Mediator;
@@ -56,7 +57,7 @@ public class CreateSessionCommandValidator : AbstractValidator<CreateSessionComm
 public sealed class CreateSessionCommandHandler(
     IValidator<CreateSessionCommand> validator,
     LbbDbContext context,
-    IOutboxService outboxService
+    EventDispatcherService eventService
 ) : ICommandHandler<CreateSessionCommand, Result<int>>
 {
     public async Task<Result<int>> HandleAsync(
@@ -86,11 +87,9 @@ public sealed class CreateSessionCommandHandler(
         var tran = await context.Database.BeginTransactionAsync(cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
-        await outboxService.PublishAsync(
-            nameof(Session),
-            session.Id.ToString(),
-            new SessionCreated(session.Id)
-        );
+        eventService
+            .To(DispatchTarget.Outbox | DispatchTarget.RealtimeHub)
+            .QueueMessage(new SessionCreated(session.Id), session.Id);
         await context.SaveChangesAsync(cancellationToken);
 
         await tran.CommitAsync(cancellationToken);

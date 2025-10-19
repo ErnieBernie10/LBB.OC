@@ -1,4 +1,5 @@
 ﻿using FluentResults;
+using LBB.Core;
 using LBB.Core.Contracts;
 using LBB.Core.Errors;
 using LBB.Core.Mediator;
@@ -13,8 +14,10 @@ public class CancelReservationCommand : ICommand<Result>
     public int SessionId { get; set; }
 }
 
-public class ReservationCancelledCommandHandler(LbbDbContext context, IOutboxService outboxService)
-    : ICommandHandler<CancelReservationCommand, Result>
+public class ReservationCancelledCommandHandler(
+    LbbDbContext context,
+    EventDispatcherService eventService
+) : ICommandHandler<CancelReservationCommand, Result>
 {
     public async Task<Result> HandleAsync(
         CancelReservationCommand command,
@@ -34,12 +37,13 @@ public class ReservationCancelledCommandHandler(LbbDbContext context, IOutboxSer
         reservation.CancelledOn = DateTime.UtcNow;
         reservation.UpdatedOn = DateTime.UtcNow;
 
-        await outboxService.PublishAsync(
-            nameof(Reservation),
-            reservation.Id.ToString(),
-            new ReservationCancelled(reservation.Id),
-            cancellationToken
-        );
+        eventService
+            .To(DispatchTarget.RealtimeHub | DispatchTarget.Outbox)
+            .QueueMessage(new ReservationCancelled(reservation.Id), reservation.Id);
+        eventService
+            .To(DispatchTarget.RealtimeHub)
+            .QueueMessage(new SessionUpdated(reservation.SessionId), reservation.SessionId);
+        await eventService.DispatchAsync();
 
         await context.SaveChangesAsync(cancellationToken);
 

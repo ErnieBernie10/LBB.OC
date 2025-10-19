@@ -12,12 +12,10 @@ public sealed class EfOutboxService<TDbContext> : IOutboxService
     where TDbContext : DbContext
 {
     private readonly TDbContext _db;
-    private readonly IHubContext<RealtimeHub, IEventClient> _hub;
 
-    public EfOutboxService(TDbContext db, IHubContext<RealtimeHub, IEventClient> hub)
+    public EfOutboxService(TDbContext db)
     {
         _db = db;
-        _hub = hub;
     }
 
     public async Task PublishAsync<T>(
@@ -34,7 +32,7 @@ public sealed class EfOutboxService<TDbContext> : IOutboxService
             AggregateType = aggregateType,
             AggregateId = aggregateId,
             Type = type,
-            Payload = JsonSerializer.Serialize(payload),
+            Payload = JsonSerializer.Serialize(payload, payload.GetType()),
             CreatedAt = DateTime.UtcNow,
             Module = "", // TODO
         };
@@ -55,7 +53,7 @@ public sealed class EfOutboxService<TDbContext> : IOutboxService
             AggregateType = aggregateType,
             AggregateId = aggregateId,
             Type = payload.GetType().Name,
-            Payload = JsonSerializer.Serialize(payload),
+            Payload = JsonSerializer.Serialize(payload, payload.GetType()),
             CreatedAt = DateTime.UtcNow,
             Module = "", // TODO
         };

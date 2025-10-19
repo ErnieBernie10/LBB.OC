@@ -41,12 +41,14 @@ export class SessionDetailPage implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   ngOnInit(): void {
     this.realtimeService
-      .subscribeToTopic('ReservationAdded.' + this.route.snapshot.paramMap.get('id')!)
+      .subscribeToTopic('SessionUpdated', this.route.snapshot.paramMap.get('id')!)
       .pipe(takeUntil(this.destroy$))
-      .subscribe((_) => {
+      .subscribe(() => {
+        console.log('Session updated');
         this.session.reload();
         this.reservations.reload();
       });
+    console.log('Session detail page initialized');
   }
   ngOnDestroy() {
     this.destroy$.next();

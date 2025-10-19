@@ -38,7 +38,7 @@ public class UpdateReservationCommandValidator : AbstractValidator<UpdateReserva
 public class UpdateReservationCommandHandler(
     LbbDbContext context,
     IValidator<UpdateReservationCommand> validator,
-    IOutboxService outboxService
+    EventDispatcherService eventService
 ) : ICommandHandler<UpdateReservationCommand, Result>
 {
     public async Task<Result> HandleAsync(
@@ -82,12 +82,13 @@ public class UpdateReservationCommandHandler(
         reservation.Lastname = command.Lastname ?? "";
         reservation.AttendeeCount = command.AttendeeCount ?? 1;
 
-        await outboxService.PublishAsync(
-            nameof(Reservation),
-            reservation.Id.ToString(),
-            new ReservationUpdatedEvent(reservation.Id),
-            cancellationToken
-        );
+        eventService
+            .To(DispatchTarget.RealtimeHub | DispatchTarget.Outbox)
+            .QueueMessage(new ReservationUpdatedEvent(reservation.Id), reservation.Id);
+        eventService
+            .To(DispatchTarget.RealtimeHub)
+            .QueueMessage(new SessionUpdated(session.Id), session.Id);
+        await eventService.DispatchAsync();
         await context.SaveChangesAsync(cancellationToken);
 
         return Result.Ok();

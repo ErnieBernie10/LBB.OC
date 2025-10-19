@@ -35,18 +35,29 @@ export class RealtimeService implements OnDestroy {
    * Similar to sessionService.getSession() pattern.
    * Automatically ensures connection is started before subscribing.
    */
-  public subscribeToTopic<T = any>(topic: string): Observable<T> {
+  public subscribeToTopic<T = any, R = any>(topic: string, identifier: R): Observable<T> {
+    const t = this.getTopic(topic, identifier);
     this.ensureStarted().then(() => {
-      if (!this.subscribedTopics.has(topic)) {
-        this.subscribe(topic);
-        this.subscribedTopics.add(topic);
+      if (!this.subscribedTopics.has(t)) {
+        this.subscribe(t);
+        this.subscribedTopics.add(t);
       }
     });
 
     return this.events$.pipe(
-      filter((event) => event.topic === topic),
+      filter((event) => event.topic === t),
       map((event) => event.payload as T)
     );
+  }
+
+  private getTopic(topic: string, identifier: any): string {
+    if (typeof identifier === 'string') {
+      return `${topic}.${identifier}`;
+    } else if (typeof identifier === 'number') {
+      return `${topic}.${identifier}`;
+    } else {
+      return topic;
+    }
   }
 
   private async ensureStarted(): Promise<void> {

@@ -1,5 +1,6 @@
 ﻿using FluentResults;
 using FluentValidation;
+using LBB.Core;
 using LBB.Core.Contracts;
 using LBB.Core.Errors;
 using LBB.Core.Mediator;
@@ -39,7 +40,7 @@ public class SessionInfoValidator : AbstractValidator<UpdateSessionInfoCommand>
 public class UpdateSessionInfoCommandHandler(
     IValidator<UpdateSessionInfoCommand> validator,
     LbbDbContext context,
-    IOutboxService outboxService
+    EventDispatcherService eventService
 ) : ICommandHandler<UpdateSessionInfoCommand, Result>
 {
     public async Task<Result> HandleAsync(
@@ -66,12 +67,10 @@ public class UpdateSessionInfoCommandHandler(
         session.End = command.End;
         session.UpdatedOn = DateTime.UtcNow;
 
-        await outboxService.PublishAsync(
-            nameof(Session),
-            session.Id.ToString(),
-            new SessionUpdated(session.Id),
-            cancellationToken
-        );
+        eventService
+            .To(DispatchTarget.RealtimeHub)
+            .QueueMessage(new SessionUpdated(session.Id), session.Id);
+        await eventService.DispatchAsync();
         await context.SaveChangesAsync(cancellationToken);
 
         return Result.Ok();
