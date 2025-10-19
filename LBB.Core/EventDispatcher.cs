@@ -72,8 +72,10 @@ public class EventDispatcherService
         await hub.Clients.Group(topic).EventReceived(topic, notification);
 
         if (identifier != null)
+        {
             topic += $".{identifier}";
-        await hub.Clients.Group(topic).EventReceived(topic, notification);
+            await hub.Clients.Group(topic).EventReceived(topic, notification);
+        }
         _logger.LogInformation("Event dispatched to RealtimeHub topic: {Topic}", topic);
     }
 
